@@ -1,0 +1,9 @@
+{
+  "name": "prototipe-bank-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PWA mobile-first, siap dibungkus TWA",
+  "scripts": {
+    "start": "npx --yes serve public -l 3000"
+  }
+}
