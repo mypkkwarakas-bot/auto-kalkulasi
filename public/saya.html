@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saya</title>
+<meta name="theme-color" content="#ea5f00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{overscroll-behavior-y:contain}</style>
+<link rel="prefetch" href="ruang-chat-cs.html">
+<style>
+@view-transition{navigation:auto}
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:.16s ease-in both vt-out}
+  ::view-transition-new(root){animation:.22s ease-out both vt-in}
+}
+@keyframes vt-out{to{opacity:0}}
+@keyframes vt-in{from{opacity:0;transform:translateY(10px)}}
+</style>
+
+<style>
+:root{--or:#ea5f00;--bg:#f6f7f8;--ln:#eee;--ff:Roboto,Arial,"Helvetica Neue",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#dfe1e5;font-family:var(--ff);color:#222}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
+img{display:block}
+.app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:70px}
+.hdr{position:sticky;top:0;z-index:10;height:95.5px;background:var(--or);color:#fff}
+.hdr>*{position:absolute}
+.hdr .g{right:49px;top:7px;width:40px;height:39px}
+.hdr .bl{right:0;top:6px;width:48px;height:40px}
+.hdr .av{left:11px;top:46px;width:37px;height:37px}
+.hdr .nm{left:54.5px;top:46.5px;font-size:16px;line-height:20px;font-weight:500}
+.hdr .ph{left:54.5px;top:68.5px;font-size:13px;line-height:18px}
+.card{position:relative;background:#fff;border-radius:8px;margin:11px 11.5px 0;box-shadow:0 1px 3px rgba(0,0,0,.16);overflow:hidden}
+.pr{height:57px;display:flex;align-items:center;padding-left:13px;gap:13px;font-size:16px;color:#222}
+.pr .ic{width:22px;height:22px}
+.pr span{padding-top:3px}
+.pr .im{position:absolute;right:0;top:0;width:134px;height:57px}
+.it{display:flex;align-items:center;height:56.25px;padding-left:13px;gap:13px}
+.it>img{width:22px;height:22px;flex:none}
+.it .b{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ln);margin-right:11px;font-size:16px;line-height:20px;color:#222}
+.it:last-child .b{border-bottom:0}
+.it .b span{white-space:nowrap;overflow:hidden;min-width:0;padding-top:3px}
+.it .b i{flex:none;width:8.5px;height:8.5px;border-right:1.3px solid #888;border-top:1.3px solid #888;transform:rotate(45deg);margin-right:13px;margin-left:8px}
+.lo{height:44.5px;display:flex;align-items:center;justify-content:center;color:var(--or);font-size:16px;font-weight:500}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:flex-start;height:calc(47.5px + env(safe-area-inset-bottom));padding-top:6.5px;z-index:20}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;line-height:12px;color:#777;flex:1}
+.nav a img{width:22px;height:22px;object-fit:contain}
+.nav a.on{color:var(--or);font-weight:500}
+.nav a.q{margin-top:-22.5px}.nav a.q img{width:44px;height:44px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+ <img class="g" src="assets/img/sy_gift.png" alt=""><img class="bl" src="assets/img/sy_bell.png" alt="">
+ <img class="av" src="assets/img/sy_avatar.png" alt="">
+ <div class="nm">Syamsur Rijal</div><div class="ph">081******146</div>
+</div>
+
+<a class="card pr" href="#"><img class="ic" src="assets/img/sy_i_promo.png" alt=""><span>Promo &amp; Bonus</span><img class="im" src="assets/img/sy_promo_img.png" alt=""></a>
+
+<div class="card">
+ <a class="it" href="#"><img src="assets/img/sy_i_profil.png" alt=""><div class="b"><span>Profil Saya</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_keamanan.png" alt=""><div class="b"><span>Keamanan Akun</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_estatement.png" alt=""><div class="b"><span>e-Statement</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_limit.png" alt=""><div class="b"><span>Pengaturan Limit dan Pembayaran</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_bifast.png" alt=""><div class="b"><span>Pengaturan BI-FAST</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_umum.png" alt=""><div class="b"><span>Pengaturan Umum</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_undang.png" alt=""><div class="b"><span>Undang Teman</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_bantuan.png" alt=""><div class="b"><span>Pusat Bantuan</span><i></i></div></a>
+ <a class="it" href="ruang-chat-cs.html"><img src="assets/img/sy_i_chat.png" alt=""><div class="b"><span>Chat dengan SeaBank</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_lokasi.png" alt=""><div class="b"><span>Lokasi SeaBank</span><i></i></div></a>
+ <a class="it" href="#"><img src="assets/img/sy_i_masukan.png" alt=""><div class="b"><span>Beri Masukan</span><i></i></div></a>
+</div>
+
+<a class="card lo" href="#">Log Out</a>
+
+<nav class="nav">
+ <a href="index.html"><img src="assets/img/nav_beranda_abu.png" alt="">Beranda</a>
+ <a href="bayar-transfer.html"><img src="assets/img/nav_bayar_transfer.png" alt="">Bayar/Transfer</a>
+ <a class="q" href="#"><img src="assets/img/nav_qris.png" alt="">QRIS</a>
+ <a href="deposito.html"><img src="assets/img/nav_deposito.png" alt="">Deposito</a>
+ <a class="on" href="saya.html"><img src="assets/img/nav_saya_oranye.png" alt="">Saya</a>
+</nav>
+</div>
+<script src="pwa.js"></script>
+</body>
+</html>

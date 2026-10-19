@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bayar/Transfer</title>
+<meta name="theme-color" content="#ea5f00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{overscroll-behavior-y:contain}</style>
+
+<style>
+:root{--or:#ea5f00;--bg:#f7f8f9;--ln:#eee;--ff:Roboto,Arial,"Helvetica Neue",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#dfe1e5;font-family:var(--ff);color:#111}
+a{text-decoration:none;color:inherit}
+button,input{font-family:inherit}
+.app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:76px}
+img{display:block}
+.hdr{position:sticky;top:0;z-index:10;background:var(--or);height:60px;display:flex;align-items:flex-start;justify-content:space-between;padding:0 8px 0 19px;color:#fff}
+.hdr h1{font-size:19px;font-weight:700;line-height:22px;margin-top:17px}
+.hdr img{width:47px;height:39px;margin-top:7px}
+.wrap{position:relative}
+.wrap:before{content:"";position:absolute;left:0;right:0;top:0;height:91px;background:var(--or)}
+.card{position:relative;background:#fff;border-radius:8px;margin:0 11.5px}
+.tf{box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.tf h2{font-size:16px;font-weight:500;padding-left:12px;height:41.5px;line-height:41.5px;border-bottom:1px solid var(--ln);color:#111}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);row-gap:16px;padding:14.5px 0 13.5px}
+.grid a{display:flex;flex-direction:column;align-items:center;font-size:13px;color:#6b6b6b;text-align:center;line-height:13.5px;gap:9px}
+.grid img{width:34px;height:34px}
+.lst{margin-top:11.5px;padding-bottom:6px}
+.tabs{display:flex;border-bottom:1px solid var(--ln);margin:0 11.5px}
+.tabs button{flex:1;background:none;border:0;border-bottom:2.5px solid transparent;font-weight:500;font-size:15.5px;color:#111;height:41.5px;padding-top:4px;margin-bottom:-1px}
+.tabs button.on{color:#fa5e00;border-color:#fa5e00}
+.sb{display:flex;align-items:center;gap:7px;background:#f2f3f5;border-radius:17px;height:33px;margin:15px 11.5px 15.75px;padding:0 10px 0 9px}
+.sb img{width:17px;height:17px}
+.sb input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:16px;color:#222}
+.sb input::placeholder{color:#c4c6ca}
+.it{display:flex;align-items:center;padding:0 0 0 15px;gap:14.5px;height:67.5px}
+.it>img{width:31px;height:31px;flex:none}
+.it .b{flex:1;height:100%;display:flex;align-items:center;border-bottom:1px solid var(--ln);margin-right:14.5px;min-width:0}
+.it:last-child .b{border-bottom:0}
+.it .t{flex:1;min-width:0;padding-top:3px}
+.it strong{display:block;font-weight:400;font-size:15.5px;line-height:21px;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it p{font-size:13.5px;color:#777;line-height:19px;margin-top:2px;display:flex;align-items:center;gap:3px}
+.it p img{width:13px;height:13px}
+.st{background:none;border:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;position:relative;margin-right:4px}
+.st img{width:19px;height:18px}
+.st svg{position:absolute;width:16px;height:15.5px;display:none}
+.st.on svg{display:block}
+.empty{text-align:center;color:#999;font-size:14px;padding:30px 0}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:flex-start;height:calc(47.5px + env(safe-area-inset-bottom));padding-top:6.5px;z-index:20}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;line-height:12px;color:#777;flex:1}
+.nav a img{width:22px;height:22px;object-fit:contain}
+.nav a.on{color:var(--or);font-weight:500}
+.nav a.q{margin-top:-22.5px}.nav a.q img{width:44px;height:44px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr"><h1>Bayar/Transfer</h1><img src="assets/img/bt_bell.png" alt=""></div>
+<div class="wrap">
+ <div class="card tf">
+  <h2>Transfer ke</h2>
+  <div class="grid">
+   <a href="#"><img src="assets/img/bt_seabank.png" alt="">SeaBank</a>
+   <a href="#"><img src="assets/img/bt_banklain.png" alt="">Bank Lain</a>
+   <a href="#"><img src="assets/img/bt_va.png" alt="">Virtual<br>Account</a>
+   <a href="#"><img src="assets/img/bt_ewallet.png" alt="">Top Up<br>E-Wallet</a>
+   <a href="#"><img src="assets/img/bt_topup.png" alt="">Top Up &amp;<br>Tagihan</a>
+   <a href="#"><img src="assets/img/bt_terjadwal.png" alt="">Transfer<br>Terjadwal</a>
+   <a href="#"><img src="assets/img/bt_setor.png" alt="">Setor Tunai</a>
+   <a href="#"><img src="assets/img/bt_tarik.png" alt="">Tarik Tunai</a>
+  </div>
+ </div>
+ <div class="card lst">
+  <div class="tabs"><button class="on" data-t="all">Terakhir</button><button data-t="fav">Favorit</button></div>
+  <label class="sb"><img src="assets/img/bt_cari.png" alt=""><input id="q" type="text" placeholder="Cari penerima di sini" autocomplete="off"></label>
+  <div id="list"></div>
+ </div>
+</div>
+<nav class="nav">
+ <a href="index.html"><img src="assets/img/nav_beranda_abu.png" alt="">Beranda</a>
+ <a class="on" href="bayar-transfer.html"><img src="assets/img/nav_bayar_oranye.png" alt="">Bayar/Transfer</a>
+ <a class="q" href="#"><img src="assets/img/nav_qris.png" alt="">QRIS</a>
+ <a href="deposito.html"><img src="assets/img/nav_deposito.png" alt="">Deposito</a>
+ <a href="saya.html"><img src="assets/img/nav_saya.png" alt="">Saya</a>
+</nav>
+</div>
+<script>
+var IC={g:"assets/img/ikon_gopay.png",p:"assets/img/ikon_orang_oranye.png",o:"assets/img/logo_ovo.png",d:"assets/img/bt_dana.png",s:"assets/img/logo_shopeepay.png",t:"assets/img/bt_telkomsel.png"};
+var SEA="assets/img/bt_seabank_kecil.png";
+var D=[
+["g","Gopay Rxxxxx","GoPay: 089526690419"],
+["p","Agung Pardede","BCA: 0070676117"],
+["p","Syamsur Rijal","BCA: 0070552388"],
+["g","Gopay Sxxxxxx","GoPay: 088707770086"],
+["o","Ovo 087862712244","OVO: 087862712244"],
+["p","Aang Junaidy","MANDIRI: 1200010924244"],
+["p","Nanda Dwi Saputra","SeaBank: 901537270661",1],
+["d","Dnid Sahxxx","Dana: 087720679325"],
+["d","Dnid Wahxxxx","Dana: 085187732442"],
+["s","Shopeepay Syaxxxx Rijxx","ShopeePay: 081401776146"],
+["p","M Hasanudin Efendi","BCA: 2400290434"],
+["d","Dnid Suwxxxx","Dana: 082123238218"],
+["o","Ovo Topup Ca***o Wi***o","OVO: 087740541031"],
+["t","Telkomsel 15.000","No. Handphone: 082211053734"]
+];
+var fav={},tab="all",STAR='<svg viewBox="0 0 24 23"><path d="M12 1.5l3.2 6.9 7.5.9-5.5 5.2 1.4 7.5L12 18.2 5.4 22l1.4-7.5L1.3 9.3l7.5-.9z" fill="#ffbf0f" stroke="#ffbf0f" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function render(){
+ var q=document.getElementById("q").value.trim().toLowerCase(),h="";
+ D.forEach(function(r,i){
+  if(tab=="fav"&&!fav[i])return;
+  if(q&&(r[1]+" "+r[2]).toLowerCase().indexOf(q)<0)return;
+  h+='<div class="it"><img src="'+IC[r[0]]+'" alt=""><div class="b"><div class="t"><strong>'+esc(r[1])+'</strong><p>'+(r[3]?'<img src="'+SEA+'" alt="">':'')+esc(r[2])+'</p></div>'
+   +'<button class="st'+(fav[i]?' on':'')+'" data-i="'+i+'"><img src="assets/img/bt_bintang.png" alt="">'+STAR+'</button></div></div>';
+ });
+ document.getElementById("list").innerHTML=h||'<div class="empty">'+(tab=="fav"&&!q?"Belum ada favorit":"Penerima tidak ditemukan")+'</div>';
+}
+document.getElementById("list").addEventListener("click",function(e){
+ var b=e.target.closest(".st");if(!b)return;var i=b.dataset.i;fav[i]=!fav[i];render();
+});
+document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){
+ document.querySelectorAll(".tabs button").forEach(function(x){x.classList.remove("on")});
+ b.classList.add("on");tab=b.dataset.t;render();
+}});
+document.getElementById("q").addEventListener("input",render);
+render();
+</script>
+<script src="pwa.js"></script>
+</body>
+</html>

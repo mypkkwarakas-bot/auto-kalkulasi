@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deposito</title>
+<meta name="theme-color" content="#ea5f00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{overscroll-behavior-y:contain}</style>
+
+<style>
+:root{--or:#ea5f00;--bg:#f6f7f8;--ln:#eee;--ff:Roboto,Arial,"Helvetica Neue",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#dfe1e5;font-family:var(--ff);color:#222}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit}
+img{display:block}
+.app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:66px}
+.hdr{position:sticky;top:0;z-index:10;height:52.5px;display:flex;align-items:center;padding:0 12px;font-size:20px;color:#222;transition:background .15s}
+.hdr.sc{background:#fff}
+.hero{position:relative;margin-top:-52.5px;height:270px;background:url(assets/img/dep_hero.jpg) 0 0/100% 270px no-repeat}
+.hero h2{position:absolute;left:19px;top:86px;font-size:26px;line-height:30.5px;font-weight:700;color:var(--or)}
+.hero p{position:absolute;left:19px;top:153px;font-size:12.7px;line-height:14.5px;color:#ec6410}
+.fl{position:relative;margin:-61px 11.5px 0;height:221px;border-radius:8px;overflow:hidden;background:linear-gradient(#ffdfc2,#fbf3ea 55%,#fafafa)}
+.fl>*{position:absolute}
+.fl .tt{left:19.5px;top:23.5px;width:138px;overflow:hidden;font-size:14.5px;line-height:20px;font-style:italic;font-weight:700;color:#222;letter-spacing:-.2px;white-space:nowrap}
+.fl .sw{left:162.5px;top:22px;width:20.5px;height:21px}
+.fl .dm{left:197px;width:52px;top:21.5px;text-align:right;font-size:12px;line-height:13.5px;color:#777}
+.cd{left:255.5px;top:19px;display:flex;gap:4.5px}
+.cd div{width:18px;text-align:center;font-size:8px;line-height:9px;color:#888}
+.cd b{display:block;width:18px;height:18px;line-height:18px;border-radius:3px;background:#222;color:#fff;font-size:13px;font-weight:500;margin-bottom:3.5px}
+.jl{left:19.5px;top:70.5px;font-size:14px;line-height:18px;font-weight:500;color:#222;display:flex;align-items:center;gap:3px}
+.jl img{width:15px;height:15px}
+.pt{left:19.5px;top:97px;width:126px;font-size:14px;line-height:16.25px;color:#666}
+.fit{display:block;white-space:nowrap;overflow:hidden}
+.pt b{color:var(--or);font-weight:700}
+.fire{left:14.5px;top:148.5px;width:53px;height:62px}
+.dls{left:148px;right:0;top:61.5px;display:flex;gap:6px;overflow-x:auto;padding:0 0 4px;scrollbar-width:none}
+.dls::-webkit-scrollbar{display:none}
+.dl{flex:0 0 127.5px;height:147px;background:#fff;border-radius:6px;padding:7.5px 9.5px 0;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.dl .m{font-size:14px;line-height:18px;color:#222}
+.dl .p{margin-top:4.5px;line-height:30px;color:var(--or);font-weight:700;font-size:22px;white-space:nowrap}
+.dl .p small{font-size:14px;font-weight:700}
+.dl s{display:block;margin-top:2.5px;font-size:13px;line-height:17px;color:#999}
+.dl .k{margin-top:4.5px;font-size:12px;line-height:16px;color:var(--or)}
+.dl button{display:block;width:108.5px;height:29.5px;margin-top:8px;background:#fff;border:1px solid var(--or);border-radius:4px;color:var(--or);font-size:14px}
+.dl button.on{background:var(--or);color:#fff}
+.card{background:#fff;border-radius:8px;margin:10.5px 11.5px 0;overflow:hidden}
+.card+.card{margin-top:11px}
+.card h3{font-size:15.5px;font-weight:500;height:41.5px;line-height:41.5px;padding-left:15.5px;border-bottom:1px solid var(--ln);color:#111}
+.dr{display:flex;align-items:center;height:70px;padding-left:15.5px}
+.dr .b{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;padding-right:15px;border-bottom:1px solid var(--ln);margin-right:0}
+.dr:last-child .b{border-bottom:0}
+.dr .b div{padding-top:3px;min-width:0;flex:1;padding-right:10px}
+.dr strong{display:block;font-size:16px;line-height:21px;font-weight:500;color:var(--or)}
+.dr span{display:block;font-size:14px;line-height:20px;margin-top:1.5px;color:#222}
+.dr button{flex:none;width:97.5px;height:26px;border:0;border-radius:3px;background:var(--or);color:#fff;font-size:14px;font-weight:500}
+.fq{display:flex;align-items:center;min-height:56px;padding:10px 0 10px 15.5px}
+.fq div{flex:1;font-size:16px;line-height:18.5px;color:#222;padding-right:14px}
+.fq i{flex:none;width:8px;height:8px;border-right:1.3px solid #888;border-top:1.3px solid #888;transform:rotate(45deg);margin-right:21px}
+.fq+.fq{border-top:1px solid var(--ln)}
+.fq:nth-of-type(n)>div{}
+.more{display:flex;justify-content:center;align-items:center;gap:6px;height:40px;color:#777;font-size:14px;border-top:1px solid var(--ln)}
+.more i{width:7px;height:7px;border-right:1.3px solid #888;border-top:1.3px solid #888;transform:rotate(45deg)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:flex-start;height:calc(47.5px + env(safe-area-inset-bottom));padding-top:6.5px;z-index:20}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;line-height:12px;color:#777;flex:1}
+.nav a img{width:22px;height:22px;object-fit:contain}
+.nav a.on{color:var(--or);font-weight:500}
+.nav a.q{margin-top:-22.5px}.nav a.q img{width:44px;height:44px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr" id="hdr">Deposito</div>
+<div class="hero"><h2>Pilihan Deposito<br>Untukmu</h2><p>Tumbuhkan dana dan dapatkan<br>keuntungan maksimal!</p></div>
+
+<div class="fl">
+ <div class="tt fit">Deposito Flash Deals</div>
+ <img class="sw" src="assets/img/ikon_flash_deals.png" alt="">
+ <div class="dm">Dimulai<br>dalam</div>
+ <div class="cd"><div><b id="h">13</b>JAM</div><div><b id="m">47</b>MNT</div><div><b id="s">07</b>DTK</div></div>
+ <div class="jl">Jangan Lewatkan <img src="assets/img/dep_api.png" alt=""></div>
+ <div class="pt"><span class="fit">Penawaran terbatas</span><span class="fit">dimulai pada <b>Senin</b></span><span class="fit"><b>7:00 PM</b></span></div>
+ <svg class="fire" viewBox="0 0 53 62"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffdcc0"/><stop offset=".55" stop-color="#ffe9d8"/><stop offset="1" stop-color="#fbf3ea"/></linearGradient></defs><path fill="url(#g)" d="M27 0C27 14 40 19 44 33 47 43 53 45 53 53 53 59 49 62 43 62H10C3 62 0 58 0 51 0 37 14 29 20 14 22 20 24 23 26 25 28 16 27 8 27 0Z"/></svg>
+ <div class="dls">
+  <div class="dl"><div class="m">1 bulan</div><div class="p">7,5<small>% p.a.</small></div><s>4,25% p.a.</s><div class="k">1,350 kuota</div><button>Ingatkan Saya</button></div>
+  <div class="dl"><div class="m">3 bulan</div><div class="p">7,5<small>% p.a.</small></div><s>5,25% p.a.</s><div class="k">400 kuota</div><button>Ingatkan Saya</button></div>
+  <div class="dl"><div class="m">6 bulan</div><div class="p">7,5<small>% p.a.</small></div><s>5,75% p.a.</s><div class="k">50 kuota</div><button>Ingatkan Saya</button></div>
+  <div class="dl"><div class="m">12 bulan</div><div class="p">7,5<small>% p.a.</small></div><s>6% p.a.</s><div class="k">50 kuota</div><button>Ingatkan Saya</button></div>
+ </div>
+</div>
+
+<div class="card">
+ <h3>Deposito Lainnya</h3>
+ <div class="dr"><div class="b"><div><strong class="fit">Deposito SeaBank</strong><span class="fit">Hingga 6% p.a</span></div><button>Buka Deposito</button></div></div>
+ <div class="dr"><div class="b"><div><strong class="fit">Deposito Cashback Xtra</strong><span class="fit">Cashback hingga Rp159.500.000</span></div><button>Buka Deposito</button></div></div>
+</div>
+
+<div class="card">
+ <h3>Pertanyaan Umum</h3>
+ <a class="fq" href="#"><div>Berapa Bunga dan tenor Deposito SeaBank?</div><i></i></a>
+ <a class="fq" href="#"><div>Apa itu Produk Deposito Berjangka SeaBank?</div><i></i></a>
+ <a class="fq" href="#"><div>Bagaimana cara membuka Deposito?</div><i></i></a>
+ <a class="more" href="#">Lihat Lebih Banyak <i></i></a>
+</div>
+
+<nav class="nav">
+ <a href="index.html"><img src="assets/img/nav_beranda_abu.png" alt="">Beranda</a>
+ <a href="bayar-transfer.html"><img src="assets/img/nav_bayar_transfer.png" alt="">Bayar/Transfer</a>
+ <a class="q" href="#"><img src="assets/img/nav_qris.png" alt="">QRIS</a>
+ <a class="on" href="deposito.html"><img src="assets/img/nav_deposito_oranye.png" alt="">Deposito</a>
+ <a href="saya.html"><img src="assets/img/nav_saya.png" alt="">Saya</a>
+</nav>
+</div>
+<script>
+(function(){
+var t=13*3600+47*60+7,h=document.getElementById('h'),m=document.getElementById('m'),s=document.getElementById('s');
+function p(n){return String(n).padStart(2,'0')}
+setInterval(function(){if(t>0)t--;h.textContent=p(t/3600|0);m.textContent=p(t%3600/60|0);s.textContent=p(t%60)},1000);
+document.querySelectorAll('.dl button').forEach(function(b){b.onclick=function(){b.classList.toggle('on');b.textContent=b.classList.contains('on')?'Diingatkan':'Ingatkan Saya'}});
+document.querySelectorAll('.fit').forEach(function(e){var fs=parseFloat(getComputedStyle(e).fontSize);while(e.scrollWidth>e.clientWidth+.5&&fs>9){fs-=.25;e.style.fontSize=fs+'px'}});
+var hd=document.getElementById('hdr');function f(){hd.classList.toggle('sc',window.scrollY>8)}
+window.addEventListener('scroll',f,{passive:true});f();
+})();
+</script>
+<script src="pwa.js"></script>
+</body>
+</html>
