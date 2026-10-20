@@ -87,6 +87,19 @@ body.scan #s-scan,body.qr #s-qr{display:flex}
 .toast{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);z-index:9;max-width:86%;background:rgba(30,30,30,.92);color:#fff;padding:9px 16px;border-radius:20px;text-align:center;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.on{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ===== Area tap & respons ===== */
+button{touch-action:manipulation}
+.ctl{width:92px;padding:6px 0 4px;margin:-6px 0 0;border-radius:12px;-webkit-user-select:none;user-select:none}
+.ctl i{transition:transform .1s ease,background .15s ease}
+.ctl:active i{transform:scale(.88)}
+.pill{position:relative;transition:background .15s ease}
+.pill::after{content:"";position:absolute;inset:-7px -10px}
+.pill:active{background:rgba(0,0,0,.78)}
+#b-back,#q-back{width:48px;height:48px;display:grid;place-items:center;margin:0 -10px 0 -14px}
+.help,.retry{position:relative}
+.help::after,.retry::after{content:"";position:absolute;inset:-6px}
+.camfix{height:48px;padding:0 26px}
+.ghost{height:48px}
 </style>
 </head>
 <body class="scan">
@@ -333,11 +346,20 @@ $('#b-retry').onclick = function(){
   this.disabled = true; this.textContent = 'Memuat…';
   setTimeout(() => { this.disabled = false; this.textContent = 'Muat Ulang'; toast('Belum bisa memuat. Hubungkan layanan QR pembayaran Anda.'); }, 900);
 };
+let torchBusy = false;
 $('#flash').onclick = async function(){
   const tr = S.stream && S.stream.getVideoTracks()[0];
-  if (!tr || !(tr.getCapabilities && tr.getCapabilities().torch)){ toast('Flash tidak didukung perangkat ini.'); return; }
-  try { S.torch = !S.torch; await tr.applyConstraints({advanced: [{torch: S.torch}]}); this.classList.toggle('on', S.torch); }
-  catch (e) { S.torch = false; toast('Flash tidak bisa dinyalakan.'); }
+  if (!tr){ toast('Kamera belum aktif.'); return; }
+  S.torch = !S.torch; this.classList.toggle('on', S.torch);   // umpan balik langsung saat ditekan
+  if (navigator.vibrate) navigator.vibrate(15);
+  if (torchBusy) return;                                       // ketukan cepat: status terakhir yang dipakai
+  torchBusy = true;
+  try {
+    let w;
+    do { w = S.torch; await tr.applyConstraints({advanced: [{torch: w}]}); } while (w !== S.torch);
+  } catch (e) {
+    S.torch = false; this.classList.remove('on'); toast('Flash tidak didukung perangkat ini.');
+  } finally { torchBusy = false; }
 };
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopCam(); else if (S.mode === 'scan' && !$('#app').classList.contains('open')) startCam(); });
 /* Uji tanpa kamera: buka halaman dengan #qris=<payload> */
