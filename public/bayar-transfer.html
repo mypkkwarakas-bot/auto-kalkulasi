@@ -291,6 +291,7 @@ img{display:block}
 .tb-gomsg:empty{display:none}
 /* daftar penyedia dari server di sheet */
 #bl .br{cursor:pointer}
+#bl .br:active{background:#f5f6f8}
 #bl .br .bl{background:#fff;border:1px solid #eee;font:700 7px Arial;color:#9aa0a6}
 #bl .br .bl img{border-radius:50%}
 #bl .bz.retry{cursor:pointer;color:#fa5e00}
@@ -576,6 +577,7 @@ function rb(){
   frag.appendChild(mk("div","bh",title));
   arr.forEach(function(p){
    var row=mk("div","br"),lg=mk("span","bl");
+   row.setAttribute("role","button");row.tabIndex=0;
    setLogo(lg,p);row.appendChild(lg);row.appendChild(document.createTextNode(p.name));
    row.dataset.i=shown.length;frag.appendChild(row);shown.push(p);
   });
@@ -612,6 +614,11 @@ bl.addEventListener("click",function(e){
  var row=e.target.closest(".br");if(!row)return;
  var p=shown[+row.dataset.i];if(p)openRek(p);
 });
+bl.addEventListener("keydown",function(e){
+ if(e.key!=="Enter"&&e.key!==" ")return;
+ var row=e.target.closest&&e.target.closest(".br");if(!row)return;
+ e.preventDefault();var p=shown[+row.dataset.i];if(p)openRek(p);
+});
 
 /* ---------- navigasi antar layar (tombol kembali & riwayat browser) ---------- */
 var level=0,pushed=0,cur=null,dest=null;
@@ -637,7 +644,7 @@ $("trfBack").addEventListener("click",back);
 var rq=$("rekQ"),rerr=$("rekErr"),rsec=$("rekSec"),rpick=$("rekPick"),busy=false;
 function labelOf(p){
  var n=String(p.name||p.code||"");
- return (tab==="rek"&&!/^bank\b/i.test(n)?"BANK "+n:n).toUpperCase();
+ return (tab==="rek"&&!/\bbank\b/i.test(n)?"BANK "+n:n).toUpperCase();
 }
 function openRek(p){
  cur={p:p,kind:tab};
@@ -668,7 +675,7 @@ function choose(){
  fetch(c.url,{method:"POST",headers:HEADERS,body:JSON.stringify({code:ref.p.code,number:num})})
  .then(function(r){return r.json().catch(function(){return {}})})
  .then(function(j){
-  if(j&&j.found)openTrf({provider:j.provider||ref.p,number:j.number||num,name:j.name});
+  if(j&&j.found)openTrf({provider:Object.assign({},ref.p,j.provider||{}),number:j.number||num,name:j.name});
   else rerr.textContent=(j&&j.message)||"Data tidak ditemukan";
  })
  .catch(function(){rerr.textContent="Gagal terhubung, coba lagi"})
@@ -703,10 +710,14 @@ function validate(){
 }
 function setSwitch(on){var s=$("trfSched");s.classList.toggle("on",on);s.setAttribute("aria-checked",on)}
 function setFav(on){favOn=on;$("trfFavIcon").setAttribute("fill",on?"#f5b800":"none");$("trfFav").setAttribute("aria-pressed",on)}
+function shortName(p){
+ var n=String((p&&(p.name||p.code))||"").replace(/_/g," ");
+ return (tab==="rek"?n.replace(/^bank\s+/i,""):n).toUpperCase();
+}
 function openTrf(d){
  dest=d;
  $("trfName").textContent=d.name;
- $("trfSub").textContent=String((d.provider&&d.provider.code)||"").toUpperCase()+": "+d.number;
+ $("trfSub").textContent=shortName(d.provider)+": "+d.number;
  amt.value="";$("trfNote").value="";$("trfNoteCnt").textContent="0/16";
  setSwitch(false);setFav(false);renderAccount();validate();
  go(2);
