@@ -1,0 +1,33 @@
+{
+  "packageId": "com.example.prototipebank",
+  "host": "GANTI-DOMAIN-KAMU.com",
+  "name": "Prototipe Bank",
+  "launcherName": "Prototipe",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#ea5f00",
+  "themeColorDark": "#ea5f00",
+  "navigationColor": "#ffffff",
+  "navigationColorDark": "#ffffff",
+  "navigationDividerColor": "#eeeeee",
+  "navigationDividerColorDark": "#eeeeee",
+  "backgroundColor": "#ffffff",
+  "startUrl": "/",
+  "iconUrl": "https://GANTI-DOMAIN-KAMU.com/icons/icon-512.png",
+  "maskableIconUrl": "https://GANTI-DOMAIN-KAMU.com/icons/maskable-512.png",
+  "webManifestUrl": "https://GANTI-DOMAIN-KAMU.com/manifest.webmanifest",
+  "fullScopeUrl": "https://GANTI-DOMAIN-KAMU.com/",
+  "enableNotifications": false,
+  "fallbackType": "customtabs",
+  "minSdkVersion": 21,
+  "appVersionName": "1.0.0",
+  "appVersion": "1",
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "splashScreenFadeOutDuration": 300,
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false
+}
