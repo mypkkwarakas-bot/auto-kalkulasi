@@ -58,7 +58,169 @@ img{display:block}
 .nav a{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;line-height:12px;color:#777;flex:1}
 .nav a img{width:22px;height:22px;object-fit:contain}
 .nav a.on{color:var(--or);font-weight:500}
-.nav a.q{position:relative;margin-top:-31px;z-index:2;color:#8a8a8a;-webkit-user-select:none;user-select:none}.nav a.q .qb{width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:linear-gradient(160deg,#ff7a1a 0%,#f05a00 100%);box-shadow:0 3px 10px rgba(232,97,0,.38);display:grid;place-items:center;transition:transform .12s ease,box-shadow .12s ease}.nav a.q .qb svg{width:28px;height:28px;display:block}.nav a.q:active .qb{transform:scale(.93);box-shadow:0 1px 5px rgba(232,97,0,.4)}.nav a.q:focus-visible{outline:none}.nav a.q:focus-visible .qb{outline:2px solid var(--or);outline-offset:2px}@media (prefers-reduced-motion:reduce){.nav a.q .qb{transition:none}}
+.nav a.q{margin-top:-22.5px}.nav a.q img{width:44px;height:44px}
+
+/* ===== Sheets & pages ===== */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;background:#fff;border-radius:16px 16px 0 0;z-index:51;transform:translate(-50%,100%);transition:transform .28s ease;max-height:88vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.on{transform:translate(-50%,0)}
+.sh{display:flex;align-items:center;justify-content:space-between;height:55px;padding:0 20px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:2}
+.sh b{font-size:16px;font-weight:500;color:#222}
+.sh button{background:none;border:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin-right:-6px}
+.sh svg{width:20px;height:20px}
+.sh2{font-size:16px;font-weight:500;color:#222;padding:15px 20px 12px}
+.ewc{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;padding:0 20px 16px}
+.ec{background:#f5f6f8;border:1px solid #e3e4e7;border-radius:8px;overflow:hidden;text-align:center;position:relative;display:flex;flex-direction:column;justify-content:space-between}
+.ec .m{padding:12px 2px 10px}
+.ec .m .lg{margin:0 auto 6px}
+.ec .n{font-size:13px;color:#222;line-height:18px}
+.ec .v{font-size:13px;font-weight:700;color:#222;margin-top:7px;line-height:18px}
+.ec .h{font-size:13px;color:#fa5e00;font-weight:500;margin-top:7px;line-height:18px}
+.ec .bo{background:#fff3ec;border-top:1px solid #ffb58a;color:#fa5e00;font-weight:500;font-size:13.5px;padding:9px 0}
+.bd{position:absolute;top:-1px;right:-1px;background:#ffd59a;color:#7a3a00;font-size:9.5px;font-weight:500;padding:1px 7px;border-radius:0 8px 0 8px;line-height:14px}
+.eg{display:grid;grid-template-columns:repeat(3,1fr);row-gap:14px;padding:4px 10px 24px}
+.eg div{display:flex;flex-direction:column;align-items:center;font-size:14px;color:#333;gap:6px;position:relative}
+.eg .bw{position:relative}
+.eg .bd{top:-4px;right:-26px;border-radius:5px 5px 5px 0}
+.lg{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;flex:none}
+.ec .lg{width:34px;height:34px}
+.lg svg{width:60%;height:60%}
+.pg{position:fixed;inset:0;left:50%;width:100%;max-width:480px;transform:translateX(-50%);background:#f5f6f8;z-index:60;overflow-y:auto;display:none}
+.pg.on{display:block}
+.ph{display:flex;align-items:center;height:52px;background:#fff;padding:0 12px 0 14px;gap:22px;position:sticky;top:0;z-index:2}
+.ph b{font-size:18px;font-weight:500;color:#222}
+.ph button{background:none;border:0;width:24px;height:30px;display:flex;align-items:center}
+.ph svg{width:12px;height:20px}
+.bx{background:#fff;border-radius:8px;margin:8px 11px 0}
+.bx h3{font-size:16px;font-weight:500;color:#222;padding:0 15px;height:49px;line-height:49px;border-bottom:1px solid #eee}
+.mg{display:grid;padding:13px 0 12px;row-gap:14px}
+.mg.c3{grid-template-columns:repeat(3,1fr)}.mg.c4{grid-template-columns:repeat(4,1fr)}
+.mg div{display:flex;flex-direction:column;align-items:center;font-size:12.5px;color:#666;text-align:center;line-height:14.5px;gap:8px;padding:0 2px}
+.ci{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.ci svg{width:18px;height:18px}
+.ci.o{background:#fff1e8;color:#fa5e00}.ci.b{background:#eef3ff;color:#2962ff}
+.hero{background:linear-gradient(#fa5e00 0,#fa5e00 62%,#f7f8f9 100%);height:300px;position:absolute;top:0;left:0;right:0}
+.hero h2{position:absolute;left:30px;top:70px;color:#fff;font-size:24px;line-height:29px;font-weight:700;text-shadow:0 2px 3px rgba(0,0,0,.25);width:170px}
+.hero svg.il{position:absolute;right:10px;top:55px;width:170px}
+.tj{position:relative;margin:185px 15px 0;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.15);padding:6px 15px 4px}
+.tj div{display:flex;gap:16px;align-items:center;padding:16px 0}
+.tj .ti{width:46px;height:46px;flex:none;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.tj svg{width:36px;height:36px}
+.tj b{display:block;font-size:15px;font-weight:500;color:#222;line-height:21px}
+.tj span{display:block;font-size:14px;color:#666;line-height:19px;margin-top:2px}
+.pb{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;padding:12px 12px calc(10px + env(safe-area-inset-bottom))}
+.pb button{width:100%;height:50px;border:0;border-radius:6px;background:#fa5e00;color:#fff;font-size:16px;font-weight:500}
+.sr{display:flex;align-items:center;gap:15px;padding:0 20px;height:92px}
+.sr+.sr{}
+.sr .x{flex:1;padding:14px 0}
+.sr b{display:block;font-size:18px;font-weight:500;color:#222;line-height:24px}
+.sr span{display:block;font-size:14.5px;color:#777;line-height:20px;margin-top:6px}
+.sr .lg{width:46px;height:46px;background:#fff;border:1px solid #eee}
+.sr .pl{width:40px;height:40px;border:2px solid #fa5e00;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#fa5e00;margin-left:3px}
+.mm{display:flex;gap:20px;padding:14px 22px 16px}
+.mm div{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:15px;color:#333}
+.mm .lg{width:68px;height:68px;background:#fff;border:1px solid #ececec}
+.mm .lg{width:68px;height:68px}
+.alfa{font:italic 900 15px/1 Arial,sans-serif;color:#e4002b;letter-spacing:-.5px;text-align:center}
+.alfa i{color:#0b4ea2;font-style:italic}
+.alfa u{display:block;height:3px;background:#e4002b;margin-top:2px;text-decoration:none}
+.indo{width:46px;height:26px;border-radius:3px;background:linear-gradient(#e4002b 0 30%,#fff 30% 36%,#0b4ea2 36% 66%,#fcd116 66%);display:flex;align-items:center;justify-content:center;font:italic 900 7px Arial;color:#fff;border:1.5px solid #fff;outline:1px solid #e4002b}
+
+#sh-bank{height:76vh}
+#sh-bank .sh{justify-content:center;height:49px;border-bottom:1px solid #eee}
+#sh-bank .sh b{font-size:16px}
+#sh-bank .sh button{position:absolute;right:14px;top:8px}
+.bt{display:flex;border-bottom:1px solid #eee;position:sticky;top:49px;background:#fff;z-index:2}
+.bt button{flex:1;height:52px;background:none;border:0;border-bottom:3px solid transparent;margin:0 0 -1px;font-size:16px;font-weight:500;color:#111;font-family:inherit}
+.bt button.on{color:#fa5e00;border-color:#fa5e00;margin:0 11.5px -1px 11.5px;flex:1}
+.bs{display:flex;align-items:center;gap:8px;background:#f5f6f8;height:36px;margin:19px 15px 15px;padding:0 8px}
+.bs svg{width:16px;height:16px;flex:none}
+.bs input{flex:1;border:0;background:none;outline:0;font-size:16px;font-family:inherit;color:#222;min-width:0}
+.bs input::placeholder{color:#c9cbd0}
+.bh{background:#f7f8f9;color:#666;font-size:13px;height:29px;line-height:29px;padding:0 15px}
+.br{display:flex;align-items:center;gap:15px;height:52px;padding:0 15px;font-size:16.5px;color:#222;text-transform:uppercase}
+.br .bl{width:22px;height:22px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;font:700 6px Arial}
+.br .bl svg{width:100%;height:100%}
+.bz{padding:28px 0;text-align:center;color:#999;font-size:14px}
+
+/* ===== audit v2: ukuran disesuaikan dengan screenshot (720px = 360dp) ===== */
+.sh{height:55px;padding:0 10px 0 15px}
+.sh b{font-size:15px;font-weight:500}
+.sh button{width:29px;height:29px;margin:0}
+.sh svg{width:14px;height:14px}
+#sh-bank .sh{height:49px;justify-content:center;padding:0}
+#sh-bank .sh button{position:absolute;right:10px;top:10px}
+#sh-setor .sh{height:49px}
+.sh2{font-size:15px;font-weight:500;color:#222;padding:15px 20px 14px;line-height:20px}
+.ewc{padding:0 20px 6px;gap:12px;align-items:start}
+.ec .m{padding:12.5px 2px 10px}
+.ec .m .lg{margin:0 auto 5px}
+.ec .n{font-size:13.3px;line-height:18px}
+.ec .v{font-size:12px;margin-top:5px;line-height:18px}
+.ec .h{font-size:13.3px;margin-top:5px;line-height:18px}
+.ec .bo{height:38px;display:flex;align-items:center;justify-content:center;padding:0;font-size:13px}
+.bd{top:6px;right:7px;left:auto;border-radius:4px;font-size:10px;line-height:14.5px;padding:0 5px;background:#ffd699;color:#7a3a00}
+.eg{padding:8px 15px 20px;row-gap:21px}
+.eg div{font-size:13.3px;gap:5.5px;line-height:18px}
+.eg .lg{width:41px;height:41px}
+.eg .bd{top:-6px;right:-22px}
+[data-l=astra],[data-l=isaku]{border:1px solid #eee;box-sizing:border-box}
+.ph{height:47px;padding:0 0 0 19px;gap:20px}
+.ph b{font-size:18px}
+.ph button{width:8.5px;height:30px;padding:0;margin:0}
+.ph svg{width:8.5px;height:14px}
+.bx{margin:11.5px 11.5px 0}
+.bx h3{font-size:15px;color:#111}
+.mg{padding:15px 3px 14px;row-gap:18.5px}
+.mg.c3,.mg.c4{grid-template-columns:repeat(4,1fr)}
+.mg div{font-size:12.5px;gap:8px;line-height:14.5px;padding:0}
+.ci svg{width:18px;height:18px}
+.ci.o{--cb:#fff1e8}.ci.b{--cb:#eef3ff}
+.mm{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:15px 3px 13px}
+.mm div{display:flex;flex-direction:column;align-items:center;gap:11px;font-size:14px;color:#222;line-height:20px}
+.mm .lg{width:34px;height:34px;background:#fff;border:1px solid #ececec;box-sizing:border-box}
+.mm .lg svg,.sr .lg svg{width:auto;height:auto}
+.sr{padding:0 15px;gap:6.5px;height:auto;align-items:center}
+.sh+.sr{margin-top:25px}
+.sr+.sr{margin-top:34px;margin-bottom:23px}
+.sr .ic{width:24px;flex:none;display:flex;justify-content:center}
+.sr .lg{width:23px;height:23px;background:#fff;border:1px solid #eee;box-sizing:border-box}
+.sr .x{padding:0}
+.sr b{font-size:15px;line-height:22px;font-weight:500;color:#222}
+.sr .x span{font-size:12.5px;line-height:14px;margin-top:6px;color:#757575}
+.hb{position:absolute;left:19px;top:16.5px;width:9px;height:14px;background:none;border:0;padding:0;z-index:3}
+.hb svg{width:8.5px;height:14px}
+.hero h2{left:31px;top:58.5px;font-size:23px;width:140px}
+.tj{margin:185px 15px 0;padding:17px 20px 16px}
+.tj p{margin:0}
+.tj div{padding:0;height:85px;gap:15.5px}
+.tj .ti{width:47px;height:47px}
+.tj svg{width:47px;height:47px}
+.tj b{font-size:13.5px;line-height:18px}
+.tj span{font-size:13.5px;line-height:15.5px;margin-top:3px}
+.pb{padding:12px 11.5px calc(10.5px + env(safe-area-inset-bottom))}
+.pb button{height:48.5px;font-size:15px}
+.bt button{font-size:15px}
+.bt button.on{margin:0 5px -1px 11.5px}
+.bs svg{width:15px;height:15px}
+.bs input{font-size:15px}
+.bh{font-size:12.3px;height:28.5px;line-height:28.5px}
+.br{font-size:15px;gap:8.5px;height:52.5px}
+.br+.bh{margin-top:4px}
+.bh+.br{margin-top:4px}
+.br:last-child{margin-bottom:4px}
+
+/* ===== aset presisi dari screenshot ===== */
+.sh button img{width:14.5px;height:14.5px}
+.bs img{width:17px;height:17px;flex:none}
+.ph button img,.hb img{width:8.5px;height:14px;object-fit:contain}
+.hero img.il{position:absolute;right:10px;top:55px;width:185px}
+.tj .ti img{flex:none}
+.br .bl{width:23.5px;height:23.5px;margin:0 -1px 0 -.5px;background:none}
+.br .bl img{width:100%;height:100%;object-fit:contain}
+.br.off{color:#bdbdbd}
+.br .mt{margin-left:auto;background:#f0f1f2;color:#666;font-size:10.5px;line-height:16px;height:16px;padding:0 6px;border-radius:8px;text-transform:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -68,14 +230,14 @@ img{display:block}
  <div class="card tf">
   <h2>Transfer ke</h2>
   <div class="grid">
-   <a href="#"><img src="assets/img/bt_seabank.png" alt="">SeaBank</a>
-   <a href="#"><img src="assets/img/bt_banklain.png" alt="">Bank Lain</a>
-   <a href="#"><img src="assets/img/bt_va.png" alt="">Virtual<br>Account</a>
-   <a href="#"><img src="assets/img/bt_ewallet.png" alt="">Top Up<br>E-Wallet</a>
-   <a href="#"><img src="assets/img/bt_topup.png" alt="">Top Up &amp;<br>Tagihan</a>
-   <a href="#"><img src="assets/img/bt_terjadwal.png" alt="">Transfer<br>Terjadwal</a>
-   <a href="#"><img src="assets/img/bt_setor.png" alt="">Setor Tunai</a>
-   <a href="#"><img src="assets/img/bt_tarik.png" alt="">Tarik Tunai</a>
+   <a href="#" data-a="seabank"><img src="assets/img/bt_seabank.png" alt="">SeaBank</a>
+   <a href="#" data-a="banklain"><img src="assets/img/bt_banklain.png" alt="">Bank Lain</a>
+   <a href="#" data-a="va"><img src="assets/img/bt_va.png" alt="">Virtual<br>Account</a>
+   <a href="#" data-a="ew"><img src="assets/img/bt_ewallet.png" alt="">Top Up<br>E-Wallet</a>
+   <a href="#" data-a="tt"><img src="assets/img/bt_topup.png" alt="">Top Up &amp;<br>Tagihan</a>
+   <a href="#" data-a="tj"><img src="assets/img/bt_terjadwal.png" alt="">Transfer<br>Terjadwal</a>
+   <a href="#" data-a="setor"><img src="assets/img/bt_setor.png" alt="">Setor Tunai</a>
+   <a href="#" data-a="tarik"><img src="assets/img/bt_tarik.png" alt="">Tarik Tunai</a>
   </div>
  </div>
  <div class="card lst">
@@ -87,10 +249,69 @@ img{display:block}
 <nav class="nav">
  <a href="index.html"><img src="assets/img/nav_beranda_abu.png" alt="">Beranda</a>
  <a class="on" href="bayar-transfer.html"><img src="assets/img/nav_bayar_oranye.png" alt="">Bayar/Transfer</a>
- <a class="q" href="scan-qris.html" aria-label="Scan QRIS"><span class="qb"><svg viewBox="0 0 30 30" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10V6a3 3 0 0 1 3-3h4M20 3h4a3 3 0 0 1 3 3v4M27 20v4a3 3 0 0 1-3 3h-4M10 27H6a3 3 0 0 1-3-3v-4"/><rect x="8.5" y="8.5" width="5" height="5" rx=".8"/><rect x="16.5" y="8.5" width="5" height="5" rx=".8"/><rect x="8.5" y="16.5" width="5" height="5" rx=".8"/><path d="M17 17.5h4v2.5h-4v2.5h4M5 15h20"/></svg></span>QRIS</a>
+ <a class="q" href="#"><img src="assets/img/nav_qris.png" alt="">QRIS</a>
  <a href="deposito.html"><img src="assets/img/nav_deposito.png" alt="">Deposito</a>
  <a href="saya.html"><img src="assets/img/nav_saya.png" alt="">Saya</a>
 </nav>
+</div>
+
+<div class="ov" id="ov"></div>
+<div class="sheet" id="sh-ew">
+ <div class="sh"><b>Pilih E-Wallet</b><button data-x><img src="assets/img/ic_close.png" alt=""></button></div>
+ <div class="sh2">E-Wallet Terhubung</div>
+ <div class="ewc">
+  <div class="ec"><div class="m"><div class="lg" data-l="shopee"></div><div class="n">B******d</div><div class="v">Rp 2.347</div></div><div class="bo">Buka App →</div></div>
+  <div class="ec"><div class="m"><div class="lg" data-l="ovo"></div><div class="n">OVO</div><div class="h">Hubungkan ›</div></div></div>
+  <div class="ec"><span class="bd">Baru</span><div class="m"><div class="lg" data-l="astra" style="background:#fff"></div><div class="n">AstraPay</div><div class="h">Hubungkan ›</div></div></div>
+ </div>
+ <div class="sh2">E-Wallet Lainnya</div>
+ <div class="eg">
+  <div><span class="bw"><span class="bd">Gratis</span><span class="lg" data-l="shopee"></span></span>ShopeePay</div>
+  <div><span class="lg" data-l="gopay"></span>GoPay</div>
+  <div><span class="lg" data-l="ovo"></span>OVO</div>
+  <div><span class="lg" data-l="dana"></span>Dana</div>
+  <div><span class="lg" data-l="link"></span>LinkAja</div>
+  <div><span class="lg" data-l="isaku" style="background:#fff;border:1px solid #eee"></span>i.Saku</div>
+  <div><span class="bw"><span class="bd">Baru</span><span class="lg" data-l="astra" style="background:#fff"></span></span>AstraPay</div>
+ </div>
+</div>
+
+<div class="sheet" id="sh-setor">
+ <div class="sh"><b>Setor Tunai</b><button data-x><img src="assets/img/ic_close.png" alt=""></button></div>
+ <div class="sr"><div class="ic"><div class="lg"><svg viewBox="0 0 30 12" style="width:17px;height:7px"><rect x=".5" y=".5" width="29" height="11" rx="2.5" fill="#fff" stroke="#e4002b"/><rect x="1.5" y="1.5" width="27" height="2.2" fill="#e4002b"/><rect x="1.5" y="3.7" width="27" height="4.6" fill="#0b4ea2"/><text x="15" y="7.2" font-size="3.8" font-weight="700" font-style="italic" fill="#fff" text-anchor="middle" font-family="Arial">Indomaret</text><rect x="1.5" y="8.3" width="27" height="2.2" fill="#fcd116"/></svg></div></div><div class="x"><b>Indomaret</b><span>Setor tunai di gerai Indomaret terdekat</span></div></div>
+ <div class="sr"><div class="ic"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#fa5e00" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2.5h-10a1 1 0 00-1 1v12a1 1 0 001 1h8"/><path d="M13.5 2.5h1.5a1 1 0 011 1v4.500"/><path d="M8 7v6M5 10h6"/><path d="M12.500 15.500h6M16.500 13l2.500 2.500-2.500 2.500"/></svg></div><div class="x"><b>Cara Lainnya</b><span>Tambah saldo melalui mobile banking, ATM, SMS banking, aplikasi Shopee, dll.</span></div></div>
+</div>
+
+<div class="sheet" id="sh-bank">
+ <div class="sh"><b>Pilih Metode Transaksi</b><button data-x><img src="assets/img/ic_close.png" alt=""></button></div>
+ <div class="bt"><button class="on" data-bt="rek">No. Rekening</button><button data-bt="hp">No. Handphone</button></div>
+ <label class="bs"><img src="assets/img/ic_cari.png" alt=""><input id="bq" type="text" placeholder="Klik untuk mencari bank" autocomplete="off"></label>
+ <div id="bl"></div>
+</div>
+<div class="pg" id="pg-tt">
+ <div class="ph"><button data-b><img src="assets/img/ic_back_dark.png" alt=""></button><b>Top Up &amp; Tagihan</b></div>
+ <div class="bx"><h3>Top Up</h3><div class="mg c3" id="g-top"></div></div>
+ <div class="bx"><h3>Tagihan</h3><div class="mg c4" id="g-tag"></div></div>
+</div>
+
+<div class="pg" id="pg-tj" style="background:#f5f6f8">
+ <div class="hero"><button class="hb" data-b><img src="assets/img/ic_back_white.png" alt=""></button><h2>Transfer Terjadwal, Tanpa Khawatir</h2>
+  <img class="il" src="assets/img/tj_hero.png" alt=""></div>
+ <div class="tj">
+  <div><span class="ti"><img src="assets/img/tj_jadwal.png" alt="" style="width:47.5px;height:auto"></span><p><b>Jadwalkan Transfer ke Depan</b><span>Atur transfer sesuai kebutuhanmu, sekali atau berulang.</span></p></div>
+  <div><span class="ti"><img src="assets/img/tj_pengaturan.png" alt="" style="width:43px;height:auto"></span><p><b>Pengaturan Fleksibel</b><span>Batalkan jadwal transfer kapan saja sebelum waktunya.</span></p></div>
+  <div><span class="ti"><img src="assets/img/tj_notifikasi.png" alt="" style="width:50.5px;height:auto"></span><p><b>Dapatkan Notifikasi</b><span>Terima notifikasi saat transfer terjadwal dilakukan.</span></p></div>
+ </div>
+ <div class="pb"><button>Buat Jadwal Transfer</button></div>
+</div>
+<button data-b style="display:none"></button>
+
+<div class="pg" id="pg-tarik">
+ <div class="ph"><button data-b><img src="assets/img/ic_back_dark.png" alt=""></button><b>Tarik Tunai</b></div>
+ <div class="bx"><h3>Minimarket / Mitra</h3><div class="mm">
+  <div><span class="lg"><svg viewBox="0 0 28 14" style="width:28px;height:14px"><text x="0" y="8" font-family="Arial" font-weight="900" font-size="8.5" letter-spacing="-.3"><tspan fill="#1456a8">Alfa</tspan><tspan fill="#e4002b" font-style="italic">mart</tspan></text><rect x="0" y="9.5" width="28" height="3" rx="1.2" fill="#e4002b"/></svg></span>Alfamart</div>
+  <div><span class="lg"><svg viewBox="0 0 30 12" style="width:29px;height:11.5px"><rect x=".5" y=".5" width="29" height="11" rx="2.5" fill="#fff" stroke="#e4002b"/><rect x="1.5" y="1.5" width="27" height="2.2" fill="#e4002b"/><rect x="1.5" y="3.7" width="27" height="4.6" fill="#0b4ea2"/><text x="15" y="7.2" font-size="3.8" font-weight="700" font-style="italic" fill="#fff" text-anchor="middle" font-family="Arial">Indomaret</text><rect x="1.5" y="8.3" width="27" height="2.2" fill="#fcd116"/></svg></span>Indomaret</div>
+ </div></div>
 </div>
 <script>
 var IC={g:"assets/img/ikon_gopay.png",p:"assets/img/ikon_orang_oranye.png",o:"assets/img/logo_ovo.png",d:"assets/img/bt_dana.png",s:"assets/img/logo_shopeepay.png",t:"assets/img/bt_telkomsel.png"};
@@ -132,6 +353,69 @@ document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function
 }});
 document.getElementById("q").addEventListener("input",render);
 render();
+</script>
+<script>
+/* ===== Sheets & pages logic ===== */
+(function(){
+var P={
+shopee:'<svg viewBox="0 0 24 24"><rect x="4" y="6.5" width="16" height="13" rx="3" fill="#fff"/><path d="M6.500 6.500L16.500 4v2.500z" fill="#fff"/><text x="12" y="16.600" font-size="9.500" font-weight="700" fill="#ee4d2d" text-anchor="middle" font-family="Arial">S</text></svg>',
+ovo:'<b style="font:800 14px Arial;letter-spacing:.3px">OVO</b>',
+gopay:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3.500" fill="#fff"/><rect x="3" y="6" width="14" height="4" rx="2" fill="#fff"/><circle cx="16.500" cy="13.500" r="1.400" fill="#4aaed6"/></svg>',
+dana:'<svg viewBox="0 0 24 24"><path d="M2 8c4-3 6 2 10 0s6-2 10 0v8c-4-2-6-2-10 0s-6 3-10 0z" fill="#fff" transform="scale(.85) translate(2 2)"/></svg>',
+link:'<b style="font:italic 900 9px/9px Arial;text-align:center">Link<br>Aja!</b>',
+isaku:'<svg viewBox="0 0 24 24"><circle cx="12" cy="3.500" r="1.700" fill="#f5a623"/><rect x="7" y="6.500" width="10" height="15" rx="3" fill="#1b5fa8"/><rect x="10.500" y="10" width="3" height="8" rx="1" fill="#fff"/></svg>',
+astra:'<svg viewBox="0 0 24 24" style="width:90%;height:90%"><path d="M12 3c3.500 0 6 2.500 7 5.500l-2.300 1.500c-.8-2-2.600-3.200-4.700-3.200S8 9 7.300 10L5 8.500C6 5.500 8.500 3 12 3z" fill="#1b4fc4"/><path d="M8.500 11.500c1-1.300 2.200-1.800 3.500-1.800s2.500.5 3.500 1.800L13.800 14c-.5.600-1 .9-1.800.9s-1.300-.3-1.800-.9z" fill="#f5c400"/><text x="12" y="20.500" font-size="4.500" font-weight="700" fill="#1b4fc4" text-anchor="middle" font-family="Arial">AstraPay</text></svg>'};
+var BG={shopee:'#ee4d2d',ovo:'#4c2a86',gopay:'#4aaed6',dana:'#118eea',link:'#e12027',isaku:'#fff',astra:'#fff'};
+document.querySelectorAll('[data-l]').forEach(function(e){var k=e.dataset.l;e.classList.add('lg');if(!e.style.background)e.style.background=BG[k];e.innerHTML=P[k]});
+var I={
+pulsa:'<rect x="4" y="2" width="12" height="19" rx="2.6"/><rect x="7.5" y="4.3" width="5" height="1.3" rx=".6" style="fill:var(--cb)"/><circle cx="17" cy="16.5" r="5.5" style="stroke:var(--cb)" stroke-width="1.6"/><text x="17" y="18.6" font-size="5.6" font-weight="700" text-anchor="middle" font-family="Arial" style="fill:var(--cb)">Rp</text>',
+data:'<rect x="4" y="2" width="12" height="19" rx="2.6"/><rect x="7.5" y="4.3" width="5" height="1.3" rx=".6" style="fill:var(--cb)"/><circle cx="17" cy="16.5" r="5.5" style="stroke:var(--cb)" stroke-width="1.6"/><path d="M14.200 16.200a4 4 0 015.600 0M15.500 17.600a2.100 2.100 0 013 0" fill="none" stroke-width="1.200" stroke-linecap="round" style="stroke:var(--cb)"/><circle cx="17" cy="19.200" r=".9" style="fill:var(--cb)"/>',
+roam:'<circle cx="12" cy="12" r="10"/><path d="M5.500 7.500c1.500-1 3-.5 4 .5s2 0 3 1-1 2.500-2 3-1.500 2.500-3 2.500c-1-1.500-2.500-3.500-2-7.500zM14 4.500c1.500.5 3 1 4.500 2.500s.5 2.500-1 3-1.500 2-1 3.500-1.500 3-2.500 3c1-3-.5-4-1.500-5.500s.5-5 1.500-6.500z" style="fill:var(--cb)"/>',
+pln:'<rect x="3" y="3" width="18" height="18" rx="4.500"/><path d="M13 4.500L7.500 13h3.500l-1 6.500L16.500 11H13z" style="fill:var(--cb)"/>',
+kk:'<rect x="2" y="5" width="20" height="14" rx="3"/><rect x="2" y="9" width="20" height="2.500" style="fill:var(--cb)"/><rect x="5" y="14" width="6" height="1.800" rx=".5" style="fill:var(--cb)"/>',
+tv:'<path d="M4 9l10 10c-5 1-9-3-10-10z"/><path d="M9.500 14.500l4-7" fill="none" stroke-width="1.500" stroke="currentColor"/><circle cx="14" cy="7" r="1.600"/><path d="M15.500 3.500a6 6 0 015 5M15 6.500a3 3 0 012.500 2.500" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round"/><rect x="8" y="20.200" width="9" height="1.800" rx=".9"/>',
+bpjs:'<path d="M2 8c3-3 6-3 9-1l4 3-3 2-3-1-3 2z"/><path d="M22 16c-3 3-6 3-9 1l-4-3 3-2 3 1 3-2z"/>',
+pdam:'<rect x="3" y="3" width="18" height="18" rx="4.500"/><path d="M12 6c3 4 4.500 6 4.500 8a4.500 4.500 0 01-9 0c0-2 1.500-4 4.500-8z" style="fill:var(--cb)"/><path d="M10.500 14.500a1.700 1.700 0 001.700 1.700" fill="none" stroke="currentColor" stroke-width="1.300" stroke-linecap="round"/>',
+ang:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><g style="fill:var(--cb)"><rect x="6" y="10" width="3" height="3" rx=".6"/><rect x="10.500" y="10" width="3" height="3" rx=".6"/><rect x="15" y="10" width="3" height="3" rx=".6"/><rect x="6" y="15" width="3" height="3" rx=".6"/><rect x="10.500" y="15" width="3" height="3" rx=".6"/></g>',
+pbb:'<path d="M12 2l9 7v12H3V9z"/><path d="M8 12h8M8 15h8M8 18h5" stroke-width="1.500" style="stroke:var(--cb)"/>',
+tel:'<path d="M4 9c4-5 12-5 16 0l-3 3c-3-2-7-2-10 0z"/><path d="M6 14h12v5a2 2 0 01-2 2H8a2 2 0 01-2-2z"/><circle cx="12" cy="17" r="2" style="fill:var(--cb)"/>',
+pasca:'<rect x="4" y="2" width="12" height="19" rx="2.6"/><rect x="7.5" y="4.3" width="5" height="1.3" rx=".6" style="fill:var(--cb)"/><circle cx="17" cy="16.5" r="5.5" style="stroke:var(--cb)" stroke-width="1.6"/><text x="17" y="18.6" font-size="5.6" font-weight="700" text-anchor="middle" font-family="Arial" style="fill:var(--cb)">Rp</text>',
+edu:'<path d="M12 3L1 9l11 6 9-4.900V16h2V9z"/><path d="M5 13v4c0 1.500 3 3 7 3s7-1.500 7-3v-4l-7 3.800z"/>',
+don:'<path d="M12 12.500C8 9.500 7 7.800 7 6.300a2.800 2.800 0 015-1.700 2.800 2.800 0 015 1.700c0 1.500-1 3.200-5 6.200z"/><path d="M2 15.500l3-1 5 1.200h3.500a1.500 1.500 0 010 3H10l7.500-.5 4.500-3.200a1.300 1.300 0 011.500 2L17 21H8L2 19.500z"/>',
+pgn:'<path d="M12 2c1 4 6 6 6 12a6 6 0 01-12 0c0-3 2-4 3-7 1 1 1.500 2 1.500 3 1-1 1.500-4 1.500-8z"/><path d="M12 21a2.500 2.500 0 01-2.500-2.500c0-1.500 1.500-2 2.500-3.500 1 1.500 2.500 2 2.500 3.500A2.500 2.500 0 0112 21z" style="fill:var(--cb)"/>'};
+function mk(id,cls,list){document.getElementById(id).innerHTML=list.map(function(x){return '<div><span class="ci '+cls+'"><svg viewBox="0 0 24 24" fill="currentColor">'+I[x[0]]+'</svg></span>'+x[1]+'</div>'}).join('')}
+mk('g-top','o',[['pulsa','Pulsa'],['data','Data'],['roam','Roaming']]);
+mk('g-tag','b',[['pln','PLN'],['kk','Kartu Kredit'],['tv','TV Kabel &amp;<br>Internet'],['bpjs','BPJS'],['pdam','PDAM'],['ang','Angsuran<br>Kredit'],['pbb','PBB'],['tel','Telkom'],['pasca','Pascabayar'],['edu','Edukasi'],['don','Donasi &amp;<br>Zakat'],['pgn','PGN']]);
+var ov=document.getElementById('ov'),open=null;
+function closeAll(){document.querySelectorAll('.sheet.on,.pg.on').forEach(function(e){e.classList.remove('on')});ov.classList.remove('on');open=null}
+function show(id,sheet){closeAll();var e=document.getElementById(id);e.classList.add('on');if(sheet)ov.classList.add('on')}
+ov.onclick=closeAll;
+document.querySelectorAll('[data-x],[data-b]').forEach(function(b){b.onclick=closeAll});
+var M={banklain:['sh-bank',1],ew:['sh-ew',1],setor:['sh-setor',1],tt:['pg-tt'],tj:['pg-tj'],tarik:['pg-tarik']};
+document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var m=M[a.dataset.a];if(m)show(m[0],m[1])})});
+})();
+</script>
+<script>
+(function(){
+var F=[["bri","Bank BRI"],["mandiri","Bank Mandiri"],["bni","Bank BNI"],["bca","Bank BCA"]];
+var B=[["allo-bank","Allo Bank"],["bank-aladin-syariah","Bank Aladin Syariah"],["bank-amar-indonesia","Bank Amar Indonesia"],["bank-antardaerah","Bank Antardaerah"],["bank-anz-indonesia","Bank ANZ Indonesia"],["bank-artha-graha","Bank Artha Graha Internasional"],["bca","Bank BCA"],["bca-digital-blu","Bank BCA Digital (blu)"],["bca-syariah","Bank BCA Syariah"],["bank-bengkulu","Bank Bengkulu"],["bjb","Bank BJB"],["bjb-syariah","Bank BJB Syariah"],["bni","Bank BNI"],["bnp-paribas","Bank BNP Paribas Indonesia"],["bpd-bali","Bank BPD Bali"],["bpd-banten","Bank BPD Banten"],["bri","Bank BRI"],["btn","Bank BTN"],["btpn-syariah","Bank BTPN Syariah"],["bumi-arta","Bank Bumi Arta"],["capital-indonesia","Bank Capital Indonesia"],["cimb-niaga","Bank CIMB Niaga"],["cimb-niaga-syariah","Bank CIMB Niaga Syariah"],["commonwealth-greyed","Bank Commonwealth",1],["ctbc","Bank CTBC (China Trust) Indonesia"],["danamon","Bank Danamon"],["danamon-syariah","Bank Danamon Syariah"],["dbs-indonesia","Bank DBS Indonesia"],["deutsche","Bank Deutsche"],["dki-syariah","Bank DKI Syariah"]];
+var E=[['','GoPay'],['','OVO'],['','Dana'],['','ShopeePay'],['','LinkAja']];
+var tab='rek',el=document.getElementById('bl'),q=document.getElementById('bq');
+function row(x){var s=x[2]?' off':'';return '<div class="br'+s+'"><span class="bl">'+(x[0]&&x[0]!=''?'<img src="assets/img/bank_'+x[0]+'.png" alt="">':'')+'</span>'+x[1].replace(/&/g,'&amp;')+(x[2]?'<span class="mt">Maintenance</span>':'')+'</div>'}
+function f(a,t){return a.filter(function(x){return !t||x[1].toLowerCase().indexOf(t)>=0})}
+function rb(){
+ var t=q.value.trim().toLowerCase(),h='';
+ if(tab=='rek'){var a=f(F,t),b=f(B,t);
+  if(a.length)h+='<div class="bh">Bank yang Sering Digunakan</div>'+a.map(row).join('');
+  if(b.length)h+='<div class="bh">Bank</div>'+b.map(row).join('');
+ }else{var e=f(E,t);h+='<div class="bh">E-Wallet</div>'+e.map(row).join('')}
+ el.innerHTML=h||'<div class="bz">Tidak ditemukan</div>';
+}
+document.querySelectorAll('[data-bt]').forEach(function(b){b.onclick=function(){
+ document.querySelectorAll('[data-bt]').forEach(function(x){x.classList.remove('on')});
+ b.classList.add('on');tab=b.dataset.bt;q.placeholder=tab=='rek'?'Klik untuk mencari bank':'Klik untuk mencari e-wallet';rb()}});
+q.addEventListener('input',rb);rb();
+})();
 </script>
 <script src="pwa.js"></script>
 </body>
