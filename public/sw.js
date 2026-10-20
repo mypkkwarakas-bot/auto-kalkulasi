@@ -1,5 +1,5 @@
 /* Service worker: precache shell + strategi cache. Naikkan VERSION setiap rilis. */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = 'app-' + VERSION;
 const PRECACHE = [
  "./",
@@ -7,6 +7,7 @@ const PRECACHE = [
  "bayar-transfer.html",
  "deposito.html",
  "saya.html",
+ "scan-qris.html",
  "ruang-chat-cs.html",
  "offline.html",
  "pwa.js",
@@ -60,7 +61,6 @@ const PRECACHE = [
  "assets/img/nav_beranda_abu.png",
  "assets/img/nav_deposito.png",
  "assets/img/nav_deposito_oranye.png",
- "assets/img/nav_qris.png",
  "assets/img/nav_saya.png",
  "assets/img/nav_saya_oranye.png",
  "assets/img/sy_avatar.png",
