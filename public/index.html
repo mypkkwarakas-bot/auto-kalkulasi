@@ -89,6 +89,9 @@ button{font-family:inherit}
 .li .b strong{font-weight:400;font-size:15px;line-height:19px;display:block}
 .li .b p.dt{color:#888}
 .li .b .a{font-size:11px}.li .b .a b{font-size:14px;font-weight:600;color:#000}
+.li .b .a.in,.li .b .a.in b{color:#1ea95e}
+.txst{padding:22px 15px;text-align:center;color:#888;font-size:13px}
+.txst button{display:block;margin:8px auto 0;background:none;border:0;color:var(--or);font-size:13px;cursor:pointer}
 .more{display:flex;justify-content:center;align-items:center;gap:6px;color:#888;font-size:13px;padding:14px 0 14px;border-top:1px solid var(--ln)}
 .more .chev{width:6px;height:6px;color:#888}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:flex-start;height:calc(47.5px + env(safe-area-inset-bottom));padding-top:6.5px;z-index:20}
@@ -110,7 +113,7 @@ button{font-family:inherit}
 <div class="bal">
  <div class="r1"><div><div class="lb">Total Saldo <img src="assets/img/ikon_mata.png" alt=""></div>
  <div class="am"><span class="rp">Rp</span> <span class="big" id="saldoTotal">…</span></div></div>
- <button class="hist">Riwayat <i></i></button></div>
+ <a class="hist" href="riwayat-transaksi.html" aria-label="Lihat riwayat transaksi">Riwayat <i></i></a></div>
  <hr>
  <div class="r2">
   <div><div class="lb">Tabungan <i class="chev" style="width:6px;height:6px"></i></div><span class="rp">Rp</span> <span class="big" id="saldoTab" style="font-size:17px">…</span><small>s/d 3,5% p.a. cair harian</small></div>
@@ -119,7 +122,7 @@ button{font-family:inherit}
 </div>
 
 <div class="card grid">
- <a href="#"><img src="assets/img/menu_transfer.png" alt="">Transfer</a>
+ <a href="bayar-transfer.html"><img src="assets/img/menu_transfer.png" alt="">Transfer</a>
  <a href="#"><img src="assets/img/menu_topup_tagihan.png" alt="">Top Up &amp;<br>Tagihan</a>
  <a href="#"><img src="assets/img/menu_topup_ewallet.png" alt="">Top Up<br>E-Wallet</a>
  <a href="#"><img src="assets/img/menu_undang_teman.png" alt="">Undang<br>Teman</a>
@@ -156,9 +159,7 @@ button{font-family:inherit}
 
 <div class="card sec">
  <h3>Riwayat Transaksi <i class="chev"></i></h3>
- <div class="li"><img src="assets/img/ikon_toko_pembayaran.png" alt=""><div class="b"><div><strong>Luisa Design Studio</strong><p class="m">Pembayaran</p><p class="dt">17 Okt 2026, 18:31</p></div><span class="a">-Rp <b>24.000</b></span></div></div>
- <div class="li"><img src="assets/img/ikon_biaya_transfer.png" alt=""><div class="b"><div><strong>Biaya</strong><p class="m">Transfer</p><p class="dt">17 Okt 2026, 18:20</p></div><span class="a">-Rp <b>1.000</b></span></div></div>
- <div class="li"><img src="assets/img/ikon_gopay.png" alt=""><div class="b"><div><strong>Gopay Rxxxxx</strong><p class="m">Transfer</p><p class="dt">17 Okt 2026, 18:20</p></div><span class="a">-Rp <b>25.000</b></span></div></div>
+ <div id="txList"><div class="txst">Memuat…</div></div>
  <a class="more">Transaksi lainnya <i class="chev"></i></a>
 </div>
 
@@ -227,6 +228,55 @@ sc.onload=function(){
  }catch(e){}
 };
 document.head.appendChild(sc);
+})();
+</script>
+<script>
+/* ===== Riwayat Transaksi (3 terbaru): sumber sama dengan halaman riwayat — RPC public.riwayat_transaksi (baca-saja) ===== */
+(function(){
+var C={url:"https://jtdnsrsollmknfijdqty.supabase.co",key:"sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn",
+ rpc:"riwayat_transaksi",tz:"Asia/Jakarta",days:30,limit:3,poll:15000};
+var box=document.getElementById("txList"),CK="tx:last",sig=null,seq=0,shown=false;
+if(!box)return;
+var IMG={store:"ikon_toko_pembayaran",building:"ikon_toko_pembayaran",fee:"ikon_biaya_transfer",wallet:"ikon_gopay"};
+var MON=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+var fmt=new Intl.DateTimeFormat("en-GB",{timeZone:C.tz,year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+function dt(iso){var o={};fmt.formatToParts(new Date(iso)).forEach(function(p){o[p.type]=p.value});return(+o.day)+" "+MON[o.month-1]+" "+o.year+", "+o.hour+":"+o.minute}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function rp(n){return new Intl.NumberFormat("id-ID").format(n||0)}
+function row(t){
+ var isIn=t.direction==="in";
+ return '<div class="li"><img src="assets/img/'+(IMG[t.icon]||IMG.store)+'.png" alt=""><div class="b"><div><strong>'+esc(t.title)+'</strong><p class="m">'+esc(t.type)+'</p><p class="dt">'+esc(dt(t.ts))+'</p></div><span class="a'+(isIn?" in":"")+'">'+(isIn?"+":"-")+'Rp <b>'+rp(t.amount)+'</b></span></div></div>';
+}
+function draw(items){
+ box.innerHTML=items.length?items.map(row).join(""):'<div class="txst">Belum ada transaksi</div>';
+ shown=true;
+}
+function pick(data){
+ var a=(data&&data.items)||[];
+ return a.slice().sort(function(x,y){return new Date(y.ts)-new Date(x.ts)}).slice(0,C.limit);
+}
+function fail(){
+ if(shown)return;
+ box.innerHTML='<div class="txst">Gagal memuat transaksi.<button type="button">Coba lagi</button></div>';
+ box.querySelector("button").onclick=load;
+}
+try{var c=JSON.parse(localStorage.getItem(CK)||"null");if(Array.isArray(c)){sig=JSON.stringify(c);draw(c)}}catch(e){}
+function load(){
+ var my=++seq;
+ fetch(C.url+"/rest/v1/rpc/"+C.rpc,{method:"POST",headers:{apikey:C.key,"Content-Type":"application/json"},body:JSON.stringify({p_days:C.days}),cache:"no-store"})
+ .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+ .then(function(d){
+  if(my!==seq)return; /* abaikan respons usang */
+  var items=pick(d),s=JSON.stringify(items);
+  if(s===sig&&shown)return;sig=s;draw(items);
+  try{localStorage.setItem(CK,s)}catch(e){}
+ })
+ .catch(fail);
+}
+load();
+setInterval(load,C.poll);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
+window.addEventListener("online",load);
 })();
 </script>
 <script src="pwa.js"></script>
