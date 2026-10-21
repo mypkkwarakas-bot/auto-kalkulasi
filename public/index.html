@@ -221,6 +221,41 @@ button{font-family:inherit}
 #pgOv .st.last .dt{left:4px;top:-1px;width:22px;height:22px;border:0;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.28);display:grid;place-items:center}
 #pgOv .st.last .dt::after{content:"";width:8px;height:8px;border-radius:50%;background:#ff6a00}
 #pgOv .st .ds{margin-top:6px;font-size:14px;line-height:19px;color:#9a9a9a}
+
+.hb{position:relative;flex:none;width:33px;height:33px;margin-left:2px;padding:0;border-radius:50%;border:1px solid #5c5c5c;background:#fff;display:grid;place-items:center;cursor:pointer;color:inherit;font:inherit}
+.hb svg{width:20px;height:20px;display:block}
+.hb:active{background:#f1f1f1}
+.hbadge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#ff5a00;color:#fff;font-size:11px;font-weight:500;line-height:17px;text-align:center;box-sizing:border-box;pointer-events:none}
+#viewPS,#viewPD{background:#fff;min-height:100vh}
+.pwrap{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;font-family:Roboto,"Helvetica Neue",Arial,sans-serif;color:#212121;-webkit-font-smoothing:antialiased}
+.pwrap button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.pbar{position:sticky;top:0;z-index:5;height:47px;background:#fff;border-bottom:1px solid #eee;display:flex;align-items:center}
+.pbar button{width:48px;height:47px;display:grid;place-items:center;flex:none}
+.pbar h1{flex:1;font-size:20px;font-weight:500;color:#212121;white-space:nowrap}
+.ptabs{display:flex;background:#fff;position:sticky;top:47px;z-index:4}
+.ptabs button{flex:1;height:52px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:16px;font-weight:500;color:#111;position:relative}
+.ptabs button.on{color:#ea5f00}
+.ptabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#ea5f00}
+.ptabs .cnt{min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#ff5a00;color:#fff;font-size:12px;line-height:19px;font-weight:500}
+.psd{height:48px;display:flex;align-items:center;padding:0 15px;background:#f5f6f8;font-size:16px;font-weight:500;color:#333}
+.psi{position:relative;display:block;width:100%;text-align:left;padding:16px 15px 16px 60px;background:#fff;cursor:pointer}
+.psi.un{background:#fdf1ec}
+.psi.rd + .psi.rd::before{content:"";position:absolute;left:60px;right:15px;top:0;height:1px;background:#eee}
+.psi .pic{position:absolute;left:15px;top:17px;width:33px;height:33px;border-radius:50%;background:#fff;border:1px solid #eee;display:grid;place-items:center;color:#8a8a8a}
+.psi.un .pic{color:#ea5f00}
+.psi .pic svg,.pdic svg{width:18px;height:18px;display:block}
+.psi .pt{font-size:16px;font-weight:500;color:#111;line-height:21px}
+.psi.rd .pt{font-weight:400}
+.psi .pb{margin-top:3px;font-size:15px;line-height:21px;color:#777;word-break:break-word}
+.psi .pm{margin-top:6px;font-size:13px;line-height:17px;color:#a5a5a5}
+.pmsg{padding:70px 24px;text-align:center;color:#888;font-size:14px}
+.pmsg button{display:block;margin:10px auto 0;color:#ea5f00;font-size:14px}
+.pdbody{display:flex;flex-direction:column;align-items:center;padding:150px 28px 0;text-align:center;min-height:calc(100vh - 47px)}
+.pdic{width:56px;height:56px;border-radius:50%;background:#fafafa;border:1px solid #eee;display:grid;place-items:center;color:#ea5f00}
+.pdic svg{width:28px;height:28px}
+.pdbody h2{margin-top:30px;font-size:20px;font-weight:500;color:#212121}
+.pdbody p{margin-top:12px;font-size:16px;line-height:1.4;color:#666;max-width:330px;word-break:break-word}
+.pdbody time{margin-top:18px;font-size:13px;color:#a5a5a5}
 </style>
 </head>
 <body>
@@ -228,8 +263,8 @@ button{font-family:inherit}
 <div class="hdr">
  <img class="av" src="assets/img/avatar_profil.png" alt="">
  <div class="nm"><b>Syamsur Rijal</b><span>No. Rekening: 9018 3438 7252 <img src="assets/img/ikon_salin.png" alt=""></span></div>
- <div class="ib"><img src="assets/img/btn_hadiah.png" alt=""></div>
- <div class="ib"><img src="assets/img/btn_notif.png" alt=""><img class="bd" src="assets/img/badge_65.png" alt=""></div>
+ <button type="button" class="hb" id="hbGift" aria-label="Hadiah"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="9" width="17" height="3.800" rx="1"/><path d="M5 12.800V19a1.500 1.500 0 0 0 1.500 1.500h11A1.500 1.500 0 0 0 19 19v-6.200M12 9v11.500"/><path d="M12 9c-1.300-2-3.500-2.400-3.800-1.100C7.900 9 10 9 12 9zm0 0c1.300-2 3.500-2.400 3.800-1.100C16.100 9 14 9 12 9z"/><path d="M18.600 1.500l.7 1.700 1.700.7-1.700.7-.7 1.700-.7-1.700-1.700-.7 1.700-.7zM5.600 3l.5 1.200 1.200.5-1.200.5-.5 1.200-.5-1.200L3.900 4.700l1.200-.5z" fill="#f26b00" stroke="none"/></svg></button>
+ <button type="button" class="hb" id="hbBell" data-go="pesan" aria-label="Pesan"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.500a5.200 5.200 0 0 0-5.200 5.200v3c0 .9-.3 1.700-.9 2.400L5 15.200h14l-.9-1.100a3.700 3.700 0 0 1-.9-2.400v-3A5.200 5.200 0 0 0 12 3.500z"/><path d="M10 18.200a2 2 0 0 0 4 0"/></svg><span class="hbadge" id="hbBadge" hidden></span></button>
 </div>
 
 <div class="bal">
@@ -482,6 +517,31 @@ window.addEventListener("online",load);
 })();
 </script>
 
+<div id="viewPS" hidden>
+ <div class="pwrap">
+  <header class="pbar">
+   <button type="button" id="psBack" aria-label="Kembali"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M15 5.500 8.500 12l6.500 6.500" fill="none" stroke="#7E7E7E" stroke-width="1.600"/></svg></button>
+   <h1>Pesan</h1>
+  </header>
+  <div class="ptabs" role="tablist">
+   <button type="button" class="on" data-tab="n" role="tab">Notifikasi <span class="cnt" id="psCount" hidden></span></button>
+   <button type="button" data-tab="p" role="tab">Promo</button>
+  </div>
+  <div id="psList"></div>
+  <div id="psPromo" class="pmsg" hidden>Belum ada promo</div>
+ </div>
+</div>
+<div id="viewPD" hidden>
+ <div class="pwrap">
+  <header class="pbar">
+   <button type="button" id="pdBack" aria-label="Kembali"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M15 5.500 8.500 12l6.500 6.500" fill="none" stroke="#7E7E7E" stroke-width="1.600"/></svg></button>
+   <h1>Pesan</h1>
+   <button type="button" id="pdDel" aria-label="Hapus pesan"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.700" stroke-linecap="round" stroke-linejoin="round"><path d="M4.500 6.500h15M9 6.500v-2h6v2M6.500 6.500l.8 13h9.400l.8-13M10 10v6M14 10v6"/></svg></button>
+  </header>
+  <div id="pdBody"></div>
+ </div>
+</div>
+
 <div id="viewDetail" hidden>
  <div class="dwrap">
   <header class="dbar">
@@ -654,23 +714,28 @@ const TxPage = (() => {
 })();
 </script>
 <script>
-/* ===== Navigasi 1 file: beranda <-> riwayat <-> rincian (hash; tombol back HP ikut berfungsi) ===== */
+/* ===== Navigasi 1 file: beranda, riwayat, rincian, pesan (hash; tombol back HP ikut berfungsi) ===== */
 (function(){
-var V={home:document.getElementById("viewHome"),rv:document.getElementById("viewRiwayat"),dt:document.getElementById("viewDetail")},
+var V={home:document.getElementById("viewHome"),rv:document.getElementById("viewRiwayat"),dt:document.getElementById("viewDetail"),
+ ps:document.getElementById("viewPS"),pd:document.getElementById("viewPD")},
  tc=document.querySelector('meta[name="theme-color"]'),T0=document.title,
- TITLE={home:T0,rv:"Riwayat Transaksi",dt:"Rincian Transaksi"},THEME={home:"#ea5f00",rv:"#ffffff",dt:"#ffffff"},
- cur="home",curId=null,ys={home:0,rv:0},rvLoaded=false;
+ TITLE={home:T0,rv:"Riwayat Transaksi",dt:"Rincian Transaksi",ps:"Pesan",pd:"Pesan"},
+ THEME={home:"#ea5f00",rv:"#ffffff",dt:"#ffffff",ps:"#ffffff",pd:"#ffffff"},
+ cur="home",curId=null,ys={home:0,rv:0,ps:0},rvLoaded=false;
+function dec(h,n){try{return decodeURIComponent(h.slice(n))}catch(e){return null}}
 function parse(){
- var h=location.hash;
+ var h=location.hash,id;
  if(h==="#riwayat")return{v:"rv"};
- if(h.indexOf("#detail/")===0){try{return{v:"dt",id:decodeURIComponent(h.slice(8))}}catch(e){}}
+ if(h==="#pesan")return{v:"ps"};
+ if(h.indexOf("#detail/")===0&&(id=dec(h,8))!=null)return{v:"dt",id:id};
+ if(h.indexOf("#pesan/")===0&&(id=dec(h,7))!=null)return{v:"pd",id:id};
  return{v:"home"};
 }
 function route(){
  var r=parse();
- if(r.v===cur&&(r.v!=="dt"||r.id===curId))return;
+ if(r.v===cur&&(r.v!=="dt"&&r.v!=="pd"||r.id===curId))return;
  var prev=cur;
- if(prev==="home"||prev==="rv")ys[prev]=window.scrollY;
+ if(prev in ys)ys[prev]=window.scrollY;
  Object.keys(V).forEach(function(k){V[k].hidden=(k!==r.v)});
  document.title=TITLE[r.v];if(tc)tc.content=THEME[r.v];
  cur=r.v;
@@ -678,6 +743,8 @@ function route(){
   if(prev!=="dt"||!rvLoaded){TxPage.load();rvLoaded=true;window.scrollTo(0,0)}
   else window.scrollTo(0,ys.rv);
  }else if(r.v==="dt"){curId=r.id;Detail.show(r.id);window.scrollTo(0,0)}
+ else if(r.v==="ps"){Pesan.showList();window.scrollTo(0,prev==="pd"?ys.ps:0)}
+ else if(r.v==="pd"){curId=r.id;Pesan.showDetail(r.id);window.scrollTo(0,0)}
  else window.scrollTo(0,ys.home);
 }
 function open(h){history.pushState({nav:1},"",h);route()}
@@ -687,16 +754,17 @@ function back(target){
 }
 window.__goHome=function(){back(location.pathname+location.search)};
 window.__goRiwayat=function(){back("#riwayat")};
+window.__goPesan=function(){back("#pesan")};
 document.addEventListener("click",function(e){
  var t=e.target.closest("[data-tx]");
  if(t){e.preventDefault();open("#detail/"+encodeURIComponent(t.getAttribute("data-tx")));return}
- var a=e.target.closest("[data-go=riwayat]");
- if(a){e.preventDefault();open("#riwayat")}
+ var m=e.target.closest("[data-msg]");
+ if(m){e.preventDefault();open("#pesan/"+encodeURIComponent(m.getAttribute("data-msg")));return}
+ var a=e.target.closest("[data-go]");
+ if(a){var g=a.getAttribute("data-go");if(g==="riwayat"||g==="pesan"){e.preventDefault();open("#"+g)}}
 });
 window.addEventListener("popstate",route);
 window.addEventListener("hashchange",route);
-window.__route=route;
-document.addEventListener("DOMContentLoaded",function(){});
 window.__routeInit=route;
 })();
 </script>
@@ -789,6 +857,98 @@ document.getElementById("dShare").onclick=function(){
  if(navigator.share)navigator.share({title:"Rincian Transaksi",text:t}).catch(function(){});else copy(t);
 };
 return{show:show};
+})();
+</script>
+<script>
+/* ===== Pesan / Notifikasi: sumber log_abc lewat RPC public.notifikasi_transaksi (baca-saja).
+   Cx = "Pembayaran QRIS berhasil", Bx = "Transfer Berhasil". Status dibaca/dihapus disimpan di perangkat. ===== */
+var Pesan=(function(){
+var C={url:"https://jtdnsrsollmknfijdqty.supabase.co",key:"sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn",tz:"Asia/Jakarta",poll:15000,limit:100};
+var KR="ps:read",KD="ps:del",KL="ps:last";
+var MON=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+var fmt=new Intl.DateTimeFormat("en-GB",{timeZone:C.tz,year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+function parts(iso){var o={};fmt.formatToParts(new Date(iso)).forEach(function(p){o[p.type]=p.value});return o}
+function dkey(p){return(+p.day)+" "+MON[p.month-1]+" "+p.year}
+function dtext(p){return dkey(p)+", "+p.hour+":"+p.minute}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function ls(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var SWAP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3l3.500 3.500L17 10M3.500 6.500h17M7 21l-3.500-3.500L7 14M20.500 17.500h-17"/></svg>';
+var items=ls(KL,[]),read=new Set(ls(KR,[])),del=new Set(ls(KD,[])),seq=0,fetched=false,tab="n",curId=null,tt;
+if(!Array.isArray(items))items=[];
+var elList=document.getElementById("psList"),elPromo=document.getElementById("psPromo"),elCount=document.getElementById("psCount"),
+ elBadge=document.getElementById("hbBadge"),elBody=document.getElementById("pdBody"),toast=document.getElementById("dToast");
+function vis(){return items.filter(function(i){return!del.has(i.id)}).sort(function(a,b){return new Date(b.ts)-new Date(a.ts)})}
+function unread(){return vis().filter(function(i){return!read.has(i.id)}).length}
+function badges(){
+ var n=unread(),t=n>99?"99+":String(n);
+ elBadge.hidden=!n;elBadge.textContent=t;
+ elCount.hidden=!n;elCount.textContent=t;
+}
+function msg(t,retry){
+ elList.innerHTML='<div class="pmsg">'+esc(t)+(retry?'<button type="button">Coba lagi</button>':"")+'</div>';
+ if(retry)elList.querySelector("button").onclick=load;
+}
+function drawList(){
+ badges();
+ if(!fetched&&!items.length)return;
+ var v=vis();
+ if(!v.length){msg("Belum ada notifikasi");return}
+ var h="",last="";
+ v.forEach(function(i){
+  var p=parts(i.ts),k=dkey(p);
+  if(k!==last){h+='<div class="psd">'+esc(k)+'</div>';last=k}
+  var un=!read.has(i.id);
+  h+='<button type="button" class="psi '+(un?"un":"rd")+'" data-msg="'+esc(i.id)+'"><span class="pic">'+SWAP+'</span><div class="pt">'+esc(i.title)+'</div><div class="pb">'+esc(i.body)+'</div><div class="pm">'+esc(dtext(p))+'</div></button>';
+ });
+ elList.innerHTML=h;
+}
+function drawDetail(){
+ var i=vis().filter(function(x){return x.id===curId})[0];
+ if(!i){
+  elBody.innerHTML='<div class="pmsg">'+(fetched?"Pesan tidak ditemukan":"Memuat…")+'</div>';return;
+ }
+ if(!read.has(i.id)){read.add(i.id);sv(KR,Array.from(read));badges()}
+ elBody.innerHTML='<div class="pdbody"><div class="pdic">'+SWAP+'</div><h2>'+esc(i.title)+'</h2><p>'+esc(i.body)+'</p><time>'+esc(dtext(parts(i.ts)))+'</time></div>';
+}
+function load(){
+ var my=++seq;
+ return fetch(C.url+"/rest/v1/rpc/notifikasi_transaksi",{method:"POST",headers:{apikey:C.key,"Content-Type":"application/json"},body:JSON.stringify({p_limit:C.limit}),cache:"no-store"})
+ .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+ .then(function(d){
+  if(my!==seq||!Array.isArray(d))return;
+  fetched=true;items=d;sv(KL,d);
+  if(!document.getElementById("viewPS").hidden)drawList();
+  else if(!document.getElementById("viewPD").hidden)drawDetail();
+  else badges();
+ })
+ .catch(function(){
+  if(!fetched&&!items.length&&!document.getElementById("viewPS").hidden)msg("Gagal memuat notifikasi.",true);
+ });
+}
+function setTab(t){
+ tab=t;
+ Array.prototype.forEach.call(document.querySelectorAll(".ptabs button"),function(b){b.classList.toggle("on",b.getAttribute("data-tab")===t)});
+ elList.hidden=t!=="n";elPromo.hidden=t!=="p";
+}
+function say(t){toast.textContent=t;toast.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove("on")},1600)}
+document.querySelector(".ptabs").addEventListener("click",function(e){var b=e.target.closest("button[data-tab]");if(b)setTab(b.getAttribute("data-tab"))});
+document.getElementById("psBack").onclick=function(){window.__goHome&&window.__goHome()};
+document.getElementById("pdBack").onclick=function(){window.__goPesan&&window.__goPesan()};
+document.getElementById("pdDel").onclick=function(){
+ if(!curId||!confirm("Hapus pesan ini?"))return;
+ del.add(curId);sv(KD,Array.from(del));badges();say("Pesan dihapus");
+ window.__goPesan&&window.__goPesan();
+};
+load();
+setInterval(load,C.poll);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
+window.addEventListener("online",load);
+badges();
+return{
+ showList:function(){setTab(tab);drawList();load()},
+ showDetail:function(id){curId=id;drawDetail();if(!fetched)load()}
+};
 })();
 window.__routeInit&&window.__routeInit();
 </script>
