@@ -63,7 +63,7 @@ img{display:block}
 <div class="hdr">
  <img class="g" src="assets/img/sy_gift.png" alt=""><img class="bl" src="assets/img/sy_bell.png" alt="">
  <img class="av" src="assets/img/sy_avatar.png" alt="">
- <div class="nm">Syamsur Rijal</div><div class="ph">081******146</div>
+ <div class="nm" id="pfNama">Syamsur Rijal</div><div class="ph" id="pfHp">081******614</div>
 </div>
 
 <a class="card pr" href="#"><img class="ic" src="assets/img/sy_i_promo.png" alt=""><span>Promo &amp; Bonus</span><img class="im" src="assets/img/sy_promo_img.png" alt=""></a>
@@ -92,6 +92,16 @@ img{display:block}
  <a class="on" href="saya.html"><img src="assets/img/nav_saya_oranye.png" alt="">Saya</a>
 </nav>
 </div>
+<script>
+/* ===== Profil: satu sumber, RPC public.get_profil() di Supabase (tabel profil) ===== */
+(function(){var U="https://jtdnsrsollmknfijdqty.supabase.co",K="sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn",CK="profil_cache_v1";
+function ls(){try{return JSON.parse(localStorage.getItem(CK)||"null")}catch(e){return null}}
+function apply(p){if(!p)return;try{var a=document.getElementById("pfNama"),b=document.getElementById("pfHp"),i=document.querySelector(".hdr .av");if(a)a.textContent=p.nama;if(b&&p.no_hp_masked)b.textContent=p.no_hp_masked;if(i&&p.foto_url)i.src=p.foto_url}catch(e){}}
+apply(ls());
+fetch(U+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:"{}",cache:"no-store"})
+ .then(function(r){return r.ok?r.json():null}).then(function(p){if(!p||!p.nama)return;try{localStorage.setItem(CK,JSON.stringify(p))}catch(e){}apply(p)}).catch(function(){});
+})();
+</script>
 <script src="pwa.js"></script>
 </body>
 </html>

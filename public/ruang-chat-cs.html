@@ -107,24 +107,19 @@ const CONFIG = {
   BRAND: "Tanya SeaBank",                 // judul di header
   BOT_NAME: "Tanya",                 // nama asisten di pesan pembuka
   WELCOME: "Hai Bapak/Ibu {nama},\n\nSelamat datang, perkenalkan saya {bot}, Ada yang bisa saya bantu?\n\nWaspada terhadap penipuan, mohon untuk tidak memberikan kode OTP, PIN dan Password SeaBank ke pihak manapun. SeaBank tidak pernah meminta informasi tersebut kepada Nasabah dengan alasan apapun.",
-  PROFIL_ENDPOINT: "https://sxbbfrgebkebbbptxqgb.supabase.co/rest/v1/profil_saya?select=nama_profil&limit=1",   // sumber {nama}: tabel profil_saya, kolom nama_profil
+  DB_URL: "https://jtdnsrsollmknfijdqty.supabase.co",   // Supabase "anubis": profil, log_abc, laporan
+  DB_KEY: "sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn",   // publishable key (aman di sisi klien)
 
   // Backend (Supabase Edge Function)
   ENDPOINT: "https://sxbbfrgebkebbbptxqgb.supabase.co/functions/v1/cs-chat",   // Edge Function proyek onestep
   FEEDBACK_ENDPOINT: "https://sxbbfrgebkebbbptxqgb.supabase.co/functions/v1/cs-chat/feedback",   // simpan 👍/👎
   ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YmJmcmdlYmtlYmJicHR4cWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MDMwOTQsImV4cCI6MjEwNzk3OTA5NH0.JCU8yoF_2IWwv_M862iE81NUyzyYFhqAXbrJn1pz0KM",   // anon key (aman di sisi klien)
   HISTORY_LIMIT: 20,
-  REPORT_ENDPOINT: "https://sxbbfrgebkebbbptxqgb.supabase.co/functions/v1/cs-report",   // catat laporan eskalasi
   DELAY_MIN: 1000, DELAY_MAX: 3000,   // jeda acak (ms) sebelum balasan muncul, biar tidak terasa robot
   TRIGGER: ",!",   // pemicu jawaban khusus (di akhir pesan)
   SPECIAL_ANSWER: "Transaksi kamu sudah berhasil dan terkirim ke tujuan.\n\nJika dalam 1x24 jam pihak tujuan belum menerimanya, silakan hubungi pihak penerima dana dan sebaiknya lakukan konfirmasi ke pihak bank tujuan, karena pengecekan sudah dilakukan dan transaksi dinyatakan telah berhasil terkirim ke pihak tujuan.",   // dibalas saat pesan diakhiri CONFIG.TRIGGER
   SLA: "3 hari kerja sejak laporan diterima lengkap",   // CONTOH, ganti dengan SLA resmi
-  TRANSACTIONS: [   // DATA CONTOH untuk uji alur "Pilih Transaksi"; ganti dengan data transaksi asli
-    {name:"Luisa Design Studio",type:"Pembayaran",kind:"QRIS",amount:24000,date:"17 Okt 2026, 18:31",status:"berhasil"},
-    {name:"Budi Santoso",type:"Transfer",kind:"transfer antarbank",amount:250000,date:"19 Okt 2026, 10:02",status:"berhasil"},
-    {name:"Toko Sinar Jaya",type:"Pembayaran",kind:"QRIS",amount:87500,date:"19 Okt 2026, 13:15",status:"pending"},
-    {name:"Dewi Lestari",type:"Transfer",kind:"transfer sesama pengguna",amount:100000,date:"18 Okt 2026, 20:44",status:"gagal"}
-  ],                 // jumlah pesan terakhir yang dikirim ke backend
+  TRANSACTIONS_LIMIT: 20,   // jumlah transaksi terakhir dari log_abc pada opsi "Pilih Transaksi"
 
   // Isi menu cepat (boleh dikosongkan dengan [])
   CATEGORIES: [
@@ -196,16 +191,20 @@ function cardBubble(c){
 function renderBot(m){ if(m.reply)botBubble(m); if(m.card)cardBubble(m.card); }
 function showTyping(){const r=row("bot");r.innerHTML='<div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>';down();return r}
 
+const dbRpc=async(fn,args,ms=6000)=>{const c=new AbortController(),tm=setTimeout(()=>c.abort(),ms);
+  try{const r=await fetch(CONFIG.DB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:CONFIG.DB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{}),cache:"no-store",signal:c.signal});
+    if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(tm)}};
+const fmtTgl=iso=>{try{return new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Jakarta"}).format(new Date(iso)).replace(/\./g,":").replace(" pukul","," )}catch(e){return ""}};
 async function getNama(){
-  const c=new AbortController(),tm=setTimeout(()=>c.abort(),3000);
   try{
-    const h={};if(CONFIG.ANON_KEY){h.apikey=CONFIG.ANON_KEY;h.Authorization="Bearer "+CONFIG.ANON_KEY}
-    const res=await fetch(CONFIG.PROFIL_ENDPOINT,{headers:h,signal:c.signal});
-    if(!res.ok)throw new Error("HTTP "+res.status);
-    const d=await res.json();
-    return ((d[0]&&d[0].nama_profil)||"").trim().toUpperCase();
-  }catch(e){console.error("[profil_saya]",e);return ""}
-  finally{clearTimeout(tm)}
+    const d=await dbRpc("get_profil",{},3000);
+    const n=((d&&d.nama)||"").trim().toUpperCase();
+    if(n)try{localStorage.setItem("profil_cache_v1",JSON.stringify(d))}catch(e){}
+    return n;
+  }catch(e){
+    console.error("[profil]",e);
+    try{const c=JSON.parse(localStorage.getItem("profil_cache_v1")||"null");return ((c&&c.nama)||"").trim().toUpperCase()}catch(_){return ""}
+  }
 }
 async function renderWelcome(){
   const tp=showTyping(),nama=await getNama();tp.remove();
@@ -305,11 +304,18 @@ const askPick=()=>say({reply:"Mohon maaf atas kendala yang kamu alami. Untuk pen
 function txCard(t){const c=mk("div","tx"),a=mk("div","l1"),n=mk("span"),m=mk("span");n.textContent=t.name;m.textContent="-"+rp(t.amount);a.append(n,m);const k=mk("small");k.textContent=t.type;const d=mk("small","d");d.textContent=t.date;c.append(a,k,d);return c}
 function closeSheet(){const o=document.querySelector(".sheet");if(!o)return;o.remove();if(window.history.state&&window.history.state.sheet)window.history.back()}
 window.addEventListener("popstate",()=>{const o=document.querySelector(".sheet");if(o)o.remove()});
-function openSheet(){
-  const o=mk("div","sheet"),p=mk("div"),h=mk("h3");h.textContent="Pilih Transaksi (data contoh)";p.appendChild(h);
-  CONFIG.TRANSACTIONS.forEach(t=>{const b=mk("button");b.appendChild(txCard(t));b.onclick=()=>{closeSheet();chosen(t)};p.appendChild(b)});
+async function openSheet(){
+  const o=mk("div","sheet"),p=mk("div"),h=mk("h3");h.textContent="Pilih Transaksi";p.appendChild(h);
+  const st=mk("div","tx");st.textContent="Memuat transaksi\u2026";p.appendChild(st);
   o.onclick=e=>{if(e.target===o)closeSheet()};o.appendChild(p);document.querySelector(".app").appendChild(o);
   window.history.pushState({sheet:1},"");
+  try{
+    const list=await dbRpc("cs_pilih_transaksi",{p_limit:CONFIG.TRANSACTIONS_LIMIT});
+    st.remove();
+    if(!Array.isArray(list)||!list.length){const e=mk("div","tx");e.textContent="Belum ada transaksi yang tercatat.";p.appendChild(e);return}
+    list.forEach(r=>{const t={id:r.id,name:r.name,type:r.type,kind:r.kind,amount:Number(r.amount)||0,date:fmtTgl(r.ts),status:r.status||"berhasil"};
+      const b=mk("button");b.appendChild(txCard(t));b.onclick=()=>{closeSheet();chosen(t)};p.appendChild(b)});
+  }catch(e){console.error("[log_abc]",e);st.textContent="Transaksi belum bisa dimuat. Tutup lalu coba lagi."}
 }
 const STAT={
   berhasil:k=>"Berdasarkan pengecekan yang kami lakukan di sistem, transaksi "+k+" kamu sudah berhasil dan terkirim ke tujuan.\n\nJika dalam 1x24 jam pihak tujuan belum menerimanya, silakan hubungi pihak penerima dana dan sebaiknya lakukan konfirmasi ke pihak bank tujuan, karena pengecekan sudah dilakukan dan transaksi dinyatakan telah berhasil terkirim ke pihak tujuan.",
@@ -326,12 +332,10 @@ const important=()=>say({reply:"**Penting:**\nKami akan menangani kendala kamu s
   qr:[{label:"Ya",fn:()=>makeTicket()},{label:"Tidak",fn:thanks}]});
 async function makeTicket(petugas){
   const t=flow.tx;
-  const summary=petugas?"Pelanggan meminta dihubungkan dengan petugas customer service.":"Pelanggan melaporkan transaksi "+t.kind+" ke "+t.name+" sebesar "+rp(t.amount)+" pada "+t.date+" (data contoh, status: "+t.status+"). Pelanggan masih mengalami kendala.";
+  const summary=petugas?"Pelanggan meminta dihubungkan dengan petugas customer service.":"Pelanggan melaporkan transaksi "+t.kind+" ke "+t.name+" sebesar "+rp(t.amount)+" pada "+t.date+" (status: "+t.status+"). Pelanggan masih mengalami kendala.";
   try{
-    const h={"Content-Type":"application/json"};
-    if(CONFIG.ANON_KEY){h.apikey=CONFIG.ANON_KEY;h.Authorization="Bearer "+CONFIG.ANON_KEY}
-    const res=await fetch(CONFIG.REPORT_ENDPOINT,{method:"POST",headers:h,body:JSON.stringify({session_id:sessionId,category:petugas?"minta_petugas":"transaksi",urgency:"sedang",sentiment:"netral",summary})});
-    const d=await res.json();if(!d.ticket_no)throw new Error("tanpa nomor");
+    const d=await dbRpc("cs_buat_laporan",{p_session:sessionId,p_category:petugas?"minta_petugas":"transaksi",p_tx_id:(!petugas&&t&&t.id)?t.id:null,p_summary:summary});
+    if(!d||!d.ticket_no)throw new Error("tanpa nomor");
     await say({reply:"Laporan kamu sudah dibuat dengan nomor **"+d.ticket_no+"**. "+(petugas?"Transfer langsung ke petugas belum tersedia di chat ini, jadi tindak lanjut dilakukan petugas dari laporan tersebut.":"Petugas akan meninjau laporan ini.")+" Simpan nomor tersebut ya.\n\nAda lagi yang bisa saya bantu?",feedback:true});
   }catch(e){console.error("[laporan]",e);await say({reply:"Maaf, laporan belum berhasil dibuat saat ini. Silakan coba lagi sebentar lagi. Kami tidak akan memberi nomor laporan sebelum benar-benar tercatat."})}
 }

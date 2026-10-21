@@ -262,7 +262,7 @@ button{font-family:inherit}
 <div class="app" id="viewHome">
 <div class="hdr">
  <img class="av" src="assets/img/avatar_profil.png" alt="">
- <div class="nm"><b>Syamsur Rijal</b><span>No. Rekening: 9018 3438 7252 <img src="assets/img/ikon_salin.png" alt=""></span></div>
+ <div class="nm"><b id="pfNama">Syamsur Rijal</b><span>No. Rekening: <em id="pfRek" style="font-style:normal">9018 3438 7252</em> <img src="assets/img/ikon_salin.png" alt=""></span></div>
  <button type="button" class="hb" id="hbGift" aria-label="Hadiah"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="9" width="17" height="3.800" rx="1"/><path d="M5 12.800V19a1.500 1.500 0 0 0 1.500 1.500h11A1.500 1.500 0 0 0 19 19v-6.200M12 9v11.500"/><path d="M12 9c-1.300-2-3.500-2.400-3.800-1.100C7.900 9 10 9 12 9zm0 0c1.300-2 3.500-2.400 3.800-1.100C16.100 9 14 9 12 9z"/><path d="M18.600 1.500l.7 1.700 1.700.7-1.700.7-.7 1.700-.7-1.700-1.700-.7 1.700-.7zM5.600 3l.5 1.200 1.200.5-1.200.5-.5 1.200-.5-1.200L3.900 4.700l1.200-.5z" fill="#f26b00" stroke="none"/></svg></button>
  <button type="button" class="hb" id="hbBell" data-go="pesan" aria-label="Pesan"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.500a5.200 5.200 0 0 0-5.200 5.200v3c0 .9-.3 1.700-.9 2.400L5 15.200h14l-.9-1.100a3.700 3.700 0 0 1-.9-2.400v-3A5.200 5.200 0 0 0 12 3.500z"/><path d="M10 18.200a2 2 0 0 0 4 0"/></svg><span class="hbadge" id="hbBadge" hidden></span></button>
 </div>
@@ -951,6 +951,16 @@ return{
 };
 })();
 window.__routeInit&&window.__routeInit();
+</script>
+<script>
+/* ===== Profil: satu sumber, RPC public.get_profil() di Supabase (tabel profil) ===== */
+(function(){var U="https://jtdnsrsollmknfijdqty.supabase.co",K="sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn",CK="profil_cache_v1";
+function ls(){try{return JSON.parse(localStorage.getItem(CK)||"null")}catch(e){return null}}
+function apply(p){if(!p)return;try{var a=document.getElementById("pfNama"),r=document.getElementById("pfRek"),i=document.querySelector("#viewHome .hdr .av");if(a)a.textContent=p.nama;if(r&&p.no_rekening)r.textContent=String(p.no_rekening).replace(/(\d{4})(?=\d)/g,"$1 ");if(i&&p.foto_url)i.src=p.foto_url}catch(e){}}
+apply(ls());
+fetch(U+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:"{}",cache:"no-store"})
+ .then(function(r){return r.ok?r.json():null}).then(function(p){if(!p||!p.nama)return;try{localStorage.setItem(CK,JSON.stringify(p))}catch(e){}apply(p)}).catch(function(){});
+})();
 </script>
 <script src="pwa.js"></script>
 </body>
