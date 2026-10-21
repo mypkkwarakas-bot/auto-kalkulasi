@@ -744,9 +744,9 @@ var MIN_AMOUNT=10000;
 /* tab "No. Rekening" -> cek-rekening (bank) | tab "No. Handphone" -> cek-ewallet (e-wallet) */
 var CFG={
  rek:{url:SUPABASE_URL+"/functions/v1/cek-rekening",ph:"Klik untuk mencari bank",head:"Bank",none:"Daftar bank belum tersedia",
-  label:"Masukkan no. rekening",band:"Nomor Rekening",pre:"Rekening: ",sub:"Klik untuk transfer ke nomor rekening ini",bad:"Nomor rekening tidak valid"},
+  label:"Masukkan no. rekening",band:"Nomor Rekening",pre:"Rekening: ",sub:"Klik untuk transfer ke nomor rekening ini",bad:"Nomor rekening tidak valid",chk:"Memeriksa rekening…",okm:"Nama pemilik rekening berhasil diverifikasi."},
  hp:{url:SUPABASE_URL+"/functions/v1/cek-ewallet",ph:"Klik untuk mencari e-wallet",head:"E-Wallet",none:"Daftar e-wallet belum tersedia",
-  label:"Masukkan no. handphone",band:"Nomor Handphone",pre:"No. HP: ",sub:"Klik untuk transfer ke nomor ini",bad:"Nomor handphone tidak valid"}
+  label:"Masukkan no. handphone",band:"Nomor Handphone",pre:"No. HP: ",sub:"Klik untuk transfer ke nomor ini",bad:"Nomor handphone tidak valid",chk:"Memeriksa nomor e-wallet…",okm:"Nama pemilik e-wallet berhasil diverifikasi."}
 };
 
 var $=function(id){return document.getElementById(id)};
@@ -768,7 +768,7 @@ function logoSrc(p){
 function setLogo(box,p){
  box.textContent="";
  var src=logoSrc(p);
- if(!src){box.textContent=initials(p);return}
+ if(!src){if(p._html){box.innerHTML=p._html;var lg=box.firstChild;if(lg&&lg.style){lg.style.width="100%";lg.style.height="100%"}}else box.textContent=initials(p);return}
  var img=new Image();img.alt="";
  img.onerror=function(){box.textContent=initials(p)};
  img.src=src;box.appendChild(img);
@@ -836,7 +836,7 @@ bl.addEventListener("keydown",function(e){
 });
 
 /* ---------- navigasi antar layar (tombol kembali & riwayat browser) ---------- */
-var level=0,pushed=0,cur=null,dest=null;
+var level=0,pushed=0,cur=null,dest=null,src="bank";
 function view(l){
  level=l;
  if(l===0){reqId++;if(ctl){try{ctl.abort()}catch(e){}ctl=null}busy=false;rpick.classList.remove("busy")}
@@ -846,7 +846,8 @@ function view(l){
  $("pg-kf").classList.toggle("on",l===3);
  $("pg-hs").classList.toggle("on",l===4);
  if(l===0&&!cur)return;
- $("sh-bank").classList.toggle("on",l===0);
+ $("sh-bank").classList.toggle("on",l===0&&src==="bank");
+ $("sh-ew").classList.toggle("on",l===0&&src==="ew");
  $("ov").classList.toggle("on",l===0);
  if(l===0)rb();
 }
@@ -859,16 +860,47 @@ window.addEventListener("popstate",function(e){var l=(e.state&&e.state.tb)||0;pu
 $("rekBack").addEventListener("click",back);
 $("trfBack").addEventListener("click",back);
 
+/* ---------- sheet "Pilih E-Wallet" -> alur transfer e-wallet (cek-ewallet) ---------- */
+function ewList(cb){
+ if(cache.hp&&cache.hp.length){cb(cache.hp);return}
+ fetch(CFG.hp.url,{headers:HEADERS}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json()})
+ .then(function(j){cache.hp=Array.isArray(j.data)?j.data:[];status.hp="ok";cb(cache.hp)}).catch(function(){cb(null)});
+}
+function ewFind(list,name){
+ var k=nk(name),i;
+ for(i=0;i<list.length;i++)if(nk(list[i].name)===k||nk(list[i].code)===k)return list[i];
+ for(i=0;i<list.length;i++)if(nk(list[i].name).indexOf(k)>=0)return list[i];
+ return null;
+}
+var ewBox=$("sh-ew"),ewMsg=mk("div","","");
+ewMsg.style.cssText="display:none;color:#e8284f;font-size:12px;padding:6px 16px 14px";ewBox.appendChild(ewMsg);
+document.querySelector('[data-a="ew"]').addEventListener("click",function(){ewMsg.style.display="none";ewList(function(){})});
+ewBox.querySelector(".eg").addEventListener("click",function(e){
+ var it=e.target.closest(".eg > div");if(!it)return;
+ var name=Array.prototype.filter.call(it.childNodes,function(n){return n.nodeType===3}).map(function(n){return n.nodeValue}).join("").trim();
+ if(!name)return;
+ ewMsg.style.display="none";
+ var lgEl=it.querySelector(".lg"),html=lgEl?lgEl.outerHTML:"";
+ var hit=cache.hp&&ewFind(cache.hp,name),fb={name:name,code:nk(name).toUpperCase(),_fb:name,_html:html};
+ openRek(hit?Object.assign({},hit,{_html:html}):fb,"hp","ew");
+ if(!hit){var ref0=cur;ewList(function(list){var q=list&&ewFind(list,name);if(q&&cur===ref0&&ref0.p===fb){ref0.p=Object.assign({},q,{_html:html});setLogo($("rekLogo"),ref0.p)}})}
+});
+
 /* ---------- layar 1: cari rekening / nomor ---------- */
 var rq=$("rekQ"),rerr=$("rekErr"),rsec=$("rekSec"),rpick=$("rekPick"),busy=false,reqId=0,ctl=null;
+var BRAND={shopeepay:"ShopeePay",gopay:"GoPay",ovo:"OVO",dana:"Dana",linkaja:"LinkAja",isaku:"i.Saku",astrapay:"AstraPay"};
+function nk(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+function brand(p){var n=String((p&&(p.name||p.code))||"").replace(/_/g," ");return BRAND[nk(n)]||BRAND[nk(p&&p.code)]||n}
 function labelOf(p,kind){
+ if(kind==="hp")return brand(p);
  var n=String(p.name||p.code||"");
  return (kind==="rek"&&!/\bbank\b/i.test(n)?"BANK "+n:n).toUpperCase();
 }
-function openRek(p){
+function openRek(p,k,sr){
  reqId++;if(ctl){try{ctl.abort()}catch(e){}ctl=null}busy=false;rpick.classList.remove("busy");
- cur={p:p,kind:tab};
- var c=CFG[tab],label=labelOf(p,tab);
+ var kk=k||tab;src=sr||"bank";
+ cur={p:p,kind:kk};
+ var c=CFG[kk],label=labelOf(p,kk);
  $("rekTitle").textContent="Ke "+label;$("rekName").textContent=label;
  setLogo($("rekLogo"),p);
  $("rekLabel").textContent=c.label;$("rekBand").textContent=c.band;
@@ -893,8 +925,18 @@ function choose(){
  }
  var num=rq.value.replace(/\D/g,""),c=CFG[cur.kind];
  if(!num)return;
+ if(cur.p&&cur.p._fb){
+  var r0=cur,nm=r0.p._fb;rerr.style.color="";rerr.textContent="";
+  ewList(function(list){
+   if(cur!==r0)return;
+   var q=list&&ewFind(list,nm);
+   if(q){r0.p=Object.assign({},q,{_html:r0.p._html});setLogo($("rekLogo"),r0.p);choose()}
+   else rerr.textContent=list?nm+" belum tersedia untuk transfer.":"Gagal memuat daftar e-wallet. Coba lagi.";
+  });
+  return;
+ }
  if(num.length<4){rerr.textContent=c.bad;return}
- busy=true;verified=null;rerr.style.color="";rerr.textContent="";rpick.classList.remove("verified");rpick.classList.add("busy");$("rekPickSub").textContent="Memeriksa rekening…";
+ busy=true;verified=null;rerr.style.color="";rerr.textContent="";rpick.classList.remove("verified");rpick.classList.add("busy");$("rekPickSub").textContent=c.chk;
  var ref=cur,my=++reqId;
  ctl=window.AbortController?new AbortController():null;
  fetch(c.url,{method:"POST",headers:HEADERS,body:JSON.stringify({code:ref.p.code,number:num}),signal:ctl?ctl.signal:undefined})
@@ -907,7 +949,7 @@ function choose(){
    $("rekPickNum").textContent=verified.name;
    $("rekPickSub").textContent="Terverifikasi • "+c.pre+verifiedNumber+" — ketuk untuk melanjutkan";
    rpick.classList.add("verified");
-   rerr.textContent="Nama pemilik rekening berhasil diverifikasi.";
+   rerr.textContent=c.okm;
    rerr.style.color="#16834a";
   } else {verified=null;rerr.style.color="";rerr.textContent=(j&&j.message)||"Data tidak ditemukan";}
  })
@@ -944,6 +986,7 @@ function validate(){
 function setSwitch(on){var s=$("trfSched");s.classList.toggle("on",on);s.setAttribute("aria-checked",on)}
 function setFav(on){favOn=on;$("trfFavIcon").setAttribute("fill",on?"#f5b800":"none");$("trfFav").setAttribute("aria-pressed",on)}
 function shortName(p,kind){
+ if(kind==="hp")return brand(p);
  var n=String((p&&(p.name||p.code))||"").replace(/_/g," ");
  return (kind==="rek"?n.replace(/^bank\s+/i,""):n).toUpperCase();
 }
@@ -953,12 +996,12 @@ function openTrf(d){
  $("trfSub").textContent=shortName(d.provider,d.kind)+": "+d.number;
  var destAvatar=$("pg-trf").querySelector(".tb-dest .tb-avatar");
  if(destAvatar){
-  destAvatar.textContent="";
+  destAvatar.textContent="";destAvatar.style.background="";
   var destLogo=logoSrc(d.provider||{});
   if(destLogo){var di=new Image();di.alt="";di.style.cssText="width:30px;height:30px;object-fit:contain;border-radius:50%;background:#fff";
    di.onerror=function(){destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>'};
    di.src=destLogo;destAvatar.appendChild(di);
-  }else destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>';
+  }else if(d.provider&&d.provider._html){destAvatar.style.background="none";destAvatar.innerHTML=d.provider._html;var dl=destAvatar.firstChild;if(dl&&dl.style){dl.style.width="30px";dl.style.height="30px"}}else destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>';
  }
  amt.value="";$("trfNote").value="";$("trfNoteCnt").textContent="0/16";
  setSwitch(false);setFav(false);renderAccount();validate();
@@ -997,7 +1040,7 @@ var SENDER={name:"",bank:"SeaBank",number:""},NORMAL_FEE=2500;
  fetch(SUPABASE_URL+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:HEADERS.apikey||HEADERS.Apikey||"sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn","Content-Type":"application/json"},body:"{}",cache:"no-store"})
   .then(function(r){return r.ok?r.json():null}).then(function(p){if(p&&p.nama){ap(p);try{localStorage.setItem(CK,JSON.stringify(p))}catch(e){}}}).catch(function(){});
 })();
-var URL_BX=SUPABASE_URL+"/functions/v1/konfirmasi-bx";
+var URL_BX=SUPABASE_URL+"/functions/v1/konfirmasi-bx",URL_EW=SUPABASE_URL+"/functions/v1/konfirmasi-ewallet";
 var fmt=function(n){return new Intl.NumberFormat("id-ID").format(n)};
 var tx=null,result=null,pin="",submitting=false,done=false;
 var kd=$("kf-dots").children;
@@ -1044,7 +1087,7 @@ function submitPin(){
  var body={pin:pin,sender_name:SENDER.name,sender_bank:SENDER.bank,sender_account:SENDER.number,
   recipient_name:tx.name,recipient_bank:shortName(tx.provider,tx.kind),recipient_account:tx.number,
   amount_rupiah:tx.amount,fee_rupiah:tx.fee===0?0:null,note:$("kf-note").value.trim()};
- fetch(URL_BX,{method:"POST",headers:HEADERS,body:JSON.stringify(body)})
+ fetch(tx.kind==="hp"?URL_EW:URL_BX,{method:"POST",headers:HEADERS,body:JSON.stringify(body)})
  .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {s:r.status,j:j||{}}})})
  .then(function(x){
   submitting=false;
@@ -1052,6 +1095,7 @@ function submitPin(){
   pin="";paintPin();
   if(x.s===401){shake();pmsg("PIN salah. Coba lagi.")}
   else if(x.s===429)pmsg(x.j.message||"Terlalu banyak percobaan. Coba lagi nanti.");
+  else if(x.s===409)pmsg(x.j.message||"Saldo tidak cukup.");
   else if(x.s===400)pmsg("Data transfer tidak valid.");
   else pmsg("Gagal memproses. Coba lagi.");
  })
@@ -1106,7 +1150,7 @@ function success(d,body){
  /* penerima masuk daftar "Terakhir" di Bayar/Transfer (tanpa duplikat, status favorit terbawa) */
  var lbl=result.recipient_bank+": "+result.recipient_account,fv=favOn;
  for(var i=0;i<D.length;i++)if(D[i][2]===lbl){fv=fv||!!D[i][4];D.splice(i,1);break}
- D.unshift(["p",result.recipient_name,lbl,/sea/i.test(result.recipient_bank)?1:0,fv]);
+ D.unshift([({gopay:"g",ovo:"o",dana:"d",shopeepay:"s"})[nk(result.recipient_bank)]||"p",result.recipient_name,lbl,/sea/i.test(result.recipient_bank)?1:0,fv]);
  render();
  fillHasil(result);
  /* ganti entri riwayat konfirmasi: tombol kembali tidak bisa mengulang transaksi */
@@ -1142,7 +1186,7 @@ function resetFlow(){
  done=false;submitting=false;tx=null;result=null;cur=null;dest=null;verified=null;
  hideLoading();
  view(0);
- $("sh-bank").classList.remove("on");$("ov").classList.remove("on");
+ $("sh-bank").classList.remove("on");$("sh-ew").classList.remove("on");$("ov").classList.remove("on");
  window.scrollTo(0,0);
 }
 $("hs-ok").addEventListener("click",function(){
