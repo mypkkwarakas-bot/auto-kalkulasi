@@ -109,11 +109,11 @@ button{font-family:inherit}
 
 <div class="bal">
  <div class="r1"><div><div class="lb">Total Saldo <img src="assets/img/ikon_mata.png" alt=""></div>
- <div class="am"><span class="rp">Rp</span> <span class="big">727</span></div></div>
+ <div class="am"><span class="rp">Rp</span> <span class="big" id="saldoTotal">…</span></div></div>
  <button class="hist">Riwayat <i></i></button></div>
  <hr>
  <div class="r2">
-  <div><div class="lb">Tabungan <i class="chev" style="width:6px;height:6px"></i></div><span class="rp">Rp</span> <span class="big" style="font-size:17px">727</span><small>s/d 3,5% p.a. cair harian</small></div>
+  <div><div class="lb">Tabungan <i class="chev" style="width:6px;height:6px"></i></div><span class="rp">Rp</span> <span class="big" id="saldoTab" style="font-size:17px">…</span><small>s/d 3,5% p.a. cair harian</small></div>
   <div><div class="lb">Deposito <i class="chev" style="width:6px;height:6px"></i></div><span class="rp">Rp</span> <span class="big" style="font-size:17px">0</span><span class="bd2">Buka Deposito</span><small>s/d 6% p.a.</small></div>
  </div>
 </div>
@@ -184,6 +184,49 @@ var t=14*3600+6*60+14,h=document.getElementById('h'),m=document.getElementById('
 function p(n){return String(n).padStart(2,'0')}
 setInterval(function(){if(t>0)t--;h.textContent=p(t/3600|0);m.textContent=p(t%3600/60|0);s.textContent=p(t%60)},1000);
 document.querySelectorAll('.dl button').forEach(function(b){b.onclick=function(){b.classList.toggle('on');b.textContent=b.classList.contains('on')?'Diingatkan':'Ingatkan Saya'}});
+})();
+</script>
+<script>
+/* ===== Saldo realtime: nilai diambil dari tabel di Supabase dan diperbarui otomatis saat data berubah ===== */
+(function(){
+var CFG={url:"https://jtdnsrsollmknfijdqty.supabase.co",
+ key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTIxMDAsImV4cCI6MjEwODA2ODEwMH0.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE",
+ table:"a",      /* nama tabel */
+ column:"saldo", /* nama kolom nominal (ubah bila berbeda) */
+ poll:15000};    /* cadangan bila koneksi realtime putus */
+var els=[document.getElementById("saldoTotal"),document.getElementById("saldoTab")],CK="saldo:last",last=null,seq=0;
+function show(v){
+ var t=v==null?"-":new Intl.NumberFormat("id-ID",{maximumFractionDigits:2}).format(v);
+ els.forEach(function(e){if(e)e.textContent=t});
+}
+try{var c=localStorage.getItem(CK);if(c!==null&&c!==""&&isFinite(c))show(+c)}catch(e){}
+function load(){
+ var my=++seq;
+ fetch(CFG.url+"/rest/v1/"+encodeURIComponent(CFG.table)+"?select="+encodeURIComponent(CFG.column),
+  {headers:{apikey:CFG.key,Authorization:"Bearer "+CFG.key},cache:"no-store"})
+ .then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+ .then(function(rows){
+  if(my!==seq||!Array.isArray(rows))return; /* abaikan respons usang */
+  var v=rows.reduce(function(a,r){return a+(Number(r[CFG.column])||0)},0);
+  if(v===last)return;last=v;show(v);
+  try{localStorage.setItem(CK,String(v))}catch(e){}
+ })
+ .catch(function(){if(last===null&&els[0]&&els[0].textContent==="\u2026")show(null)});
+}
+load();
+setInterval(load,CFG.poll);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
+window.addEventListener("online",load);
+/* realtime: setiap INSERT/UPDATE/DELETE pada tabel memicu pengambilan ulang nilai */
+var sc=document.createElement("script");
+sc.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+sc.onload=function(){
+ try{
+  var sb=window.supabase.createClient(CFG.url,CFG.key);
+  sb.channel("saldo-"+CFG.table).on("postgres_changes",{event:"*",schema:"public",table:CFG.table},load).subscribe();
+ }catch(e){}
+};
+document.head.appendChild(sc);
 })();
 </script>
 <script src="pwa.js"></script>
