@@ -191,8 +191,8 @@ document.querySelectorAll('.dl button').forEach(function(b){b.onclick=function()
 (function(){
 var CFG={url:"https://jtdnsrsollmknfijdqty.supabase.co",
  key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTIxMDAsImV4cCI6MjEwODA2ODEwMH0.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE",
- table:"a",      /* nama tabel */
- column:"saldo", /* nama kolom nominal (ubah bila berbeda) */
+ table:"A",                /* nama tabel (huruf besar, sesuai database) */
+ column:"amount_rupiah",  /* kolom nominal */
  poll:15000};    /* cadangan bila koneksi realtime putus */
 var els=[document.getElementById("saldoTotal"),document.getElementById("saldoTab")],CK="saldo:last",last=null,seq=0;
 function show(v){
