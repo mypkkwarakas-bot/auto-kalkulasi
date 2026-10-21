@@ -245,7 +245,7 @@ img{display:block}
 .tb-sec{margin-top:20px;background:#fff}
 .tb-band{background:#f4f5f7;height:30px;padding:0 15px;display:flex;align-items:center;font-size:14px;color:#999}
 .tb-row{display:flex;align-items:center;padding:0 0 0 15px;height:68px;cursor:pointer}
-.tb-row.busy{opacity:.6;pointer-events:none}
+.tb-row.busy{opacity:.6;pointer-events:none}.tb-row.verified{background:#f0fbf4}.tb-row.verified .s{color:#16834a}
 .tb-avatar{width:30px;height:30px;border-radius:50%;background:#ee6100;flex:none;display:flex;align-items:center;justify-content:center}
 .tb-avatar svg{width:30px;height:30px}
 .tb-meta{margin-left:15px;flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid #eee;padding-right:15px}
@@ -295,6 +295,112 @@ img{display:block}
 #bl .br .bl{background:#fff;border:1px solid #eee;font:700 7px Arial;color:#9aa0a6}
 #bl .br .bl img{border-radius:50%}
 #bl .bz.retry{cursor:pointer;color:#fa5e00}
+</style>
+<style>
+[hidden]{display:none!important}
+/* ===== Konfirmasi (layar 3) & Hasil (layar 4): dibatasi ke #pg-kf / #pg-hs agar tidak bentrok dengan gaya Bayar/Transfer ===== */
+#pg-kf.on,#pg-hs.on{display:flex;flex-direction:column;overflow:hidden}
+#pg-kf,#pg-hs{background:var(--bg)}
+#pg-kf{--bg:#f7f8fa;--card:#fff;--ink:#222;--mute:#666;--line:#eee;--orange:#fb5e01;--green:#2fa062;--strike:#999}
+#pg-kf *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+#pg-kf header{background:#fff;height:calc(77px + env(safe-area-inset-top,0px));padding-top:calc(26px + env(safe-area-inset-top,0px));display:flex;align-items:center;padding-left:15px;position:relative}
+#pg-kf .kf-back{width:36px;height:40px;margin-left:0;margin-top:0;border:0;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAoCAIAAAAZoM+0AAACg0lEQVR4nO3XS0/qQBQA4Bna6VB3rgk7BLvS2BYkhCZlRyKiv1RYGRORPi2PkCbEhUbXbt3hFIRx0aRplNw+sObe5M56Ot858zgzhZRS8Fst92vSf+yvw+JstB/AKKWbzQZCmDm2XC5d172+vn57e4vszO4iEUIeHh5ubm4QQoVCYX9/PytssVi4rqtpGsMw9XpdEITIT1JO4/v7+2w2u729ZRim0WhUq1WMcSYYIWQ6nQ4GA4xxfAmkmEbP80ajkaZpSaVkGKXU8zzbtg3D4DhOURRJkjiOiz9CAszzPNM0LcvCGLdarZOTk0QSAADGvGIIIbquj0YjjuPOzs4qlUpSKS7mS+PxGCHU7XYPDw9zua87i1IaWUSid6MvTSYThNDFxUWlUgmkcKAQRscdgQWzhxC6vLw8ODhgGCYMhDvHzSwIKhwdIcQ0TX+dut1uqVRi2Z3KG/slqHB08/k8kMrlcjindO1P0+ivuZ9rnBtkJ+zo6KhWq61Wq36///T09PHxEQTxY1gwVj6fVxSlXq+vVqter/fy8uJ7qbPcgoXHwhgriuLnd3V19fz8vF6v00lg66H+vkjBUWNZ9vz8XBCE74c6Jba1EUIMw3AcByHU6XQyLFeBZ5qmbdsYY1VVRVFECGWF+d79/b2u6wghVVUlSYp/mSXAgjrreZ7jOJqmcRzXbDYzuTyD/YIxPj09zeVyw+HQsiwAQIbPAgBAPp+XZRlCeHd3Z9s2hFCW5TheysLK87woihDCwWBgWRalNE5+6V/Ee3t7oii22+31eu04zuPjY+QnO10ZPM8fHx8zDPP6+losFiP7J9v6W9tmswEAxKkpP4DFb//mz2DmWNIl+AT/XD9mTLZwUgAAAABJRU5ErkJggg==) center/18px 20px no-repeat;position:absolute;left:11px;bottom:6px;cursor:pointer}
+#pg-kf header h1{font-size:18px;font-weight:500;position:absolute;left:47px;bottom:15px;line-height:22px}
+#pg-kf main{flex:1;padding:11px 11.5px 0}
+#pg-kf .kf-card{background:var(--card);border-radius:12px;margin-bottom:11px}
+#pg-kf .kf-c1{position:relative;height:126px}
+#pg-kf .kf-av{position:absolute;left:15px;width:30px;height:30px;background:url(data:image/png;base64,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) center/35px 35px no-repeat}
+#pg-kf .kf-av.kf-a1{top:18.5px}
+#pg-kf .kf-av.kf-a2{top:77px}
+#pg-kf .kf-chev{position:absolute;left:15px;top:55px;width:30px;height:16px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAgCAIAAAD47T2eAAADR0lEQVR4nM2WXU/qShSGp1Q6baEXhmqh1EJEGxT1zv//A4xGo6LGBLCkdCDWli8ptDOzLybHcLB8ufc52e9ls7qeWWu9szIcpRT8abGM3NyX1B9nJGrnv0jKffvyP1Xz92F+xyzcip/f3t4IIYZhpNPp1VnG43Gv14MQ6rqeGLDUAq1Wy7ZtQshsNiuXyxDCxDBK6XA4bDabvu+LohhFUalU+h62tGmUUkIIpRQh1Gg0wjBMDBsMBq1Wy/d98o+2q8YwDIyx4zgY416vRyktl8uyLM/HBEFg2/bHxwchRBRFwzAKhQI7Isf9y9XJGEppOp02TRMA0Ol04jh+f3/nOM40zUwmM89gdUiSVCwWC4UCm+ICA6y2AABgOp22223XdeM45nk+l8sZhpHJZPr9vuM4rI4FxnZNY4IQGoYBAEAIzWYzz/MwxoIgfH5+DodDQogsy7qu5/P5L8b3jq2vhmkymTiOw0ipVCqVSrFpM4amact8uB2GkVzXdV03DEN2WEVRdF3f29sTBGHt72sw8x2YTCbdbrfT6YRhqChKsVhUVXWBkdixLaphCsMQITQej3d3d/f393d2dr6yE0J4nv9JNQgh3/fL5bIoil9nDMMwjmMI4fzMgyDo9XqqquZyucRUS53Wbrfr9brnedPp9Pj4WJZlRhJFcT6MMZ6entrtdj6fPzw8PDg42AKDEHIcJ47j+/t7AEClUslmswt9J4T4vv/y8vL6+jqdTjHGsiwnYpbuNMMwNE3jeX4ymTw+Pj4/Pw8Gg/mVhTH2PK9erzMGhLBQKCQywOrZuK57fX3d7XYxxhDC09NTy7IURWH3hjEajUYURRBC0zQvLi6WzWaN01zXvbu7QwhFUSQIAiNlMpkgCB4eHprNJrNDqVSq1Wqqqi7Ls97Q/X7/5ubGtu3ZbCYIwsnJiaZpzWaTMWRZrlQqtVpNUZQVSTa6N6PR6OrqyrZtNgOe56MoiuNYkiTLss7OzmRZXnYxmTZ6QGWz2cvLSwAAI30527Ks8/NzSZJA0vKf16ZPDkYyTZNtFwhhtVpljIV+JLZnVdO+92E0Gt3e3rque3R0VK1WWR2baLudBgAIw5A5eJPF/HPMz/T3vTp/R78AUFcEcZ5nATsAAAAASUVORK5CYII=) center/17px 16px no-repeat}
+#pg-kf .kf-nm{position:absolute;left:57px;font-size:15px;line-height:20px;color:var(--ink)}
+#pg-kf .kf-ac{position:absolute;left:57px;font-size:12.5px;line-height:16px;color:var(--mute);display:flex;align-items:center;gap:4px}
+#pg-kf .kf-ac img{width:16px;height:16px}
+#pg-kf .kf-n1{top:12px}
+#pg-kf .kf-k1{top:36px}
+#pg-kf .kf-n2{top:70px}
+#pg-kf .kf-k2{top:95px}
+#pg-kf .kf-c2{height:153px;position:relative;padding:0 15px}
+#pg-kf .kf-row{position:absolute;left:15px;right:15px;display:flex;justify-content:space-between;align-items:center;height:24px;font-size:14px}
+#pg-kf .kf-row span:first-child,#pg-kf .kf-lbl{color:var(--mute)}
+#pg-kf .kf-r1{top:17px}
+#pg-kf .kf-r2{top:69px}
+#pg-kf .kf-r3{top:117.5px}
+#pg-kf .kf-total{display:flex;align-items:baseline;gap:3px}
+#pg-kf .kf-total small{font-size:13px;font-weight:400}
+#pg-kf .kf-total b{font-size:23px;font-weight:500;letter-spacing:.2px}
+#pg-kf .kf-old{color:var(--strike);text-decoration:line-through;margin-right:2px}
+#pg-kf .kf-free{color:var(--green)}
+#pg-kf .kf-c3{height:97px;position:relative}
+#pg-kf .kf-c3 .kf-row{height:24px}
+#pg-kf .kf-c3 .kf-q1{top:13px}
+#pg-kf .kf-c3 .kf-q2{top:62.5px}
+#pg-kf .kf-c3 hr{position:absolute;left:15px;right:15px;top:48px;border:0;border-top:1px solid var(--line)}
+#pg-kf .kf-c4{height:44.5px;display:flex;align-items:center;padding:0 15px}
+#pg-kf .kf-c4 input{border:0;outline:0;width:100%;font:inherit;font-size:14px;color:var(--ink);background:transparent;height:100%}
+#pg-kf .kf-c4 input::placeholder{color:var(--mute);opacity:1}
+#pg-kf footer{background:#fff;padding:11px 11.5px calc(10px + env(safe-area-inset-bottom,0px));margin-top:20px}
+#pg-kf .kf-cta{display:block;width:100%;height:49px;border:0;border-radius:12px;background:var(--orange);color:#fff;font:inherit;font-size:15px;font-weight:400;cursor:pointer}
+#pg-kf .kf-cta:active{opacity:.88}
+#pg-kf .kf-cta:disabled{background:#c9c9c9;cursor:default}
+#pg-kf .kf-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10}
+#pg-kf .kf-sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:360px;background:#fff;border-radius:16px 16px 0 0;z-index:11;padding:18px 16px calc(12px + env(safe-area-inset-bottom,0px));text-align:center}
+#pg-kf .kf-sx{position:absolute;right:8px;top:8px;width:36px;height:36px;border:0;background:none;font-size:24px;line-height:1;color:var(--mute);cursor:pointer}
+#pg-kf .kf-sheet h2{font-size:17px;font-weight:500;margin-top:6px}
+#pg-kf .kf-sheet .kf-sub{font-size:13px;color:var(--mute);margin-top:6px}
+#pg-kf .kf-dots{display:flex;justify-content:center;gap:14px;margin:22px 0 10px}
+#pg-kf .kf-dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--orange)}
+#pg-kf .kf-dots i.kf-f{background:var(--orange)}
+#pg-kf .kf-dots.kf-err{animation:shk .35s}
+@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+#pg-kf .kf-pmsg{min-height:18px;font-size:13px;color:#d93025;margin-bottom:6px}
+#pg-kf .kf-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+#pg-kf .kf-pad button{height:52px;border:0;border-radius:10px;background:none;font:inherit;font-size:22px;color:var(--ink);cursor:pointer}
+#pg-kf .kf-pad button:active{background:#f1f1f1}
+#pg-kf .kf-pad button:disabled{visibility:hidden}
+#pg-hs{--bg:#f6f7f9;--card:#fff;--ink:#222;--mute:#666;--sub:#808080;--line:#eee;--orange:#fb5e01;--green:#26a846;--gtxt:#1fa35a}
+#pg-hs *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+#pg-hs header{flex:none;background:#fff;height:calc(47px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 15px 0;display:flex;align-items:center}
+#pg-hs header h1{font-size:18px;font-weight:500}
+#pg-hs .hs-scroll{flex:1;overflow-y:auto;padding-bottom:14px}
+#pg-hs .hs-top{text-align:center;padding-top:23.5px}
+#pg-hs .hs-ck{width:35px;height:35px;border-radius:50%;background:var(--green);margin:0 auto;display:flex;align-items:center;justify-content:center}
+#pg-hs .hs-ck svg{width:21px;height:21px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+#pg-hs .hs-st{font-size:14px;line-height:20px;color:#555;margin-top:9.5px}
+#pg-hs .hs-amt{height:40px;margin-top:7px;display:flex;align-items:baseline;justify-content:center;gap:5px;line-height:40px}
+#pg-hs .hs-amt small{font-size:17px;font-weight:500}
+#pg-hs .hs-amt b{font-size:30px;font-weight:500;letter-spacing:.2px}
+#pg-hs main{padding:0 11.5px;margin-top:14.5px}
+#pg-hs .hs-card{background:var(--card);border-radius:12px;padding:0 15px}
+#pg-hs .hs-r{display:flex;justify-content:space-between;align-items:center;min-height:49.5px;padding:7px 0;font-size:14px;border-bottom:1px solid var(--line);gap:10px}
+#pg-hs .hs-r:last-child{border-bottom:0}
+#pg-hs .hs-r>span:first-child{color:var(--mute);white-space:nowrap}
+#pg-hs .hs-r>.hs-v{display:flex;align-items:center;gap:6.5px;min-width:0;text-align:right}
+#pg-hs .hs-r>.hs-v.hs-n{font-size:13.2px;line-height:18px}
+#pg-hs .hs-r>.hs-v.hs-n>span{max-width:165px;word-break:break-all}
+#pg-hs .hs-g{color:var(--gtxt)}
+#pg-hs .hs-p{align-items:flex-start;padding:15px 0 0;height:72px}
+#pg-hs .hs-p>span:first-child{line-height:20px}
+#pg-hs .hs-pv{display:flex;flex-direction:column;align-items:flex-end;min-width:0}
+#pg-hs .hs-pl{display:flex;align-items:center;gap:7px;height:22px;font-size:15px}
+#pg-hs .hs-pl i{width:22px;height:22px;border-radius:50%;background:url(data:image/png;base64,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) center/25px 25px no-repeat;flex:none}
+#pg-hs .hs-ps{margin-top:5px;font-size:12.5px;line-height:16px;color:var(--sub);display:flex;align-items:center;gap:4px}
+#pg-hs .hs-ps img{width:12px;height:12px}
+#pg-hs .hs-cp{border:0;background:none;padding:2px;display:flex;cursor:pointer}
+#pg-hs .hs-cp svg{width:12px;height:12px;fill:none;stroke:#8a8a8a;stroke-width:1.3}
+#pg-hs footer{flex:none;background:#fff;border-top:1px solid #ececec;padding:12.5px 11.5px calc(10.5px + env(safe-area-inset-bottom,0px))}
+#pg-hs .hs-btn{display:block;width:100%;height:49px;border-radius:12px;font:inherit;font-size:15px;cursor:pointer}
+#pg-hs .hs-btn.hs-o{border:1px solid var(--orange);background:#fff;color:var(--orange)}
+#pg-hs .hs-btn.hs-f{border:0;background:var(--orange);color:#fff;margin-top:11.5px}
+#pg-hs .hs-btn:active{opacity:.88}
+#pg-hs .hs-toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:8px 16px;border-radius:18px;opacity:0;pointer-events:none;transition:opacity .2s}
+#pg-hs .hs-toast.hs-on{opacity:1}
+#pg-kf header{flex:none}
+#pg-kf main{flex:1;overflow-y:auto;padding-bottom:16px;-webkit-overflow-scrolling:touch}
+#pg-kf footer{flex:none;margin-top:0;border-top:1px solid #ececec}
+#pg-kf .kf-ov{position:absolute;z-index:10}
+#pg-kf .kf-sheet{position:absolute;left:0;transform:none;max-width:none;z-index:11}
+#pg-hs .hs-toast{position:absolute}
 </style>
 </head>
 <body>
@@ -411,15 +517,15 @@ function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function render(){
  var q=document.getElementById("q").value.trim().toLowerCase(),h="";
  D.forEach(function(r,i){
-  if(tab=="fav"&&!fav[i])return;
+  if(tab=="fav"&&!r[4])return;
   if(q&&(r[1]+" "+r[2]).toLowerCase().indexOf(q)<0)return;
   h+='<div class="it"><img src="'+IC[r[0]]+'" alt=""><div class="b"><div class="t"><strong>'+esc(r[1])+'</strong><p>'+(r[3]?'<img src="'+SEA+'" alt="">':'')+esc(r[2])+'</p></div>'
-   +'<button class="st'+(fav[i]?' on':'')+'" data-i="'+i+'"><img src="assets/img/bt_bintang.png" alt="">'+STAR+'</button></div></div>';
+   +'<button class="st'+(r[4]?' on':'')+'" data-i="'+i+'"><img src="assets/img/bt_bintang.png" alt="">'+STAR+'</button></div></div>';
  });
  document.getElementById("list").innerHTML=h||'<div class="empty">'+(tab=="fav"&&!q?"Belum ada favorit":"Penerima tidak ditemukan")+'</div>';
 }
 document.getElementById("list").addEventListener("click",function(e){
- var b=e.target.closest(".st");if(!b)return;var i=b.dataset.i;fav[i]=!fav[i];render();
+ var b=e.target.closest(".st");if(!b)return;var i=b.dataset.i;D[i][4]=!D[i][4];render();
 });
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){
  document.querySelectorAll(".tabs button").forEach(function(x){x.classList.remove("on")});
@@ -518,6 +624,93 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
  </div>
  <div class="tb-foot"><div class="tb-gomsg" id="trfGoMsg"></div><button class="tb-go" id="trfGo" disabled>Lanjut</button></div>
 </div>
+<div class="pg" id="pg-kf">
+<header>
+    <button class="kf-back" id="kf-back" aria-label="Kembali"></button>
+    <h1>Konfirmasi</h1>
+  </header>
+<main>
+    <section class="kf-card kf-c1" aria-label="Rekening">
+      <div class="kf-av kf-a1"></div>
+      <div class="kf-nm kf-n1" id="kf-sName"></div>
+      <div class="kf-ac kf-k1"><img alt="" src="data:image/png;base64,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"><span id="kf-sAcc"></span></div>
+      <div class="kf-chev"></div>
+      <div class="kf-av kf-a2"></div>
+      <div class="kf-nm kf-n2" id="kf-rName"></div>
+      <div class="kf-ac kf-k2" id="kf-rAcc"></div>
+    </section>
+
+    <section class="kf-card kf-c2" aria-label="Rincian biaya">
+      <div class="kf-row kf-r1"><span>Total</span><span class="kf-total"><small>Rp</small><b id="kf-total"></b></span></div>
+      <div class="kf-row kf-r2"><span>Jumlah Transfer</span><span id="kf-amt"></span></div>
+      <div class="kf-row kf-r3"><span>Biaya Transfer</span><span id="kf-fee"></span></div>
+    </section>
+
+    <section class="kf-card kf-c3" aria-label="Info transaksi">
+      <div class="kf-row kf-q1"><span>Waktu Pemrosesan</span><span>Realtime (BI-FAST)</span></div>
+      <hr>
+      <div class="kf-row kf-q2"><span>Tujuan Transaksi</span><span>Transfer Dana</span></div>
+    </section>
+
+    <section class="kf-card kf-c4">
+      <input id="kf-note" type="text" placeholder="Catatan" aria-label="Catatan" maxlength="50">
+    </section>
+  </main>
+<footer><button class="kf-cta" id="kf-cta" type="button">Konfirmasi</button></footer>
+<div class="kf-ov" id="kf-ov" hidden></div>
+<div class="kf-sheet" id="kf-sheet" role="dialog" aria-modal="true" aria-labelledby="kf-pinTitle" hidden>
+  <div id="kf-viewPin">
+    <button class="kf-sx" id="kf-pinX" type="button" aria-label="Tutup">&times;</button>
+    <h2 id="kf-pinTitle">Masukkan PIN</h2>
+    <p class="kf-sub">Masukkan 6 digit PIN untuk konfirmasi transfer</p>
+    <div class="kf-dots" id="kf-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="kf-pmsg" id="kf-pmsg" role="alert" aria-live="polite"></div>
+    <div class="kf-pad" id="kf-pad"></div>
+  </div>
+</div>
+</div>
+
+<div class="pg" id="pg-hs">
+<header><h1>Hasil Transfer</h1></header>
+<div class="hs-scroll">
+<div id="hs-view">
+      <div class="hs-top">
+        <div class="hs-ck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4.5 12.8l5 5L19.5 7"/></svg></div>
+        <div class="hs-st">Pembayaran Diterima</div>
+        <div class="hs-amt"><small>Rp</small><b id="hs-total"></b></div>
+      </div>
+      <main>
+        <section class="hs-card" aria-label="Rincian">
+          <div class="hs-r hs-p"><span>Dari</span>
+            <div class="hs-pv">
+              <div class="hs-pl"><i></i><span id="hs-sName"></span></div>
+              <div class="hs-ps"><img id="hs-sLogo" alt="" src="data:image/png;base64,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" hidden><span id="hs-sAcc"></span></div>
+            </div>
+          </div>
+          <div class="hs-r hs-p"><span>Ke</span>
+            <div class="hs-pv">
+              <div class="hs-pl"><i></i><span id="hs-rName"></span></div>
+              <div class="hs-ps"><span id="hs-rAcc"></span></div>
+            </div>
+          </div>
+          <div class="hs-r"><span>Nominal Transaksi</span><span class="hs-v" id="hs-nom"></span></div>
+          <div class="hs-r"><span>Biaya Transaksi</span><span class="hs-v" id="hs-fee"></span></div>
+          <div class="hs-r"><span>Jumlah Total</span><span class="hs-v" id="hs-jml"></span></div>
+          <div class="hs-r"><span>No. Transaksi</span><span class="hs-v hs-n"><span id="hs-tx"></span><button class="hs-cp" data-c="tx" type="button" aria-label="Salin No. Transaksi"><svg viewBox="0 0 14 14" stroke-linejoin="round"><rect x="4.2" y="4.2" width="8.3" height="8.3" rx="1.4"/><path d="M9.8 3.4V2.6A1.2 1.2 0 0 0 8.6 1.4H2.6A1.2 1.2 0 0 0 1.4 2.6v6A1.2 1.2 0 0 0 2.6 9.8h.8"/></svg></button></span></div>
+          <div class="hs-r"><span>No. Referensi</span><span class="hs-v hs-n"><span id="hs-ref"></span><button class="hs-cp" data-c="ref" type="button" aria-label="Salin No. Referensi"><svg viewBox="0 0 14 14" stroke-linejoin="round"><rect x="4.2" y="4.2" width="8.3" height="8.3" rx="1.4"/><path d="M9.8 3.4V2.6A1.2 1.2 0 0 0 8.6 1.4H2.6A1.2 1.2 0 0 0 1.4 2.6v6A1.2 1.2 0 0 0 2.6 9.8h.8"/></svg></button></span></div>
+          <div class="hs-r"><span>Metode Transaksi</span><span class="hs-v" id="hs-mtd"></span></div>
+          <div class="hs-r"><span>Waktu Transaksi</span><span class="hs-v" id="hs-wkt"></span></div>
+          <div class="hs-r" id="hs-noteRow" hidden><span>Catatan</span><span class="hs-v" id="hs-note"></span></div>
+        </section>
+      </main>
+    </div>
+</div>
+<footer id="hs-foot">
+    <button class="hs-btn hs-o" id="hs-share" type="button">Bagikan</button>
+    <button class="hs-btn hs-f" id="hs-ok" type="button">OK</button>
+  </footer>
+<div class="hs-toast" id="hs-toast" role="status" aria-live="polite"></div>
+</div>
 <script>
 /* ===== Alur Bank Lain: seluruh data datang dari server (Supabase Edge Functions) ===== */
 (function(){
@@ -539,7 +732,7 @@ var rp=function(n){return "Rp "+new Intl.NumberFormat("id-ID").format(n)};
 var emit=function(name,detail){document.dispatchEvent(new CustomEvent(name,{detail:detail}))};
 function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
 
-var tab="rek",cache={rek:null,hp:null},status={rek:"idle",hp:"idle"},shown=[];
+var tab="rek",cache={rek:null,hp:null},status={rek:"idle",hp:"idle"},shown=[],verified=null;
 var bq=$("bq"),bl=$("bl");
 
 /* ---------- logo penyedia dari server (bucket storage "logos") ---------- */
@@ -624,9 +817,13 @@ bl.addEventListener("keydown",function(e){
 var level=0,pushed=0,cur=null,dest=null;
 function view(l){
  level=l;
+ if(l===0){reqId++;if(ctl){try{ctl.abort()}catch(e){}ctl=null}busy=false;rpick.classList.remove("busy")}
+ if(l!==3)closePin(true);
+ $("pg-rek").classList.toggle("on",l>=1&&l<=3);
+ $("pg-trf").classList.toggle("on",l===2||l===3);
+ $("pg-kf").classList.toggle("on",l===3);
+ $("pg-hs").classList.toggle("on",l===4);
  if(l===0&&!cur)return;
- $("pg-rek").classList.toggle("on",l>=1);
- $("pg-trf").classList.toggle("on",l===2);
  $("sh-bank").classList.toggle("on",l===0);
  $("ov").classList.toggle("on",l===0);
  if(l===0)rb();
@@ -636,23 +833,24 @@ function go(l){
  view(l);
 }
 function back(){if(pushed>0)history.back();else view(level-1)}
-window.addEventListener("popstate",function(e){var l=(e.state&&e.state.tb)||0;pushed=l;view(l)});
+window.addEventListener("popstate",function(e){var l=(e.state&&e.state.tb)||0;pushed=l;if(done&&l<4){resetFlow();return}view(l)});
 $("rekBack").addEventListener("click",back);
 $("trfBack").addEventListener("click",back);
 
 /* ---------- layar 1: cari rekening / nomor ---------- */
-var rq=$("rekQ"),rerr=$("rekErr"),rsec=$("rekSec"),rpick=$("rekPick"),busy=false;
-function labelOf(p){
+var rq=$("rekQ"),rerr=$("rekErr"),rsec=$("rekSec"),rpick=$("rekPick"),busy=false,reqId=0,ctl=null;
+function labelOf(p,kind){
  var n=String(p.name||p.code||"");
- return (tab==="rek"&&!/\bbank\b/i.test(n)?"BANK "+n:n).toUpperCase();
+ return (kind==="rek"&&!/\bbank\b/i.test(n)?"BANK "+n:n).toUpperCase();
 }
 function openRek(p){
+ reqId++;if(ctl){try{ctl.abort()}catch(e){}ctl=null}busy=false;rpick.classList.remove("busy");
  cur={p:p,kind:tab};
- var c=CFG[tab],label=labelOf(p);
+ var c=CFG[tab],label=labelOf(p,tab);
  $("rekTitle").textContent="Ke "+label;$("rekName").textContent=label;
  setLogo($("rekLogo"),p);
  $("rekLabel").textContent=c.label;$("rekBand").textContent=c.band;
- rq.value="";rerr.textContent="";rsec.hidden=true;
+ rq.value="";rerr.textContent="";rerr.style.color="";rpick.classList.remove("verified");rsec.hidden=true;
  go(1);
  try{rq.focus()}catch(e){}
 }
@@ -667,19 +865,32 @@ rq.addEventListener("input",function(){
 });
 function choose(){
  if(busy||!cur)return;
+ if(verified&&verified.ref===cur&&verified.number===rq.value.replace(/\D/g,"")){
+  openTrf({kind:cur.kind,provider:Object.assign({},cur.p,verified.provider||{}),number:verified.number,name:verified.name});
+  return;
+ }
  var num=rq.value.replace(/\D/g,""),c=CFG[cur.kind];
  if(!num)return;
  if(num.length<4){rerr.textContent=c.bad;return}
- busy=true;rerr.textContent="";rpick.classList.add("busy");$("rekPickSub").textContent="Memeriksa…";
- var ref=cur;
- fetch(c.url,{method:"POST",headers:HEADERS,body:JSON.stringify({code:ref.p.code,number:num})})
+ busy=true;verified=null;rerr.style.color="";rerr.textContent="";rpick.classList.remove("verified");rpick.classList.add("busy");$("rekPickSub").textContent="Memeriksa rekening…";
+ var ref=cur,my=++reqId;
+ ctl=window.AbortController?new AbortController():null;
+ fetch(c.url,{method:"POST",headers:HEADERS,body:JSON.stringify({code:ref.p.code,number:num}),signal:ctl?ctl.signal:undefined})
  .then(function(r){return r.json().catch(function(){return {}})})
  .then(function(j){
-  if(j&&j.found)openTrf({provider:Object.assign({},ref.p,j.provider||{}),number:j.number||num,name:j.name});
-  else rerr.textContent=(j&&j.message)||"Data tidak ditemukan";
+  if(my!==reqId||cur!==ref)return; /* hasil usang (bank sudah diganti / layar ditutup) */
+  if(j&&j.found===true&&typeof j.name==="string"&&j.name.trim()){
+   var verifiedNumber=String(j.number||num);
+   verified={ref:ref,number:verifiedNumber,name:j.name.trim(),provider:j.provider||{}};
+   $("rekPickNum").textContent=verified.name;
+   $("rekPickSub").textContent="Terverifikasi • "+c.pre+verifiedNumber+" — ketuk untuk melanjutkan";
+   rpick.classList.add("verified");
+   rerr.textContent="Nama pemilik rekening berhasil diverifikasi.";
+   rerr.style.color="#16834a";
+  } else {verified=null;rerr.style.color="";rerr.textContent=(j&&j.message)||"Data tidak ditemukan";}
  })
- .catch(function(){rerr.textContent="Gagal terhubung, coba lagi"})
- .then(function(){busy=false;rpick.classList.remove("busy");$("rekPickSub").textContent=c.sub});
+ .catch(function(e){if(my===reqId&&!(e&&e.name==="AbortError"))rerr.textContent="Gagal terhubung, coba lagi"})
+ .then(function(){if(my!==reqId)return;busy=false;ctl=null;rpick.classList.remove("busy");if(!verified)$("rekPickSub").textContent=c.sub});
 }
 rpick.addEventListener("click",choose);
 rpick.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();choose()}});
@@ -687,7 +898,7 @@ rq.addEventListener("keydown",function(e){if(e.key==="Enter")choose()});
 
 /* ---------- layar 2: transfer (terisi dari hasil server) ---------- */
 /* saldo/limit/biaya belum punya sumber di server: isi lewat window.setAccount({saldo,limit,fee}); bila kosong barisnya disembunyikan */
-var account={saldo:null,limit:null,fee:null};
+var account={saldo:null,limit:null,fee:0};
 var amt=$("trfAmt"),favOn=false;
 var amount=function(){return parseInt(amt.value.replace(/\D/g,"")||"0",10)};
 function renderAccount(){
@@ -710,14 +921,23 @@ function validate(){
 }
 function setSwitch(on){var s=$("trfSched");s.classList.toggle("on",on);s.setAttribute("aria-checked",on)}
 function setFav(on){favOn=on;$("trfFavIcon").setAttribute("fill",on?"#f5b800":"none");$("trfFav").setAttribute("aria-pressed",on)}
-function shortName(p){
+function shortName(p,kind){
  var n=String((p&&(p.name||p.code))||"").replace(/_/g," ");
- return (tab==="rek"?n.replace(/^bank\s+/i,""):n).toUpperCase();
+ return (kind==="rek"?n.replace(/^bank\s+/i,""):n).toUpperCase();
 }
 function openTrf(d){
  dest=d;
  $("trfName").textContent=d.name;
- $("trfSub").textContent=shortName(d.provider)+": "+d.number;
+ $("trfSub").textContent=shortName(d.provider,d.kind)+": "+d.number;
+ var destAvatar=$("pg-trf").querySelector(".tb-dest .tb-avatar");
+ if(destAvatar){
+  destAvatar.textContent="";
+  var destLogo=logoSrc(d.provider||{});
+  if(destLogo){var di=new Image();di.alt="";di.style.cssText="width:30px;height:30px;object-fit:contain;border-radius:50%;background:#fff";
+   di.onerror=function(){destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>'};
+   di.src=destLogo;destAvatar.appendChild(di);
+  }else destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>';
+ }
  amt.value="";$("trfNote").value="";$("trfNoteCnt").textContent="0/16";
  setSwitch(false);setFav(false);renderAccount();validate();
  go(2);
@@ -738,11 +958,160 @@ $("trfProc").addEventListener("click",function(){emit("transfer:waktu-pemrosesan
 $("trfGo").addEventListener("click",function(){
  if($("trfGo").disabled||!dest)return;
  var ev=new CustomEvent("transfer:lanjut",{cancelable:true,detail:{
-  provider:dest.provider,number:dest.number,name:dest.name,amount:amount(),note:$("trfNote").value.trim(),
-  scheduled:$("trfSched").classList.contains("on"),favorite:favOn}});
+  kind:dest.kind,provider:dest.provider,number:dest.number,name:dest.name,amount:amount(),note:$("trfNote").value.trim(),
+  scheduled:$("trfSched").classList.contains("on"),favorite:favOn,fee:account.fee}});
  document.dispatchEvent(ev);
- if(!ev.defaultPrevented)$("trfGoMsg").textContent="Proses transfer belum terhubung ke server.";
+ if(ev.defaultPrevented)return;
+ if(ev.detail.scheduled){$("trfGoMsg").textContent="Transfer terjadwal belum tersedia. Matikan \u201cJadwalkan Transfer\u201d untuk transfer sekarang.";return}
+ openKf(Object.assign({},ev.detail));
 });
+
+/* ---------- layar 3: konfirmasi + PIN (sebelumnya konfirmasi-transfer-1.html) ---------- */
+/* pengirim & biaya normal: satu sumber data, dipakai layar Konfirmasi dan Hasil */
+var SENDER={name:"Andi Rizaldi",bank:"SeaBank",number:"901817098703"},NORMAL_FEE=2500;
+var URL_BX=SUPABASE_URL+"/functions/v1/konfirmasi-bx";
+var fmt=function(n){return new Intl.NumberFormat("id-ID").format(n)};
+var tx=null,result=null,pin="",submitting=false,done=false;
+var kd=$("kf-dots").children;
+function paintPin(){for(var i=0;i<kd.length;i++)kd[i].classList.toggle("kf-f",i<pin.length)}
+function pmsg(t){$("kf-pmsg").textContent=t||""}
+function closePin(force){
+ if(submitting&&!force)return;
+ $("kf-ov").hidden=true;$("kf-sheet").hidden=true;pin="";paintPin();pmsg("");
+}
+function openPin(){if(done||submitting||!tx)return;pin="";paintPin();pmsg("");$("kf-ov").hidden=false;$("kf-sheet").hidden=false}
+function openKf(d){
+ tx=d;submitting=false;
+ $("kf-sName").textContent=SENDER.name;
+ $("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number;
+ $("kf-rName").textContent=d.name;
+ $("kf-rAcc").textContent=shortName(d.provider,d.kind)+": "+d.number;
+ $("kf-total").textContent=fmt(d.amount+(d.fee||0));
+ $("kf-amt").textContent=rp(d.amount);
+ var f=$("kf-fee");f.textContent="";
+ if(d.fee===0){if(NORMAL_FEE>0)f.appendChild(mk("span","kf-old","Rp "+fmt(NORMAL_FEE)));f.appendChild(mk("span","kf-free","GRATIS"))}
+ else f.textContent=d.fee==null?"-":rp(d.fee);
+ $("kf-note").value=(d.note||"").slice(0,50);
+ go(3);
+ $("pg-kf").querySelector("main").scrollTop=0;
+}
+var pad=$("kf-pad");
+["1","2","3","4","5","6","7","8","9","","0","\u232b"].forEach(function(k){
+ var b=document.createElement("button");b.type="button";
+ if(k==="")b.disabled=true;else{b.textContent=k;b.dataset.k=k;if(k==="\u232b")b.setAttribute("aria-label","Hapus")}
+ pad.appendChild(b);
+});
+pad.addEventListener("click",function(e){var b=e.target.closest("button");if(b&&b.dataset.k)press(b.dataset.k)});
+function press(k){
+ if(submitting||done||$("kf-sheet").hidden)return;
+ if(k==="\u232b"){pin=pin.slice(0,-1);paintPin();pmsg("");return}
+ if(pin.length>=6)return;
+ pin+=k;paintPin();pmsg("");
+ if(pin.length===6)submitPin();
+}
+function shake(){var d=$("kf-dots");d.classList.remove("kf-err");void d.offsetWidth;d.classList.add("kf-err")}
+function submitPin(){
+ if(submitting||!tx)return;
+ submitting=true;pmsg("Memproses\u2026");
+ var body={pin:pin,sender_name:SENDER.name,sender_bank:SENDER.bank,sender_account:SENDER.number,
+  recipient_name:tx.name,recipient_bank:shortName(tx.provider,tx.kind),recipient_account:tx.number,
+  amount_rupiah:tx.amount,fee_rupiah:tx.fee===0?0:null,note:$("kf-note").value.trim()};
+ fetch(URL_BX,{method:"POST",headers:HEADERS,body:JSON.stringify(body)})
+ .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {s:r.status,j:j||{}}})})
+ .then(function(x){
+  submitting=false;
+  if(x.s===200&&x.j.ok){success(x.j.data,body);return}
+  pin="";paintPin();
+  if(x.s===401){shake();pmsg("PIN salah. Coba lagi.")}
+  else if(x.s===429)pmsg(x.j.message||"Terlalu banyak percobaan. Coba lagi nanti.");
+  else if(x.s===400)pmsg("Data transfer tidak valid.");
+  else pmsg("Gagal memproses. Coba lagi.");
+ })
+ .catch(function(){submitting=false;pin="";paintPin();pmsg("Tidak dapat terhubung. Periksa koneksi lalu coba lagi.")});
+}
+$("kf-cta").addEventListener("click",openPin);
+$("kf-pinX").addEventListener("click",function(){closePin()});
+$("kf-ov").addEventListener("click",function(){closePin()});
+$("kf-back").addEventListener("click",function(){if(!submitting)back()});
+document.addEventListener("keydown",function(e){
+ if(level!==3||$("kf-sheet").hidden)return;
+ if(/^[0-9]$/.test(e.key))press(e.key);
+ else if(e.key==="Backspace")press("\u232b");
+ else if(e.key==="Escape")closePin();
+});
+
+/* ---------- layar 4: hasil transfer (sebelumnya hasil-transfer.html) ---------- */
+var MON=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],p2=function(n){return (n<10?"0":"")+n};
+function waktu(iso){
+ var t=new Date(iso);if(isNaN(t))return "-";
+ var d=new Date(t.getTime()+7*3600000); /* WIB */
+ return d.getUTCDate()+" "+MON[d.getUTCMonth()]+" "+d.getUTCFullYear()+", "+p2(d.getUTCHours())+":"+p2(d.getUTCMinutes());
+}
+var tt;
+function toast(t){var e=$("hs-toast");e.textContent=t;e.classList.add("hs-on");clearTimeout(tt);tt=setTimeout(function(){e.classList.remove("hs-on")},1600)}
+function copy(text,cb){
+ function fb(){var a=document.createElement("textarea");a.value=text;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}document.body.removeChild(a);cb(ok)}
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(function(){cb(true)},fb);else fb();
+}
+function feeText(f){return f===0?"GRATIS":f==null?"-":rp(f)}
+function fillHasil(r){
+ var amt=r.amount_rupiah,fee=r.fee_rupiah==null?null:r.fee_rupiah,total=amt+(fee||0);
+ $("hs-total").textContent=fmt(total);
+ $("hs-sName").textContent=r.sender_name;$("hs-sAcc").textContent=r.sender_bank+": "+r.sender_account;
+ $("hs-sLogo").hidden=!/seabank/i.test(r.sender_bank);
+ $("hs-rName").textContent=r.recipient_name;$("hs-rAcc").textContent=r.recipient_bank+": "+r.recipient_account;
+ $("hs-nom").textContent=rp(amt);
+ var f=$("hs-fee");f.textContent=feeText(fee);f.classList.toggle("hs-g",fee===0);
+ $("hs-jml").textContent=rp(total);
+ $("hs-tx").textContent=r.transaction_no;$("hs-ref").textContent=r.reference_no;
+ $("hs-mtd").textContent=r.method||"-";$("hs-wkt").textContent=waktu(r.transaction_time);
+ $("hs-note").textContent=r.note||"";$("hs-noteRow").hidden=!r.note;
+ $("pg-hs").querySelector(".hs-scroll").scrollTop=0;
+}
+function success(d,body){
+ done=true;closePin(true);
+ result=Object.assign({sender_name:body.sender_name,sender_bank:body.sender_bank,sender_account:body.sender_account,
+  recipient_name:body.recipient_name,recipient_bank:body.recipient_bank,recipient_account:body.recipient_account,
+  amount_rupiah:body.amount_rupiah,fee_rupiah:body.fee_rupiah,note:body.note,
+  transaction_no:"-",reference_no:"-",method:"-",transaction_time:new Date().toISOString()},d||{});
+ /* penerima masuk daftar "Terakhir" di Bayar/Transfer (tanpa duplikat, status favorit terbawa) */
+ var lbl=result.recipient_bank+": "+result.recipient_account,fv=favOn;
+ for(var i=0;i<D.length;i++)if(D[i][2]===lbl){fv=fv||!!D[i][4];D.splice(i,1);break}
+ D.unshift(["p",result.recipient_name,lbl,/sea/i.test(result.recipient_bank)?1:0,fv]);
+ render();
+ fillHasil(result);
+ /* ganti entri riwayat konfirmasi: tombol kembali tidak bisa mengulang transaksi */
+ if(level===3){try{history.replaceState({tb:4},"");pushed=4}catch(e){pushed=0}view(4)}else go(4);
+ emit("transfer:berhasil",result);
+}
+document.querySelectorAll("#pg-hs .hs-cp").forEach(function(b){
+ b.addEventListener("click",function(){copy($("hs-"+b.dataset.c).textContent,function(ok){toast(ok?"Berhasil disalin":"Gagal menyalin")})});
+});
+$("hs-share").addEventListener("click",function(){
+ var r=result;if(!r)return;var tot=r.amount_rupiah+(r.fee_rupiah||0);
+ var t=["Hasil Transfer",rp(tot),
+  "Dari: "+r.sender_name+" ("+r.sender_bank+": "+r.sender_account+")",
+  "Ke: "+r.recipient_name+" ("+r.recipient_bank+": "+r.recipient_account+")",
+  "Nominal: "+rp(r.amount_rupiah),"Biaya: "+feeText(r.fee_rupiah),
+  "No. Transaksi: "+r.transaction_no,"No. Referensi: "+r.reference_no,
+  "Metode: "+(r.method||"-"),"Waktu: "+waktu(r.transaction_time)].join("\n");
+ if(navigator.share)navigator.share({title:"Hasil Transfer",text:t}).catch(function(){});
+ else copy(t,function(ok){toast(ok?"Hasil transfer disalin":"Gagal menyalin")});
+});
+/* kembali ke Bayar/Transfer dengan keadaan bersih */
+function resetFlow(){
+ done=false;submitting=false;tx=null;result=null;cur=null;dest=null;verified=null;
+ view(0);
+ $("sh-bank").classList.remove("on");$("ov").classList.remove("on");
+ window.scrollTo(0,0);
+}
+$("hs-ok").addEventListener("click",function(){
+ var ev=new CustomEvent("hasil:ok",{cancelable:true,detail:{transaction_no:result&&result.transaction_no}});
+ document.dispatchEvent(ev);
+ if(ev.defaultPrevented)return;
+ if(pushed>0)history.go(-pushed);else resetFlow();
+});
+
 })();
 </script>
 <script src="pwa.js"></script>
