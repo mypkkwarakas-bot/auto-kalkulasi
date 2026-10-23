@@ -919,11 +919,7 @@ rq.addEventListener("input",function(){
 });
 function choose(){
  if(busy||!cur)return;
- if(verified&&verified.ref===cur&&verified.number===rq.value.replace(/\D/g,"")){
-  openTrf({kind:cur.kind,provider:Object.assign({},cur.p,verified.provider||{}),number:verified.number,name:verified.name});
-  return;
- }
- var num=rq.value.replace(/\D/g,""),c=CFG[cur.kind];
+  var num=rq.value.replace(/\D/g,""),c=CFG[cur.kind];
  if(!num)return;
  if(cur.p&&cur.p._fb){
   var r0=cur,nm=r0.p._fb;rerr.style.color="";rerr.textContent="";
@@ -945,16 +941,12 @@ function choose(){
   if(my!==reqId||cur!==ref)return; /* hasil usang (bank sudah diganti / layar ditutup) */
   if(j&&j.found===true&&typeof j.name==="string"&&j.name.trim()){
    var verifiedNumber=String(j.number||num);
-   verified={ref:ref,number:verifiedNumber,name:j.name.trim(),provider:j.provider||{}};
-   $("rekPickNum").textContent=verified.name;
-   $("rekPickSub").textContent="Terverifikasi • "+c.pre+verifiedNumber+" — ketuk untuk melanjutkan";
-   rpick.classList.add("verified");
-   rerr.textContent=c.okm;
-   rerr.style.color="#16834a";
+   verified=null;
+   openTrf({kind:ref.kind,provider:Object.assign({},ref.p,j.provider||{}),number:verifiedNumber,name:j.name.trim()});
   } else {verified=null;rerr.style.color="";rerr.textContent=(j&&j.message)||"Data tidak ditemukan";}
  })
  .catch(function(e){if(my===reqId&&!(e&&e.name==="AbortError"))rerr.textContent="Gagal terhubung, coba lagi"})
- .then(function(){if(my!==reqId)return;busy=false;ctl=null;rpick.classList.remove("busy");if(!verified)$("rekPickSub").textContent=c.sub});
+ .then(function(){if(my!==reqId)return;busy=false;ctl=null;rpick.classList.remove("busy");$("rekPickSub").textContent=c.sub});
 }
 rpick.addEventListener("click",choose);
 rpick.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();choose()}});
