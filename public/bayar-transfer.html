@@ -86,6 +86,14 @@ img{display:block}
 .lg{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;flex:none}
 .ec .lg{width:34px;height:34px}
 .lg svg{width:60%;height:60%}
+.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.it{cursor:pointer}
+.tb-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}
+.tb-chips[hidden]{display:none}
+.tb-chips button{height:61px;background:#fff;border:1px solid #e1e1e4;border-radius:6px;font:inherit;font-size:14px;color:#222;display:flex;align-items:center;justify-content:center;gap:4px;padding:0;cursor:pointer}
+.tb-chips button b{font-size:17px;font-weight:600;color:#111}
+.tb-chips button i{font-style:normal;color:#555}
+#trfBankRows .tb-line+.tb-line{border-top:1px solid #eee}
 .pg{position:fixed;inset:0;left:50%;width:100%;max-width:480px;transform:translateX(-50%);background:#f5f6f8;z-index:60;overflow-y:auto;display:none}
 .pg.on{display:block}
 .ph{display:flex;align-items:center;height:52px;background:#fff;padding:0 12px 0 14px;gap:22px;position:sticky;top:0;z-index:2}
@@ -508,22 +516,43 @@ img{display:block}
 <script>
 var IC={g:"assets/img/ikon_gopay.png",p:"data:image/png;base64,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",o:"assets/img/logo_ovo.png",d:"assets/img/bt_dana.png",s:"assets/img/logo_shopeepay.png",t:"assets/img/bt_telkomsel.png"};
 var SEA="data:image/png;base64,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";
-var D=[
-["g","Gopay Rxxxxx","GoPay: 089526690419"],
-["p","Agung Pardede","BCA: 0070676117"],
-["p","Syamsur Rijal","BCA: 0070552388"],
-["g","Gopay Sxxxxxx","GoPay: 088707770086"],
-["o","Ovo 087862712244","OVO: 087862712244"],
-["p","Aang Junaidy","MANDIRI: 1200010924244"],
-["p","Nanda Dwi Saputra","SeaBank: 901537270661",1],
-["d","Dnid Sahxxx","Dana: 087720679325"],
-["d","Dnid Wahxxxx","Dana: 085187732442"],
-["s","Shopeepay Syaxxxx Rijxx","ShopeePay: 081401776146"],
-["p","M Hasanudin Efendi","BCA: 2400290434"],
-["d","Dnid Suwxxxx","Dana: 082123238218"],
-["o","Ovo Topup Ca***o Wi***o","OVO: 087740541031"],
-["t","Telkomsel 15.000","No. Handphone: 082211053734"]
-];
+var D=[],KS="loading",FK="kontak_fav_v1",CK="kontak_cache_v1",FAV={};
+try{FAV=JSON.parse(localStorage.getItem(FK)||"{}")||{}}catch(e){FAV={}}
+var WK={gopay:"g",ovo:"o",dana:"d",shopeepay:"s",linkaja:"l",isaku:"i",astrapay:"a"};
+function kkey(b,n){return String(b||"").toLowerCase().replace(/^bank\s+/,"").replace(/[^a-z0-9]/g,"")+":"+String(n||"").replace(/\D/g,"")}
+function favSave(){try{localStorage.setItem(FK,JSON.stringify(FAV))}catch(e){}}
+function toRow(k){
+ var key=kkey(k.bank,k.no_rekening);
+ return [k.wallet&&WK[k.wallet]||"p",k.nama||"",k.bank+": "+k.no_rekening,/sea/i.test(k.bank)?1:0,!!FAV[key],key,k.logo||"",k];
+}
+function kontakApply(items){D=(items||[]).map(toRow);KS="ok";render()}
+/* kontak dari database: RPC kontak_terakhir (nama e-wallet sudah disamarkan server). API diisi oleh skrip alur transfer */
+function kontakLoad(cb){
+ var A=window.KONTAK_API;
+ if(!A){if(cb)cb(false);return}
+ fetch(A.url,{method:"POST",headers:A.headers,body:JSON.stringify({p_limit:20}),cache:"no-store"})
+  .then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json()})
+  .then(function(j){var it=j&&Array.isArray(j.items)?j.items:null;if(!it)throw new Error("format");
+   try{localStorage.setItem(CK,JSON.stringify(it))}catch(e){}
+   kontakApply(it);if(cb)cb(true)})
+  .catch(function(){if(!D.length){KS="error";render()}if(cb)cb(false)});
+}
+window.kontakLoad=kontakLoad;
+/* setelah transfer berhasil: simpan favorit lalu muat ulang dari database (trigger server sudah menambah kontak) */
+window.kontakAfterTx=function(r,fv){
+ var key=kkey(r.recipient_bank,r.recipient_account);
+ if(fv){FAV[key]=1;favSave()}
+ kontakLoad(function(ok){
+  if(ok&&D.some(function(x){return x[5]===key}))return;
+  D=D.filter(function(x){return x[5]!==key});
+  var wc=String(r.recipient_bank||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  D.unshift(toRow({nama:r.recipient_name,bank:r.recipient_bank,no_rekening:r.recipient_account,jenis:WK[wc]?"ewallet":"bank",wallet:WK[wc]?wc:null,logo:null}));
+  render();
+ });
+};
+try{var c0=JSON.parse(localStorage.getItem(CK)||"null");if(Array.isArray(c0)&&c0.length){D=c0.map(toRow);KS="ok"}}catch(e){}
+var LG={g:"assets/img/logo_gopay.png",o:"assets/img/logo_ovo.png",d:"assets/img/logo_dana.png",s:"assets/img/logo_shopeepay.png",l:"assets/img/logo_linkaja.png",i:"assets/img/logo_isaku.png",a:"assets/img/logo_astrapay.png"};
+function fbIc(i){i.onerror=null;i.src=IC[i.dataset.k]||IC.p}
 var fav={},tab="all",STAR='<svg viewBox="0 0 24 23"><path d="M12 1.5l3.2 6.9 7.5.9-5.5 5.2 1.4 7.5L12 18.2 5.4 22l1.4-7.5L1.3 9.3l7.5-.9z" fill="#ffbf0f" stroke="#ffbf0f" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function render(){
@@ -531,13 +560,14 @@ function render(){
  D.forEach(function(r,i){
   if(tab=="fav"&&!r[4])return;
   if(q&&(r[1]+" "+r[2]).toLowerCase().indexOf(q)<0)return;
-  h+='<div class="it"><img src="'+IC[r[0]]+'" alt=""><div class="b"><div class="t"><strong>'+esc(r[1])+'</strong><p>'+(r[3]?'<img src="'+SEA+'" alt="">':'')+esc(r[2])+'</p></div>'
+  h+='<div class="it" data-r="'+i+'"><img data-k="'+r[0]+'" src="'+(r[6]||LG[r[0]]||IC[r[0]]||IC.p)+'" onerror="fbIc(this)" alt=""><div class="b"><div class="t"><strong>'+esc(r[1])+'</strong><p>'+(r[3]?'<img src="'+SEA+'" alt="">':'')+esc(r[2])+'</p></div>'
    +'<button class="st'+(r[4]?' on':'')+'" data-i="'+i+'"><img src="assets/img/bt_bintang.png" alt="">'+STAR+'</button></div></div>';
  });
- document.getElementById("list").innerHTML=h||'<div class="empty">'+(tab=="fav"&&!q?"Belum ada favorit":"Penerima tidak ditemukan")+'</div>';
+ document.getElementById("list").innerHTML=h||(KS=="loading"&&!D.length?'<div class="empty">Memuat kontak…</div>':KS=="error"&&!D.length?'<div class="empty" data-retry="1" style="cursor:pointer">Gagal memuat kontak. Ketuk untuk coba lagi</div>':'<div class="empty">'+(tab=="fav"&&!q?"Belum ada favorit":D.length?"Penerima tidak ditemukan":"Belum ada kontak")+'</div>');
 }
 document.getElementById("list").addEventListener("click",function(e){
- var b=e.target.closest(".st");if(!b)return;var i=b.dataset.i;D[i][4]=!D[i][4];render();
+ if(e.target.closest("[data-retry]")){KS="loading";render();kontakLoad();return}
+ var b=e.target.closest(".st");if(!b){var rw=e.target.closest(".it");if(rw&&rw.dataset.r!=null){var k0=D[rw.dataset.r];if(k0&&k0[7]&&window.kontakPilih)window.kontakPilih(k0[7])}return}var i=b.dataset.i;D[i][4]=!D[i][4];if(D[i][4])FAV[D[i][5]]=1;else delete FAV[D[i][5]];favSave();render();
 });
 document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){
  document.querySelectorAll(".tabs button").forEach(function(x){x.classList.remove("on")});
@@ -622,6 +652,7 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
    </div>
    <div class="tb-amount bad" id="trfAmtBox"><span class="rp">Rp</span><input id="trfAmt" type="text" inputmode="numeric" placeholder="0" autocomplete="off" maxlength="14"></div>
    <div class="tb-amterr" id="trfAmtErr"></div>
+   <div class="tb-chips" id="trfChips" hidden></div>
    <div class="tb-info" id="trfInfo" hidden>
     <div id="trfSaldo" hidden></div>
     <div id="trfLimit" hidden></div>
@@ -630,7 +661,7 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
    <div class="tb-fee"><span>Biaya Transfer</span><span id="trfFee">-</span></div>
   </div>
   <div class="tb-card"><div class="tb-line"><span>Jadwalkan Transfer</span><button class="tb-switch" id="trfSched" role="switch" aria-checked="false" aria-label="Jadwalkan Transfer"></button></div></div>
-  <div class="tb-card"><div class="tb-line tap" id="trfProc"><span>Waktu Pemrosesan</span><span class="val">Realtime<svg viewBox="0 0 10 20" fill="none" stroke="#8a8a8a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 2 8.5 10 1.5 18"/></svg></span></div></div>
+  <div class="tb-card" id="trfBankRows"><div class="tb-line tap" id="trfProc"><span>Waktu Pemrosesan</span><span class="val">Realtime (BI-FAST)<svg viewBox="0 0 10 20" fill="none" stroke="#8a8a8a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 2 8.5 10 1.5 18"/></svg></span></div><div class="tb-line tap" id="trfTujuan"><span>Tujuan Transaksi</span><span class="val">Transfer Dana<svg viewBox="0 0 10 20" fill="none" stroke="#8a8a8a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 2 8.5 10 1.5 18"/></svg></span></div></div>
   <div class="tb-card"><div class="tb-line"><span class="tb-favl">Simpan sebagai Favorit</span><button class="tb-star" id="trfFav" aria-label="Simpan sebagai favorit" aria-pressed="false"><svg viewBox="0 0 24 24" id="trfFavIcon" fill="none" stroke="#f5b800" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17.1 6.6 20l1.1-6.1L3.2 9.6l6.1-.8L12 3.2Z"/></svg></button></div></div>
   <div class="tb-card"><div class="tb-noteh"><span>Catatan (opsional)</span><span id="trfNoteCnt">0/16</span></div><textarea id="trfNote" maxlength="16" aria-label="Catatan"></textarea></div>
  </div>
@@ -739,6 +770,8 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
 var SUPABASE_URL="https://jtdnsrsollmknfijdqty.supabase.co";
 var ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTIxMDAsImV4cCI6MjEwODA2ODEwMH0.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE";
 var HEADERS={"Content-Type":"application/json",apikey:ANON_KEY,Authorization:"Bearer "+ANON_KEY};
+window.KONTAK_API={url:SUPABASE_URL+"/rest/v1/rpc/kontak_terakhir",headers:{apikey:HEADERS.apikey||"sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn","Content-Type":"application/json"}};
+window.kontakLoad();
 var MIN_AMOUNT=10000;
 
 /* tab "No. Rekening" -> cek-rekening (bank) | tab "No. Handphone" -> cek-ewallet (e-wallet) */
@@ -758,11 +791,13 @@ var tab="rek",cache={rek:null,hp:null},status={rek:"idle",hp:"idle"},shown=[],ve
 var bq=$("bq"),bl=$("bl");
 
 /* ---------- logo penyedia dari server (bucket storage "logos") ---------- */
+var EWK={shopeepay:1,gopay:1,ovo:1,dana:1,linkaja:1,isaku:1,astrapay:1},EWCODE={shopee:"shopeepay",gopay:"gopay",ovo:"ovo",dana:"dana",link:"linkaja",isaku:"isaku",astra:"astrapay"};
+function ewLogo(c){return "assets/img/logo_"+c+".png"}
 function initials(p){return String(p.code||"").toUpperCase().slice(0,4)}
 function logoSrc(p){
  if(p.logo_data)return p.logo_data;
- if(!p.logo_path||/^db:/.test(p.logo_path))return "";
- if(/^https?:/.test(p.logo_path))return p.logo_path;
+ if(!p.logo_path||/^db:/.test(p.logo_path)){var ek=nk(p.code||p.name);return EWK[ek]?ewLogo(ek):""}
+ if(/^https?:/.test(p.logo_path)||/^assets\//.test(p.logo_path))return p.logo_path;
  return SUPABASE_URL+"/storage/v1/object/public/logos/"+String(p.logo_path).split("/").map(encodeURIComponent).join("/");
 }
 function setLogo(box,p){
@@ -770,9 +805,27 @@ function setLogo(box,p){
  var src=logoSrc(p);
  if(!src){if(p._html){box.innerHTML=p._html;var lg=box.firstChild;if(lg&&lg.style){lg.style.width="100%";lg.style.height="100%"}}else box.textContent=initials(p);return}
  var img=new Image();img.alt="";
- img.onerror=function(){box.textContent=initials(p)};
+ img.onerror=function(){box.textContent="";if(p._html){box.innerHTML=p._html;var lg2=box.firstChild;if(lg2&&lg2.style){lg2.style.width="100%";lg2.style.height="100%"}}else box.textContent=initials(p)};
  img.src=src;box.appendChild(img);
 }
+
+function paintAv(el,prov,on){
+ if(!el)return;
+ var o=el.querySelector("img.pv");if(o)o.remove();
+ if(!on)return;
+ var sr=logoSrc(prov||{});if(!sr)return;
+ if(getComputedStyle(el).position==="static")el.style.position="relative";
+ var im=new Image();im.alt="";im.className="pv";
+ im.style.cssText="position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;border-radius:50%;background:#fff;border:1px solid #eee;box-sizing:border-box";
+ im.onload=function(){el.appendChild(im)};im.src=sr;
+}
+document.querySelectorAll("[data-l]").forEach(function(e){
+ var c=EWCODE[e.dataset.l];if(!c)return;
+ e._fb=e.outerHTML;
+ var im=new Image();im.alt="";
+ im.onload=function(){e.style.background="#fff";e.style.border="1px solid #eee";e.style.boxSizing="border-box";e.textContent="";e.appendChild(im)};
+ im.src=ewLogo(c);
+});
 
 /* ---------- sheet: daftar bank / e-wallet ---------- */
 function msg(t,retry){var d=mk("div","bz"+(retry?" retry":""),t);if(retry)d.dataset.retry="1";bl.textContent="";bl.appendChild(d)}
@@ -856,7 +909,11 @@ function go(l){
  view(l);
 }
 function back(){if(pushed>0)history.back();else view(level-1)}
-window.addEventListener("popstate",function(e){var l=(e.state&&e.state.tb)||0;pushed=l;if(done&&l<4){resetFlow();return}view(l)});
+var viaList=false;
+window.addEventListener("popstate",function(e){var l=(e.state&&e.state.tb)||0;pushed=l;if(done&&l<4){resetFlow();return}
+ if(l===1&&viaList){history.back();return} /* masuk dari daftar kontak: lewati layar nomor, kembali ke daftar */
+ if(l===0)viaList=false;
+ view(l)});
 $("rekBack").addEventListener("click",back);
 $("trfBack").addEventListener("click",back);
 
@@ -880,7 +937,7 @@ ewBox.querySelector(".eg").addEventListener("click",function(e){
  var name=Array.prototype.filter.call(it.childNodes,function(n){return n.nodeType===3}).map(function(n){return n.nodeValue}).join("").trim();
  if(!name)return;
  ewMsg.style.display="none";
- var lgEl=it.querySelector(".lg"),html=lgEl?lgEl.outerHTML:"";
+ var lgEl=it.querySelector(".lg"),html=lgEl?(lgEl._fb||lgEl.outerHTML):"";
  var hit=cache.hp&&ewFind(cache.hp,name),fb={name:name,code:nk(name).toUpperCase(),_fb:name,_html:html};
  openRek(hit?Object.assign({},hit,{_html:html}):fb,"hp","ew");
  if(!hit){var ref0=cur;ewList(function(list){var q=list&&ewFind(list,name);if(q&&cur===ref0&&ref0.p===fb){ref0.p=Object.assign({},q,{_html:html});setLogo($("rekLogo"),ref0.p)}})}
@@ -952,17 +1009,47 @@ rpick.addEventListener("click",choose);
 rpick.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();choose()}});
 rq.addEventListener("keydown",function(e){if(e.key==="Enter")choose()});
 
+/* ---------- masuk dari daftar kontak: langsung ke layar input nominal ---------- */
+/* bank: nama lengkap dari database. e-wallet: nama di daftar disamarkan, jadi nama asli diambil ulang lewat cek-ewallet
+   (sama seperti alur biasa) dan tombol Lanjut menunggu sampai selesai agar nama tersamar tidak ikut tersimpan */
+function verifyDest(d){
+ function fin(ok,m){if(dest!==d)return;d.vs=ok?"ok":"fail";validate();$("trfGoMsg").textContent=ok?"":m}
+ d.vs="loading";validate();$("trfGoMsg").textContent="Memverifikasi tujuan\u2026";
+ fetch(CFG.hp.url,{method:"POST",headers:HEADERS,body:JSON.stringify({code:d.provider.code,number:String(d.number).replace(/\D/g,"")})})
+ .then(function(r){return r.json().catch(function(){return {}})})
+ .then(function(j){
+  if(j&&j.found===true&&typeof j.name==="string"&&j.name.trim()){
+   if(dest===d){d.name=j.name.trim();$("trfName").textContent=d.name}
+   fin(true)
+  }else fin(false,(j&&j.message)||"Tujuan tidak dapat diverifikasi. Ketuk Lanjut untuk mencoba lagi.")
+ })
+ .catch(function(){fin(false,"Gagal terhubung. Ketuk Lanjut untuk mencoba lagi.")});
+}
+window.kontakPilih=function(k){
+ if(!k||!k.no_rekening)return;
+ var ew=k.jenis==="ewallet",
+  d=ew?{kind:"hp",provider:{code:k.wallet||nk(k.bank),name:k.bank,logo_path:k.logo||undefined},number:k.no_rekening,name:k.nama}
+      :{kind:"rek",provider:{code:k.bank,name:k.bank},number:k.no_rekening,name:k.nama};
+ if(ew)d.vs="loading";
+ cur=null;src=ew?"ew":"bank";viaList=true;
+ try{history.pushState({tb:1},"")}catch(e){}
+ openTrf(d);
+ if(ew)verifyDest(d);
+};
+
 /* ---------- layar 2: transfer (terisi dari hasil server) ---------- */
+/* limit e-wallet boleh beda dari bank: setAccount({limit,limitEw}); bila limitEw kosong dipakai limit */
+function limitOf(){return dest&&dest.kind==="hp"&&account.limitEw!=null?account.limitEw:account.limit}
 /* saldo/limit/biaya belum punya sumber di server: isi lewat window.setAccount({saldo,limit,fee}); bila kosong barisnya disembunyikan */
 var account={saldo:null,limit:null,fee:0};
 var amt=$("trfAmt"),favOn=false;
 var amount=function(){return parseInt(amt.value.replace(/\D/g,"")||"0",10)};
 function renderAccount(){
- var hasS=account.saldo!=null,hasL=account.limit!=null;
+ var hasS=account.saldo!=null,hasL=limitOf()!=null;
  $("trfSaldo").hidden=!hasS;$("trfLimit").hidden=!hasL;$("trfChgLimit").hidden=!hasL;
  $("trfInfo").hidden=!(hasS||hasL);
  if(hasS)$("trfSaldo").textContent="Saldo Tersedia: "+rp(account.saldo);
- if(hasL)$("trfLimit").textContent="Limit Transfer: "+rp(account.limit);
+ if(hasL)$("trfLimit").textContent="Limit Transfer: "+rp(limitOf());
  $("trfFee").textContent=account.fee==null?"-":(account.fee===0?"Gratis":rp(account.fee));
 }
 window.setAccount=function(a){Object.assign(account,a);renderAccount();if(level===2)validate()};
@@ -970,10 +1057,10 @@ function validate(){
  var n=amount(),m="";
  if(n<MIN_AMOUNT)m="Minimal transaksi adalah "+rp(MIN_AMOUNT)+".";
  else if(account.saldo!=null&&n>account.saldo)m="Saldo tidak mencukupi.";
- else if(account.limit!=null&&n>account.limit)m="Nominal melebihi limit transfer.";
+ else if(limitOf()!=null&&n>limitOf())m="Nominal melebihi limit transfer.";
  $("trfAmtErr").textContent=m;$("trfAmtBox").classList.toggle("bad",!!m);
  $("trfGoMsg").textContent="";
- $("trfGo").disabled=!!m;$("trfGo").classList.toggle("ready",!m);
+ $("trfGo").disabled=!!m||!!(dest&&dest.vs==="loading");$("trfGo").classList.toggle("ready",!m);
 }
 function setSwitch(on){var s=$("trfSched");s.classList.toggle("on",on);s.setAttribute("aria-checked",on)}
 function setFav(on){favOn=on;$("trfFavIcon").setAttribute("fill",on?"#f5b800":"none");$("trfFav").setAttribute("aria-pressed",on)}
@@ -986,12 +1073,13 @@ function openTrf(d){
  dest=d;
  $("trfName").textContent=d.name;
  $("trfSub").textContent=shortName(d.provider,d.kind)+": "+d.number;
+ $("trfChips").hidden=d.kind!=="hp";$("trfBankRows").style.display=d.kind==="hp"?"none":"";
  var destAvatar=$("pg-trf").querySelector(".tb-dest .tb-avatar");
  if(destAvatar){
   destAvatar.textContent="";destAvatar.style.background="";
   var destLogo=logoSrc(d.provider||{});
-  if(destLogo){var di=new Image();di.alt="";di.style.cssText="width:30px;height:30px;object-fit:contain;border-radius:50%;background:#fff";
-   di.onerror=function(){destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>'};
+  if(destLogo){var di=new Image();di.alt="";di.style.cssText="width:30px;height:30px;object-fit:contain;border-radius:50%;background:#fff;border:1px solid #eee;box-sizing:border-box";
+   di.onerror=function(){if(d.provider&&d.provider._html){destAvatar.style.background="none";destAvatar.innerHTML=d.provider._html;var dl0=destAvatar.firstChild;if(dl0&&dl0.style){dl0.style.width="30px";dl0.style.height="30px"}return}destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>'};
    di.src=destLogo;destAvatar.appendChild(di);
   }else if(d.provider&&d.provider._html){destAvatar.style.background="none";destAvatar.innerHTML=d.provider._html;var dl=destAvatar.firstChild;if(dl&&dl.style){dl.style.width="30px";dl.style.height="30px"}}else destAvatar.innerHTML='<svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg>';
  }
@@ -1011,9 +1099,14 @@ $("trfFav").addEventListener("click",function(){setFav(!favOn)});
 $("trfNote").addEventListener("input",function(e){$("trfNoteCnt").textContent=e.target.value.length+"/16"});
 $("trfChgLimit").addEventListener("click",function(){emit("transfer:ubah-limit",{})});
 $("trfProc").addEventListener("click",function(){emit("transfer:waktu-pemrosesan",{})});
+$("trfTujuan").addEventListener("click",function(){emit("transfer:tujuan-transaksi",{})});
+/* tombol nominal cepat (khusus e-wallet) */
+$("trfChips").innerHTML=[10000,50000,100000,200000,300000,500000].map(function(n){return '<button type="button" data-v="'+n+'">Rp <b>'+(n/1000)+'</b><i>.000</i></button>'}).join("");
+$("trfChips").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;amt.value=new Intl.NumberFormat("id-ID").format(parseInt(b.dataset.v,10));validate()});
 /* titik sambung ke langkah berikutnya: listener memanggil preventDefault() bila sudah menangani */
 $("trfGo").addEventListener("click",function(){
  if($("trfGo").disabled||!dest)return;
+ if(dest.vs==="fail"){verifyDest(dest);return}
  var ev=new CustomEvent("transfer:lanjut",{cancelable:true,detail:{
   kind:dest.kind,provider:dest.provider,number:dest.number,name:dest.name,amount:amount(),note:$("trfNote").value.trim(),
   scheduled:$("trfSched").classList.contains("on"),favorite:favOn,fee:account.fee}});
@@ -1050,6 +1143,7 @@ function openKf(d){
  $("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number;
  loadSender(function(){if(tx!==d)return;$("kf-sName").textContent=SENDER.name;$("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number});
  $("kf-rName").textContent=d.name;
+ paintAv(document.querySelector("#pg-kf .kf-a2"),d.provider,d.kind==="hp");
  $("kf-rAcc").textContent=shortName(d.provider,d.kind)+": "+d.number;
  $("kf-total").textContent=fmt(d.amount+(d.fee||0));
  $("kf-amt").textContent=rp(d.amount);
@@ -1126,7 +1220,7 @@ function fillHasil(r){
  $("hs-total").textContent=fmt(total);
  $("hs-sName").textContent=r.sender_name;$("hs-sAcc").textContent=r.sender_bank+": "+r.sender_account;
  $("hs-sLogo").hidden=!/seabank/i.test(r.sender_bank);
- $("hs-rName").textContent=r.recipient_name;$("hs-rAcc").textContent=r.recipient_bank+": "+r.recipient_account;
+ $("hs-rName").textContent=r.recipient_name;paintAv($("hs-rName").parentNode.querySelector("i"),{code:r.recipient_bank,name:r.recipient_bank},true);$("hs-rAcc").textContent=r.recipient_bank+": "+r.recipient_account;
  $("hs-nom").textContent=rp(amt);
  var f=$("hs-fee");f.textContent="";f.classList.remove("hs-g");
  if(fee===0){if(NORMAL_FEE>0)f.appendChild(mk("span","hs-old","Rp "+fmt(NORMAL_FEE)));f.appendChild(mk("span","hs-g","GRATIS"))}else f.textContent=feeText(fee);
@@ -1142,11 +1236,8 @@ function success(d,body){
   recipient_name:body.recipient_name,recipient_bank:body.recipient_bank,recipient_account:body.recipient_account,
   amount_rupiah:body.amount_rupiah,fee_rupiah:body.fee_rupiah,note:body.note,
   transaction_no:"-",reference_no:"-",method:"-",transaction_time:new Date().toISOString()},d||{});
- /* penerima masuk daftar "Terakhir" di Bayar/Transfer (tanpa duplikat, status favorit terbawa) */
- var lbl=result.recipient_bank+": "+result.recipient_account,fv=favOn;
- for(var i=0;i<D.length;i++)if(D[i][2]===lbl){fv=fv||!!D[i][4];D.splice(i,1);break}
- D.unshift([({gopay:"g",ovo:"o",dana:"d",shopeepay:"s"})[nk(result.recipient_bank)]||"p",result.recipient_name,lbl,/sea/i.test(result.recipient_bank)?1:0,fv]);
- render();
+ /* penerima masuk daftar "Terakhir": dimuat ulang dari database kontak */
+ window.kontakAfterTx(result,favOn);
  fillHasil(result);
  /* ganti entri riwayat konfirmasi: tombol kembali tidak bisa mengulang transaksi */
  /* replaceState tidak menambah entri: kedalaman riwayat tetap 3, jadi tombol OK cukup mundur 3 langkah (sebelumnya 4 -> keluar dari halaman) */
