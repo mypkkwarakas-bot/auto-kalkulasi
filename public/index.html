@@ -311,6 +311,27 @@ button{font-family:inherit}
 </style>
 </head>
 <body>
+<script>
+/* Samarkan nama pemilik e-wallet.
+   Awalan nama e-wallet (mis. "OVO" pada "OVO CARELO WIDODO") bukan nama pemilik: dibiarkan utuh.
+   Umum (GoPay, OVO, LinkAja, dll): tiap kata nama pemilik hanya huruf pertama terbuka, sisanya x.
+   Dana & ShopeePay: tiap kata nama pemilik 3 huruf pertama terbuka, sisanya x.
+   Kata pendek tetap disamarkan minimal 1 huruf. Bank biasa tidak diubah. */
+window.maskNama=function(nama,bank,wallet){
+ var s=String(nama==null?"":nama);
+ if(!s.trim())return s;
+ var al=function(x){return String(x||"").toLowerCase().replace(/[^a-z0-9]/g,"")};
+ var b=al(bank);
+ if(!wallet&&!/(gopay|ovo|dana|shopee|linkaja|isaku|astrapay|wallet)/.test(b))return s;
+ var keep=/(dana|shopee)/.test(b)?3:1,ws=s.match(/\S+/g)||[],skip=0,i=0;
+ if(b){if(al(ws[0])===b)skip=1;else if(ws.length>1&&al(ws[0])+al(ws[1])===b)skip=2}
+ return s.replace(/\S+/g,function(w){
+  if(++i<=skip)return w;
+  var a=Array.from(w),n=a.length,k=n<=1?n:Math.min(keep,n-1);
+  return a.map(function(c,j){return j<k?c:(/[\p{L}\p{N}]/u.test(c)?"x":c)}).join("");
+ });
+};
+</script>
 <div class="app" id="viewHome">
 <div class="hdr">
  <img class="av" src="assets/img/avatar_profil.png" alt="">
@@ -570,7 +591,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 function rp(n){return new Intl.NumberFormat("id-ID").format(n||0)}
 function row(t){
  var isIn=t.direction==="in";
- return '<div class="li" data-tx="'+esc(t.id)+'" style="cursor:pointer"><img src="assets/img/'+(IMG[t.icon]||IMG.store)+'.png" alt=""><div class="b"><div><strong>'+esc(t.title)+'</strong><p class="m">'+esc(t.type)+'</p><p class="dt">'+esc(dt(t.ts))+'</p></div><span class="a'+(isIn?" in":"")+'">'+(isIn?"+":"-")+'Rp <b>'+rp(t.amount)+'</b></span></div></div>';
+ return '<div class="li" data-tx="'+esc(t.id)+'" style="cursor:pointer"><img src="assets/img/'+(IMG[t.icon]||IMG.store)+'.png" alt=""><div class="b"><div><strong>'+esc((t.type==="Transfer"&&t.icon!=="fee")?maskNama(t.title,t.bank,t.icon==="wallet"):t.title)+'</strong><p class="m">'+esc(t.type)+'</p><p class="dt">'+esc(dt(t.ts))+'</p></div><span class="a'+(isIn?" in":"")+'">'+(isIn?"+":"-")+'Rp <b>'+rp(t.amount)+'</b></span></div></div>';
 }
 function draw(items){
  box.innerHTML=items.length?items.map(row).join(""):'<div class="txst">Belum ada transaksi</div>';
@@ -612,7 +633,7 @@ function esc(x){return String(x==null?"":x).replace(/[&<>"']/g,function(c){retur
 function tc(n){return String(n).toLowerCase().replace(/(^|[\s.'-])([a-z])/g,function(m,p,c){return p+c.toUpperCase()})}
 var EW={shopeepay:1,gopay:1,ovo:1,dana:1,linkaja:1,isaku:1,astrapay:1};
 function ic(c){var k=String(c.bank).toLowerCase().replace(/[^a-z0-9]/g,"");return c.jenis==="ewallet"?(EW[k]?"logo_"+k:"ikon_gopay"):"ikon_orang_oranye"}
-function row(c){return '<div class="li"><img src="assets/img/'+ic(c)+'.png" alt="" onerror="this.onerror=null;this.src=\'assets/img/ikon_gopay.png\'"><div class="b"><div><strong>'+esc(tc(c.nama))+'</strong><p>'+esc(c.bank)+': '+esc(c.no_rekening)+'</p></div></div></div>'}
+function row(c){return '<div class="li"><img src="assets/img/'+ic(c)+'.png" alt="" onerror="this.onerror=null;this.src=\'assets/img/ikon_gopay.png\'"><div class="b"><div><strong>'+esc(maskNama(tc(c.nama),c.bank,c.jenis==="ewallet"))+'</strong><p>'+esc(c.bank)+': '+esc(c.no_rekening)+'</p></div></div></div>'}
 function draw(a){box.innerHTML=a.length?a.map(row).join(""):'<div class="txst">Belum ada transfer</div>';shown=true}
 try{var c=JSON.parse(localStorage.getItem(CK)||"null");if(Array.isArray(c)){sig=JSON.stringify(c);draw(c)}}catch(e){}
 function load(){fetch(U+"/rest/v1/rpc/kontak_terakhir",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({p_limit:3}),cache:"no-store"})
@@ -779,7 +800,7 @@ const TxPage = (() => {
       const p = parts(r.ts), key = monthKey(p);
       if (!groups.has(key)) groups.set(key, { month: MON[p.month - 1], year: p.year, out: 0, in: 0, items: [], key });
       const g = groups.get(key);
-      g.items.push({ id: r.id, icon: r.icon, title: r.title, type: r.type, datetime: dateText(p), amount: r.amount, direction: r.direction });
+      g.items.push({ id: r.id, icon: r.icon, title: (r.type === "Transfer" && r.icon !== "fee") ? maskNama(r.title, r.bank, r.icon === "wallet") : r.title, type: r.type, datetime: dateText(p), amount: r.amount, direction: r.direction });
       g[r.direction === "in" ? "in" : "out"] += r.amount;
     }
     // Total bulan penuh dari server bila tidak ada filter jenis
@@ -926,6 +947,7 @@ function rp(n){return new Intl.NumberFormat("id-ID").format(n||0)}
 var SEA_LOGO="data:image/png;base64,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",PERSON_ICO="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAYAAABxLuKEAAALrElEQVR4nN2cW4zUVx3HPzOzsyzQcttCN6wgimgVsfaCItXYFqVqrcbUeEmqJl5jYnzwwcf65IsvxpdGxUs1arTakFqNrZaYWg2mFGwxUAWbNi4I5Q7LdXdnxofv+fk/c+b8rzO7bfwl/8zs//+fc/me3/38ztaOfYo8qrnPTu6b/0dUn8O+avmvvHyoCDAdBsMtaW2EgNUi94r8bqA0NJuN55A/sUbkedt9dty7IbCzKtovFTA1BIYBEnJuG028DbQoBsJAdeFsA1NDk7bPBtAEVgBjwCpgETAKjKBJTQMngTPABHAEOAFM0Q2UgTcr5AMzCMR9ljeumAdcA2wE3gSsBVa6e4uBq4Fhr402MANcBE4hUP4DPA88DewGjgFX6OamvHGXmt9scMwQ4o4R4CbgVuAG4LXAuHveIOEi3Gc7+L4IcRYIqBngMHAA+BvwKPAscIHiIld40WsF/JjCbaEJLwQ2Ax8A3oIAGfKeh/okzTK2g++d4PMfwF+B3wF/QQBN8zLSMbb685CofAS4DVhHolOq+Ev1lO8g7tkAXAe8A3gE+BWwj14Rq0RVgPFl1XyOUeBuBMpGEs4o4mv4IuTfywLTxK2JOPJVwCZgO/AzpLwNnEq6sx+OabjfvwG4BwEz5t2PTbgo5f2mTjc4DSS2q911PxK1GbpFsjBVAabjftcEbgE+C9zl/g4VahGqGpb4E7Y2VrrxjAHbgJ0kZr4UVQHG9MZW4DPAu0kskW9d5pL8vkeQ4r8agfN7EnAKi1NZYGrI59gKfBlZHx8UmNvANK2vJjIAI+5vA6dVtOEywBgob0OcspnEMSsCRp5CLUvGIWnWq4HGehGZ8j9RgmuKAmM+yHXAp4EtJAq2DLg2kfCzKsV+698bRmO9iCzV3yloyotOqgEsAT4JfNB16ItPHoVeLcjfMGfNX0k/sLQFKTrOEGgT8/chr/kbCKCZvIaKdGjO2yeQSZ5H+VW29w2EGRQkPg78GTlmh92zcRRP3YUcxpVeG0XMeEy8RtzY/wX8mETXpHJOHjC2YusRp4zRbZKLknHJNJL3PwDfA/YiNp8m8Tn+DTwFPISct68C70IKtem1mSaSsRRGw439oygQ3UWOIi6yAgsR2jcRj3VCMq4I/26hqPjrwJeAJ1D0fIluczqNwDoL7AG+ANwLHPcmE4KQ5SbYOw03h4+5OWXOI2+SDeTE3YFWy2S2KNlgWyh18G3EyqcRGDMkytBPH3TcsymkE34K3OfaaBHXEXkhhDml73RzypSW0LyFsc184E4UEOY5b8YZoS5oI/HZDvwQOEdxs2nK+QzwA+AXwKTXblmqo7ncifROzbt6XvQnYFQjiYM2kbj7VaiD5PqXaPXLpgZMvE4DDyO91KIaMDU0l03AjSQWsGc8PjA+O9eR9XkPUoCmW/LYNab4TqGY5RmKgRJbQQNnH/Ak4rqyZNxsEfkWxDWxRHzqRGsoe3YzST6liiPWAY6iVe43idRBSnkXia6pSkPIFVie9kLaZOsor7K2j85Bq3QCrXRRStvHqiEwDiKR9PuIWcGQ/MWtIa65gTgGtbRkUgMhOk4KqxWkDnAemdp+o24D6wjSN1W5z/yaceDNxOffGUrpoIm4pVliAOHEbSWmkAgMii7TzRVFc8ghDQGvRnO8Ej6MshFKVY6R7AX1Q8PIoRoUzSeJ1fqhGprjWOxh2Li5++No36eMia4Hl7W3GHhFpK8syup3ObDAeydNp2SNE7TgK9zV48PFBmvytyzledmBLAVeQ/HNeuhOYvtUR3ohusolyBZvKdoN7ZGKmHzWECgLMt4pk899JXLBR3LeDSnUbeacbUDAWEBZxZWw969Cc830fP17SxmcHC9EXuYm12aWzkrjKAPlFncton8rV3fjGSUCbtrEy65uVuc14I0oPllONjBpFtD0wd3A9RSL8ovScOzmbCeubSUWoM24LyJw/P1ro1gBUQMN/Frg8ygnNI/yUX4WRRcjLfSeqtBB6FeE6cxlKIk+g3YLD5H4JDFv1zJv48DHETDL6M99iOWYe3wY6AXGLM5JBM5IpKEqZInzZcBXUAz2HRQqnHV92QCbiMOWIO/7HqRXFtO/CIXZBMv32Lz/V8YS45gOiojP063kimT7ivw9D7gdKeT9wB9JCoTM6VqHwHsrSQScBkreTkPa3jjIIz9HpMYmBkwbJaZPI9mukuO1dtJMfRM5kLcga+UnrmreOzUiFiPSZpVxzSAGmCBi4UJgOiiCPUoSweYNrGrM4udrY8WHDeLJ7ixdFhtbbFy2ECcQE/TsNaWJ0nGSnEfVXQFblU5wH+9eli8y7bWRVuFZVrz9cRgDnCFimbKs0vPkO1Fp8u1zg+0AXABedNcZd51FlsnfJTATPYIU7iKkd0aRL7OAYuCkcZLdnwGec/33UFicaMi1UJ52AlhDuZ1Ay6y1EOftQXVzpmCPIaV32n36wNhEhhEAV7lr1F3XuPGsRwra6nFMHIuMs4648TBJ/riH/IZClt+Nim9Wkc8Z/u+m0UrsQPnZA8hnuUDiH/kiFVY8NZDpnkTc5UfqTWTGx5FheDvasVxN92ZcbGw+ddCu5C5SpCIN4Q5a2X0oaZxnsm1/aBLVwj2IwDlGtxNXhEI95NMUAvgIAvAZ4DHgQ8jfaZPkqGOL2fY+dyOOzvR8Q6vQRqv2GNopWO/dH/K+W8cdpDO+5n5ziOqFylnvhkr7MALpIKpkuJckXeJbLR+gFpKER0kWrYf8iYUDmEGoPkmS4fc78Dtuoc2wXyNdcoXuXcZBk7kVtls5gbj0IXp1RgjKNJrTvqzx5Zm7y2iT6zmy9cwM2lA75TquQmUSWSG1EMf+iPzd0oNoTpfIWLQ8YFqouPhxkhVK6/gy3d7rXFMHcWpsfFZ6Mo3KznbSZ7WD+R8/JymdiHU8hGre5rs2q4hPP+ei6q7v28k2ELuRcZgkx0fLA8ZkeS/wAPIUTaH61AA+hwJDC/rmimsars8b3RjCtIS5EC+iwgLTLZlkjlHWJIxFH3SXsWtYBLAa+BbKsBnnDIKyxtdwfV0PfNONIQ2Y7YjzLb2RyZ1FB99CQeVP0KEG81R9/6aJvNFtyMSvJsm29aNYjfySjSGUS16D6oy3Aa+j99yCnVr5DarL8UvpMyltJzIkE6n9wHcR61q1gB8BD6MdzPuQldqOPN/jaNVya99S+oaEE4aR57sB5ZG3kqRL8cZiiagdCLj9lCgEKFsAPYWs1AK0Ypb5twGBuGQJqvDcjE6G7EYmfwIpvlBPpW3iW5tN198Y2oy/FVV5jbn+/LyND8pO4PtuzGGkn0llgLFGp1BxYQNZrC30gmMK8fVos+0YUuB7gRdQSuOo+/0kyhb6YrnQXSsQN4yhEyZrUR1dCIjfNwiEHQgUqwovRUXLWX2kW8hneQSlDS4A73cD9UvN6iR1b6sR+29BTuAhd513bZwjcQwbJEcCr3XXONrrspMmseSZeeBXgN+i0rQnEChpnBJLkAHZwGSd8+mQiNVJxAF2LAfioQOIi1a6924mESkTAYLfWcmGWU+7nxbVH0V67X6KHcupXOebRabInkUV14dINsRiNbl+bBWmCMqSnyG0+OcpEoVvtX5Q0WmseiYyPOVmp2XXAx9GlmId3axfldKy/AbIQbTT8ADSYf7Rv1RRyaOqHGOdWse2cnuAf6Iy+PcSPywK3dyTNoZY+ZgfVR9AUfLDJIdFQx+lcmQ/yFO00H3wfD7ioDtIjhev8p6nWZR28OmDYceLn0ZcsgdFyRbDDSzFMehz1zYJP++xF+VrNyKA1iArM0pSbmLm3ueKSZRKOIkAeQEBsRttewzktGwaDZpjetonsSjGKU0EyjhJgdJSkgqLyyhRfookQ3ec7mM8VTKDpWg2/7eD6Z9wApcQN0zQDZpP/uRnjSuyaDaB6dkPDp6ZyKXtIIbtzCnNxX8DSZuYv4fVb1sDp0HmTIrc66fdOeWcQQETG/Qg2n5JxAjgvx9WZ55HgFVZAAAAAElFTkSuQmCC";
 var BADGE='<img src="'+SEA_LOGO+'" alt="" width="16" height="16">';
 var COPY='<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#8a8a8a" stroke-width="1.200"><rect x="5.200" y="1.800" width="8.600" height="8.600" rx="1.300"/><path d="M3.800 5.200H3.200A1.400 1.400 0 0 0 1.800 6.600v6.200a1.400 1.400 0 0 0 1.400 1.400h6.200a1.400 1.400 0 0 0 1.400-1.400v-.6"/></svg>';
+function shownTo(d){return(d.source==="Bx"||d.source==="Bx2")?maskNama(d.to_name,d.to_bank,d.source==="Bx2"):d.to_name}
 function acct(bank,no){return [bank,no].filter(Boolean).join(": ")}
 function row(k,v,cls){return '<div class="dr'+(cls?" "+cls:"")+'"><div class="k">'+esc(k)+'</div><div class="v">'+v+'</div></div>'}
 function V(x){return x==null||String(x).trim()===""?"-":esc(x)}
@@ -952,7 +974,7 @@ function render(d){
  var h='<div class="dtop"><div class="dam"><span>Rp</span>'+rp(d.amount)+'</div></div><div class="dcard">';
  var dari,ke;
  if(ax&&!bifast){            /* ax_ewallet: pengirim e-wallet tanpa rekening */
-  dari=party(d.from_name,"building",false,"");
+  dari=party(maskNama(d.from_name,d.via||d.from_bank,true),"building",false,"");
   ke=party(d.to_name,"person",false,subAcct(d.to_bank,d.to_account,true));
  }else if(ax){               /* ax_bank: BI-FAST dari rekening bank pengirim */
   dari=party(d.from_name,"person",true,subAcct(d.from_bank,d.from_account,true));
@@ -960,8 +982,8 @@ function render(d){
  }else{
   dari=party(d.from_name,"person",false,subAcct(d.from_bank,d.from_account,true));
   if(pay)ke=party(d.to_name,"building",false,d.merchant_city?'<span>'+esc(d.merchant_city)+'</span>':"");
-  else if(src==="Bx2")ke=party(d.to_name,"wallet",false,subAcct(d.to_bank,d.to_account,false));
-  else ke=party(d.to_name,"person",true,subAcct(d.to_bank,d.to_account,false));
+  else if(src==="Bx2")ke=party(shownTo(d),"wallet",false,subAcct(d.to_bank,d.to_account,false));
+  else ke=party(shownTo(d),"person",true,subAcct(d.to_bank,d.to_account,false));
  }
  h+=row("Dari",dari,"big")+row("Ke",ke,"big");
  if(pay)h+=row("Nama Acquirer",V(d.to_bank));
@@ -1031,7 +1053,7 @@ window.addEventListener("popstate",closeSheet);
 document.getElementById("dBack").onclick=function(){closeSheet();window.__goRiwayat&&window.__goRiwayat()};
 document.getElementById("dShare").onclick=function(){
  if(!curData)return;var d=curData;
- var t=(d.kind==="payment"?"Pembayaran":"Transfer")+" Rp "+rp(d.amount)+" ke "+(d.to_name||"-")+(d.ts?"\n"+dt(d.ts):"")+(d.transaction_no?"\nNo. Transaksi: "+d.transaction_no:"");
+ var t=(d.kind==="payment"?"Pembayaran":"Transfer")+" Rp "+rp(d.amount)+" ke "+(shownTo(d)||"-")+(d.ts?"\n"+dt(d.ts):"")+(d.transaction_no?"\nNo. Transaksi: "+d.transaction_no:"");
  if(navigator.share)navigator.share({title:"Rincian Transaksi",text:t}).catch(function(){});else copy(t);
 };
 return{show:show};
