@@ -67,6 +67,9 @@ button{font-family:inherit}
 .dl s{display:block;color:#999;font-size:12px}.dl .k{color:var(--or);font-size:12px;margin:4px 0 7px}
 .dl button{width:100%;background:#fff;border:1px solid var(--or);color:var(--or);border-radius:4px;font-size:13.5px;padding:6px 0;font-family:inherit}
 .dl button.on{background:var(--or);color:#fff}
+.bnr{position:relative;margin:0 12px 12px;border-radius:8px;overflow:hidden;aspect-ratio:676/232;background:#e4e8f2;touch-action:pan-y}
+.bnr img{position:absolute;inset:0;width:100%;height:100%;transform:translateX(100%);-webkit-user-drag:none;user-select:none}
+.bnr img.mv{transition:transform .6s ease}
 .bn{width:calc(100% - 24px);margin:0 12px 12px;border-radius:8px}
 .sec{padding:0}
 .sec h3{font-weight:500;font-size:15px;padding:14px 15px 10px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;align-items:center}
@@ -310,7 +313,17 @@ button{font-family:inherit}
  </div>
 </div>
 
-<img class="bn" src="assets/img/banner_setor_tarik.png" alt="">
+<div class="bnr" id="bnr"></div>
+<script>
+(function(){var B="https://jtdnsrsollmknfijdqty.supabase.co/storage/v1/object/public/banners/",box=document.getElementById("bnr"),n=6,i=0,t,sx=null,im=[];
+for(var k=1;k<=n;k++){var e=new Image();e.alt="";e.draggable=false;e.src=B+"banner-"+k+".webp";e.onerror=function(){if(!this.f){this.f=1;this.src="assets/img/"+this.src.split("/").pop()}};box.appendChild(e);im.push(e)}
+im[0].style.transform="none";
+function go(d){var o=im[i],c;i=(i+d+n)%n;c=im[i];c.classList.remove("mv");c.style.transform="translateX("+100*d+"%)";void c.offsetWidth;c.classList.add("mv");o.classList.add("mv");c.style.transform="none";o.style.transform="translateX("+(-100*d)+"%)"}
+function st(){clearInterval(t);t=setInterval(function(){go(1)},3500)}
+box.addEventListener("touchstart",function(e){sx=e.touches[0].clientX;clearInterval(t)},{passive:true});
+box.addEventListener("touchend",function(e){var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>30)go(dx<0?1:-1);st()},{passive:true});
+st()})();
+</script>
 
 <div class="card sec">
  <h3>E-Wallet Terhubung</h3>
