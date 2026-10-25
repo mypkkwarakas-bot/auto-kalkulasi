@@ -206,6 +206,13 @@ button{font-family:inherit}
 #dToast.on{opacity:1}
 
 #viewDetail .dst{cursor:pointer;background:none;font-family:inherit}
+#viewDetail .dr .p .ic{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;overflow:hidden}
+#viewDetail .dr .p .ic.o{background:#EA5F00}
+#viewDetail .dr .p .ic.b{background:#4DACD1}
+#viewDetail .dnote{margin-top:12px;padding:15px}
+#viewDetail .dnote .k{color:#666;font-size:15px;line-height:20px}
+#viewDetail .dnote .nv{margin-top:10px;font-size:15px;color:#222;line-height:20px;word-break:break-word}
+#viewDetail .dr .v img{vertical-align:-5px}
 #pgOv{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s linear .22s}
 #pgOv.on{opacity:1;visibility:visible;transition:opacity .22s ease}
 #pgOv .sh{width:100%;max-width:480px;background:#fff;border-radius:12px 12px 0 0;transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);padding-bottom:calc(34px + env(safe-area-inset-bottom));font-family:Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -783,20 +790,52 @@ var BADGE='<img src="'+SEA_LOGO+'" alt="" width="16" height="16">';
 var COPY='<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#8a8a8a" stroke-width="1.200"><rect x="5.200" y="1.800" width="8.600" height="8.600" rx="1.300"/><path d="M3.800 5.200H3.200A1.400 1.400 0 0 0 1.800 6.600v6.200a1.400 1.400 0 0 0 1.400 1.400h6.200a1.400 1.400 0 0 0 1.400-1.400v-.6"/></svg>';
 function acct(bank,no){return [bank,no].filter(Boolean).join(": ")}
 function row(k,v,cls){return '<div class="dr'+(cls?" "+cls:"")+'"><div class="k">'+esc(k)+'</div><div class="v">'+v+'</div></div>'}
+function V(x){return x==null||String(x).trim()===""?"-":esc(x)}
+function cpv(x){return x?esc(x)+'<button class="cp" type="button" data-copy="'+esc(x)+'" aria-label="Salin">'+COPY+'</button>':"-"}
+function icon(t){
+ if(t==="person")return '<img src="'+PERSON_ICO+'" alt="">';
+ return '<span class="ic '+(t==="wallet"?"b":"o")+'"><svg width="22" height="22"><use href="#g-'+t+'"/></svg></span>';
+}
+function party(name,ic,chev,sub){
+ return '<div class="p">'+icon(ic)+'<span>'+V(name)+'</span>'+(chev?'<i class="chv"></i>':"")+'</div>'+(sub?'<div class="s">'+sub+'</div>':"");
+}
+function subAcct(bank,no,badge){
+ var t=acct(bank,no);if(!t)return "";
+ return (badge&&/seabank/i.test(bank||"")?BADGE:"")+'<span>'+esc(t)+'</span>';
+}
+function noteCard(t,always){
+ if(!t&&!always)return "";
+ return '<div class="dcard dnote"><div class="k">Catatan</div><div class="nv">'+V(t)+'</div></div>';
+}
+function mtd(m){return m==="Transfer BI Fast"?"BI-FAST":m==="Bank Transfer"?"Transfer":m}
 function render(d){
- var pay=d.kind==="payment",P='<img src="'+PERSON_ICO+'" alt="">';
- var toSub=pay?[d.merchant_city,d.to_bank].filter(Boolean).join(" · "):acct(d.to_bank,d.to_account);
- var h='<div class="dtop"><div class="dam"><span>Rp</span>'+rp(d.amount)+'</div><button type="button" class="dst" id="dStatus">'+esc(d.status||"Transaksi Selesai")+'<i></i></button></div><div class="dcard">';
- h+=row("Dari",'<div class="p">'+P+'<span>'+esc(d.from_name)+'</span></div><div class="s">'+BADGE+'<span>'+esc(acct(d.from_bank,d.from_account))+'</span></div>',"big");
- h+=row("Ke",'<div class="p">'+P+'<span>'+esc(d.to_name)+'</span><i class="chv"></i></div>'+(toSub?'<div class="s"><span>'+esc(toSub)+'</span></div>':""),"big");
- h+=row(pay?"Jumlah Pembayaran":"Jumlah Transfer","Rp "+rp(d.amount));
+ /* tata letak per sumber data di log_abc: ax (masuk: e-wallet / BI-FAST), Bx (transfer bank), Bx2 (transfer e-wallet), Cx (pembayaran) */
+ var src=d.source,ax=src==="ax",bifast=ax&&d.method==="Transfer BI Fast",pay=src==="Cx";
+ var h='<div class="dtop"><div class="dam"><span>Rp</span>'+rp(d.amount)+'</div></div><div class="dcard">';
+ var dari,ke;
+ if(ax&&!bifast){            /* ax_ewallet: pengirim e-wallet tanpa rekening */
+  dari=party(d.from_name,"building",false,"");
+  ke=party(d.to_name,"person",false,subAcct(d.to_bank,d.to_account,true));
+ }else if(ax){               /* ax_bank: BI-FAST dari rekening bank pengirim */
+  dari=party(d.from_name,"person",true,subAcct(d.from_bank,d.from_account,true));
+  ke=party(d.to_name,"person",false,subAcct(d.to_bank,d.to_account,true));
+ }else{
+  dari=party(d.from_name,"person",false,subAcct(d.from_bank,d.from_account,true));
+  if(pay)ke=party(d.to_name,"building",false,d.merchant_city?'<span>'+esc(d.merchant_city)+'</span>':"");
+  else if(src==="Bx2")ke=party(d.to_name,"wallet",false,subAcct(d.to_bank,d.to_account,false));
+  else ke=party(d.to_name,"person",true,subAcct(d.to_bank,d.to_account,false));
+ }
+ h+=row("Dari",dari,"big")+row("Ke",ke,"big");
+ if(pay)h+=row("Nama Acquirer",V(d.to_bank));
+ if(pay)h+=row("Metode Pembayaran",(/seabank/i.test(d.method||"")?BADGE+" ":"")+V(d.method));
+ h+=row(pay?"Jumlah":"Jumlah Transfer","Rp "+rp(d.amount));
  if(d.fee>0)h+=row("Biaya Transfer","Rp "+rp(d.fee));
- if(d.transaction_no)h+=row("No. Transaksi",esc(d.transaction_no)+'<button class="cp" type="button" data-copy="'+esc(d.transaction_no)+'" aria-label="Salin">'+COPY+'</button>');
- if(d.method)h+=row(pay?"Metode Pembayaran":"Metode Transaksi",esc(d.method));
- if(pay&&d.terminal_id)h+=row("ID Terminal",esc(d.terminal_id));
- if(d.note)h+=row("Catatan",esc(d.note));
+ h+=row("No. Transaksi",cpv(d.transaction_no));
+ if(!bifast)h+=row("No. Referensi",cpv(d.reference_no));
+ if(pay)h+=row("Terminal ID",V(d.terminal_id));
+ if(!pay&&src!=="Bx2")h+=row("Metode Transaksi",V(mtd(d.method)));
  if(d.ts)h+=row("Waktu Transaksi",esc(dt(d.ts)));
- h+='</div><a class="help" href="#" onclick="return false">Butuh Bantuan?</a>';
+ h+='</div>'+noteCard(d.note,ax)+'<a class="help" href="#" onclick="return false">Butuh Bantuan?</a>';
  box.innerHTML=h;curData=d;
 }
 function msg(t,retryId){
