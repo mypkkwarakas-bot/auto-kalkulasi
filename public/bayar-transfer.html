@@ -1027,10 +1027,11 @@ $("trfGo").addEventListener("click",function(){
 /* pengirim & biaya normal: satu sumber data, dipakai layar Konfirmasi dan Hasil */
 var SENDER={name:"",bank:"SeaBank",number:""},NORMAL_FEE=2500;
 /* pengirim = profil di Supabase (RPC get_profil), sama dengan Beranda & Saya */
-(function(){var CK="profil_cache_v1";function ap(p){if(p&&p.nama){SENDER.name=p.nama;SENDER.bank=p.bank||"SeaBank";SENDER.number=p.no_rekening||""}}
+var loadSender=(function(){var CK="profil_cache_v1";function ap(p){if(p&&p.nama){SENDER.name=p.nama;SENDER.bank=p.bank||"SeaBank";SENDER.number=p.no_rekening||""}}
  try{ap(JSON.parse(localStorage.getItem(CK)||"null"))}catch(e){}
- fetch(SUPABASE_URL+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:HEADERS.apikey||HEADERS.Apikey||"sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn","Content-Type":"application/json"},body:"{}",cache:"no-store"})
-  .then(function(r){return r.ok?r.json():null}).then(function(p){if(p&&p.nama){ap(p);try{localStorage.setItem(CK,JSON.stringify(p))}catch(e){}}}).catch(function(){});
+ function load(cb){fetch(SUPABASE_URL+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:HEADERS.apikey||HEADERS.Apikey||"sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn","Content-Type":"application/json"},body:"{}",cache:"no-store"})
+  .then(function(r){return r.ok?r.json():null}).then(function(p){if(p&&p.nama){ap(p);try{localStorage.setItem(CK,JSON.stringify(p))}catch(e){}}if(cb)cb()}).catch(function(){})}
+ load();return load;
 })();
 var URL_BX=SUPABASE_URL+"/functions/v1/konfirmasi-bx",URL_EW=SUPABASE_URL+"/functions/v1/konfirmasi-ewallet";
 var fmt=function(n){return new Intl.NumberFormat("id-ID").format(n)};
@@ -1047,6 +1048,7 @@ function openKf(d){
  tx=d;submitting=false;
  $("kf-sName").textContent=SENDER.name;
  $("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number;
+ loadSender(function(){if(tx!==d)return;$("kf-sName").textContent=SENDER.name;$("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number});
  $("kf-rName").textContent=d.name;
  $("kf-rAcc").textContent=shortName(d.provider,d.kind)+": "+d.number;
  $("kf-total").textContent=fmt(d.amount+(d.fee||0));
