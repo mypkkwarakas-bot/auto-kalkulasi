@@ -968,7 +968,7 @@ function renderAccount(){
 window.setAccount=function(a){Object.assign(account,a);renderAccount();if(level===2)validate()};
 function validate(){
  var n=amount(),m="";
- if(n<MIN_AMOUNT)m="Nominal minimum adalah "+rp(MIN_AMOUNT)+".";
+ if(n<MIN_AMOUNT)m="Minimal transaksi adalah "+rp(MIN_AMOUNT)+".";
  else if(account.saldo!=null&&n>account.saldo)m="Saldo tidak mencukupi.";
  else if(account.limit!=null&&n>account.limit)m="Nominal melebihi limit transfer.";
  $("trfAmtErr").textContent=m;$("trfAmtBox").classList.toggle("bad",!!m);
@@ -1075,9 +1075,10 @@ function press(k){
 function shake(){var d=$("kf-dots");d.classList.remove("kf-err");void d.offsetWidth;d.classList.add("kf-err")}
 function submitPin(){
  if(submitting||!tx)return;
+ if(tx.amount<MIN_AMOUNT){pin="";paintPin();pmsg("Minimal transaksi adalah "+rp(MIN_AMOUNT)+".");return}
  submitting=true;pmsg("Memproses\u2026");
  var body={pin:pin,sender_name:SENDER.name,sender_bank:SENDER.bank,sender_account:SENDER.number,
-  recipient_name:tx.name,recipient_bank:shortName(tx.provider,tx.kind),recipient_account:tx.number,
+  recipient_name:tx.name,recipient_bank:(tx.kind==="hp"&&tx.provider&&tx.provider.name)||shortName(tx.provider,tx.kind),recipient_account:tx.kind==="hp"?String(tx.number).replace(/\D/g,""):tx.number,
   amount_rupiah:tx.amount,fee_rupiah:tx.fee===0?0:null,note:$("kf-note").value.trim()};
  fetch(tx.kind==="hp"?URL_EW:URL_BX,{method:"POST",headers:HEADERS,body:JSON.stringify(body)})
  .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {s:r.status,j:j||{}}})})
@@ -1088,7 +1089,7 @@ function submitPin(){
   if(x.s===401){shake();pmsg("PIN salah. Coba lagi.")}
   else if(x.s===429)pmsg(x.j.message||"Terlalu banyak percobaan. Coba lagi nanti.");
   else if(x.s===409)pmsg(x.j.message||"Saldo tidak cukup.");
-  else if(x.s===400)pmsg("Data transfer tidak valid.");
+  else if(x.s===400)pmsg(x.j.message||"Data transfer tidak valid.");
   else pmsg("Gagal memproses. Coba lagi.");
  })
  .catch(function(){submitting=false;pin="";paintPin();pmsg("Tidak dapat terhubung. Periksa koneksi lalu coba lagi.")});
