@@ -12,6 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 <style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{overscroll-behavior-y:contain}</style>
 
 <style>
@@ -37,13 +38,20 @@ button{font-family:inherit}
 .bal .r1{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
 .bal .lb{display:flex;align-items:center;gap:5px;font-size:14.5px}
 .bal .lb img{width:14px;height:14px}
-.rp{font-size:12.5px;font-weight:500}.big{font-size:21px;font-weight:500}
+.money{display:inline-flex;align-items:baseline;gap:.25em;white-space:nowrap;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.money .cur{font-size:.6em;font-weight:500}
+.money .num{font-weight:500}
+.money.xl{font-size:clamp(1.375rem,6.67vw,1.75rem);line-height:1.3}
+.money.sm{font-size:clamp(.9375rem,4.72vw,1.1875rem);line-height:1.4}
+.bal .r1>div:first-child{flex:1;min-width:0}
+.mrow{display:flex;align-items:center;flex-wrap:wrap;gap:2px 6px}
+.mrow .bd2{margin-left:0;white-space:nowrap}
 .bal .am{margin-top:5px}
 .hist{position:absolute;right:-15px;top:9px;background:#c24a00;color:#fff;font-size:12px;padding:5px 12px 5px 12px;border-radius:14px 0 0 14px;display:flex;align-items:center;gap:6px;border:0}
 .hist i,.chev{display:inline-block;width:6px;height:6px;border-right:1.6px solid currentColor;border-top:1.6px solid currentColor;transform:rotate(45deg)}
-.bal hr{border:0;border-top:1px solid rgba(255,255,255,.28);margin:11px 0 10px}
+.bal hr{border:0;border-top:1px solid rgba(255,255,255,.28);margin:11px 0 14px}
 .bal .r2{display:flex;position:relative}
-.bal .r2>div{flex:1}
+.bal .r2>div{flex:1;min-width:0}
 .bal .r2 .lb{font-size:14.5px;margin-bottom:3px}
 .bal small{display:block;font-size:11.5px;margin-top:2px;opacity:.95}
 .bd2{background:#fde0b0;color:#6b3300;font-size:11px;border-radius:9px;padding:2px 7px;margin-left:5px;font-weight:500}
@@ -67,10 +75,10 @@ button{font-family:inherit}
 .dl s{display:block;color:#999;font-size:12px}.dl .k{color:var(--or);font-size:12px;margin:4px 0 7px}
 .dl button{width:100%;background:#fff;border:1px solid var(--or);color:var(--or);border-radius:4px;font-size:13.5px;padding:6px 0;font-family:inherit}
 .dl button.on{background:var(--or);color:#fff}
-.bnr{position:relative;margin:0 12px 12px;border-radius:8px;overflow:hidden;aspect-ratio:676/232;background:#e4e8f2;touch-action:pan-y}
-.bnr img{position:absolute;inset:0;width:100%;height:100%;transform:translateX(100%);-webkit-user-drag:none;user-select:none}
+.bnr{position:relative;margin:0 12px 12px;border-radius:8px;overflow:hidden;aspect-ratio:675/231;background:#e4e8f2;touch-action:pan-y}
+.bnr img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;transform:translateX(100%);-webkit-user-drag:none;user-select:none}
 .bnr img.mv{transition:transform .6s ease}
-.bn{width:calc(100% - 24px);margin:0 12px 12px;border-radius:8px}
+.bn{width:calc(100% - 24px);height:auto;aspect-ratio:675/231;object-fit:cover;background:#e4e8f2;margin:0 12px 12px;border-radius:8px}
 .sec{padding:0}
 .sec h3{font-weight:500;font-size:15px;padding:14px 15px 10px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;align-items:center}
 .sec h3 .chev{color:#777;transform:rotate(45deg)}
@@ -118,7 +126,7 @@ button{font-family:inherit}
 #viewX .fw .fl{margin-top:12px}.dr{display:flex;justify-content:space-between;align-items:center;padding:14px 15px;border-bottom:1px solid #eee}.dr b{color:#e86100;font-size:16px;font-weight:500}.dr p{font-size:14px;margin-top:3px}.dr button{background:#e86100;color:#fff;border:0;border-radius:3px;padding:9px 12px;font-size:13px;font-weight:500;flex:none}
 #viewX .qr{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;font-size:14px;border-top:1px solid #eee}.lm{text-align:center;color:#888;font-size:13px;padding:13px;border-top:1px solid #eee}
 #viewX .pj{background:linear-gradient(#ff6200 70%,#f5f6f8);padding:20px 15px 70px;margin-bottom:-60px}.pj h2{color:#fff;font-size:20px;line-height:24px;width:50%}
-#viewX .pk{background:#fff;border-radius:8px;margin:0 12px;overflow:hidden;position:relative}.ok{background:#eafbf0;color:#064a22;font-size:13.5px;padding:12px 15px;line-height:18px}.am{text-align:center;padding:16px 10px}.am p{font-size:14px}.am b{display:block;font-size:30px;font-weight:500;margin:8px 0}.am b small{font-size:20px}.am span{font-size:13px;color:#888}
+#viewX .pk{background:#fff;border-radius:8px;margin:0 12px;overflow:hidden;position:relative}.ok{background:#eafbf0;color:#064a22;font-size:13.5px;padding:12px 15px;line-height:18px}#viewX .am{text-align:center;padding:16px 10px}#viewX .am p{font-size:14px}#viewX .am b{display:block;font-size:30px;font-weight:500;margin:8px 0}#viewX .am b small{font-size:20px}#viewX .am span{font-size:13px;color:#888}
 #viewX .tp{padding:18px 15px}.tp h3{font-size:15px;font-weight:500}.mt{color:#888;font-size:13.5px;margin:10px 0;line-height:18px}.tp ol{margin:0;padding-left:34px}.tp li{font-size:14px;line-height:18px;margin-bottom:12px}.tp a{color:#1a73e8}.nt{background:#f6f6f6;color:#777;font-size:13px;padding:10px 15px}
 #viewX .ft{font-size:11px;color:#777;margin:16px 15px;line-height:15px}
 #ewO{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none;align-items:flex-end;justify-content:center}#ewO.on{display:flex}
@@ -313,14 +321,38 @@ button{font-family:inherit}
 
 <div class="bal">
  <div class="r1"><div><div class="lb">Total Saldo <img src="assets/img/ikon_mata.png" alt=""></div>
- <div class="am"><span class="rp">Rp</span> <span class="big" id="saldoTotal">…</span></div></div>
+ <div class="am"><span class="money xl"><span class="cur">Rp</span><span class="num" id="saldoTotal">…</span></span></div></div>
  <a class="hist" href="#riwayat" data-go="riwayat" aria-label="Lihat riwayat transaksi">Riwayat <i></i></a></div>
  <hr>
  <div class="r2">
-  <div><div class="lb">Tabungan <i class="chev" style="width:6px;height:6px"></i></div><span class="rp">Rp</span> <span class="big" id="saldoTab" style="font-size:17px">…</span><small>s/d 3,5% p.a. cair harian</small></div>
-  <div><div class="lb">Deposito <i class="chev" style="width:6px;height:6px"></i></div><span class="rp">Rp</span> <span class="big" style="font-size:17px">0</span><span class="bd2">Buka Deposito</span><small>s/d 6% p.a.</small></div>
+  <div><div class="lb">Tabungan <i class="chev" style="width:6px;height:6px"></i></div><div class="mrow"><span class="money sm"><span class="cur">Rp</span><span class="num" id="saldoTab">…</span></span></div><small>s/d 3,5% p.a. cair harian</small></div>
+  <div><div class="lb">Deposito <i class="chev" style="width:6px;height:6px"></i></div><div class="mrow"><span class="money sm"><span class="cur">Rp</span><span class="num">0</span></span><span class="bd2">Buka Deposito</span></div><small>s/d 6% p.a.</small></div>
  </div>
 </div>
+
+<script>
+/* Angka saldo: ukuran dasar dari CSS clamp(); dikecilkan otomatis hanya bila nominal terlalu panjang untuk kartu */
+(function(){
+var MIN=13;
+function fit(el){
+ var box=el.parentElement,w=box&&box.clientWidth;
+ if(!w)return;
+ var k=w+"|"+el.textContent;
+ if(el.__k===k)return;
+ el.style.fontSize="";
+ var s=parseFloat(getComputedStyle(el).fontSize);
+ while(el.offsetWidth>w&&s>MIN){s-=.5;el.style.fontSize=s+"px"}
+ el.__k=k;
+}
+function all(){[].forEach.call(document.querySelectorAll(".money"),fit)}
+function reset(){[].forEach.call(document.querySelectorAll(".money"),function(e){e.__k=null});all()}
+window.__fitMoney=all;
+if(window.ResizeObserver){var ro=new ResizeObserver(all);[].forEach.call(document.querySelectorAll(".money"),function(e){ro.observe(e.parentElement)})}
+window.addEventListener("resize",all);window.addEventListener("orientationchange",all);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reset);
+all();
+})();
+</script>
 
 <div class="card grid">
  <a href="bayar-transfer.html"><img src="assets/img/menu_transfer.png" alt="">Transfer</a>
@@ -351,7 +383,7 @@ button{font-family:inherit}
 <div class="bnr" id="bnr"></div>
 <script>
 (function(){var B="https://jtdnsrsollmknfijdqty.supabase.co/storage/v1/object/public/banners/",box=document.getElementById("bnr"),n=6,i=0,t,sx=null,im=[];
-for(var k=1;k<=n;k++){var e=new Image();e.alt="";e.draggable=false;e.src=B+"banner-"+k+".webp";e.onerror=function(){if(!this.f){this.f=1;this.src="assets/img/"+this.src.split("/").pop()}};box.appendChild(e);im.push(e)}
+for(var k=1;k<=n;k++){var e=new Image();e.alt="";e.decoding="async";e.draggable=false;e.src=B+"banner-"+k+".webp";e.onerror=function(){if(!this.f){this.f=1;this.src="assets/img/"+this.src.split("/").pop()}};box.appendChild(e);im.push(e)}
 im[0].style.transform="none";
 function go(d){var o=im[i],c;i=(i+d+n)%n;c=im[i];c.classList.remove("mv");c.style.transform="translateX("+100*d+"%)";void c.offsetWidth;c.classList.add("mv");o.classList.add("mv");c.style.transform="none";o.style.transform="translateX("+(-100*d)+"%)"}
 function st(){clearInterval(t);t=setInterval(function(){go(1)},3500)}
@@ -376,7 +408,7 @@ st()})();
 </div>
 
 
-<img class="bn" src="assets/img/banner_bunga_statis.png" width="673" height="230" alt="">
+<img class="bn" src="assets/img/banner_bunga_statis.png" width="675" height="231" loading="lazy" decoding="async" alt="">
 
 <div class="card sec">
  <h3>Transfer Terakhir <i class="chev"></i></h3>
@@ -491,7 +523,7 @@ var CFG={url:"https://jtdnsrsollmknfijdqty.supabase.co",
 var els=[document.getElementById("saldoTotal"),document.getElementById("saldoTab")],CK="saldo:last",last=null,seq=0;
 function show(v){
  var t=v==null?"-":new Intl.NumberFormat("id-ID",{maximumFractionDigits:2}).format(v);
- els.forEach(function(e){if(e)e.textContent=t});
+ els.forEach(function(e){if(e)e.textContent=t});window.__fitMoney&&window.__fitMoney();
 }
 try{var c=localStorage.getItem(CK);if(c!==null&&c!==""&&isFinite(c))show(+c)}catch(e){}
 function load(){
