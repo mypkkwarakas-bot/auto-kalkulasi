@@ -94,6 +94,16 @@ img{display:block}
 .tb-chips button b{font-size:17px;font-weight:600;color:#111}
 .tb-chips button i{font-style:normal;color:#555}
 #trfBankRows .tb-line+.tb-line{border-top:1px solid #eee}
+.nkb{display:none;position:absolute;left:0;right:0;bottom:0;z-index:5;background:#dcdcdc;padding:11px 4px calc(12px + env(safe-area-inset-bottom));grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,49px);gap:7px 4.5px;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+#pg-trf.kb-on .nkb{display:grid}
+#pg-trf.kb-on .tb-body{padding-bottom:264px}
+.nkb button{border:0;border-radius:5px;background:#fff;font:inherit;font-size:22px;color:#111;box-shadow:0 1.5px 0 #9c9c9c;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.nkb button:active{background:#ececec}
+.nkb .k-del{background:none;box-shadow:none}
+.nkb .k-del:active{background:rgba(0,0,0,.07)}
+.nkb .k-ok{grid-column:4;grid-row:2/5;background:#e95e00;color:#fff;font-size:16px;box-shadow:0 1.5px 0 #b34800}
+.nkb .k-ok:active{background:#cf5400}
+.nkb .k-e{visibility:hidden;pointer-events:none}
 .pg{position:fixed;inset:0;left:50%;width:100%;max-width:480px;transform:translateX(-50%);background:#f5f6f8;z-index:60;overflow-y:auto;display:none}
 .pg.on{display:block}
 .ph{display:flex;align-items:center;height:52px;background:#fff;padding:0 12px 0 14px;gap:22px;position:sticky;top:0;z-index:2}
@@ -269,7 +279,7 @@ img{display:block}
 .tb-amount{margin-top:15px;background:#fafafa;border-radius:4px 4px 0 0;height:66px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid transparent}
 .tb-amount.bad{border-bottom-color:#e8294b}
 .tb-amount .rp{font-size:18px;color:#555;margin-right:10px;margin-top:6px}
-.tb-amount input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:0;font:inherit;font-size:30px;color:#111;caret-color:#ee6100;height:44px}
+.tb-amount input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:0;font:inherit;font-size:30px;color:#111;caret-color:#4cd864;height:44px}
 .tb-amount input::placeholder{color:#cfcfcf}
 .tb-amterr{background:#fff1f1;color:#e8294b;font-size:13px;line-height:28px;height:28px;padding:0 8px;border-radius:0 0 4px 4px}
 .tb-amterr:empty{display:none}
@@ -650,7 +660,7 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
     <div class="tb-avatar"><svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="4.6" fill="#fff"/><ellipse cx="15" cy="20.6" rx="6.6" ry="3.7" fill="#fff"/></svg></div>
     <div class="t"><div class="n" id="trfName"></div><div class="s" id="trfSub"></div></div>
    </div>
-   <div class="tb-amount bad" id="trfAmtBox"><span class="rp">Rp</span><input id="trfAmt" type="text" inputmode="numeric" placeholder="0" autocomplete="off" maxlength="14"></div>
+   <div class="tb-amount bad" id="trfAmtBox"><span class="rp">Rp</span><input id="trfAmt" type="text" inputmode="none" placeholder="0" autocomplete="off" maxlength="14"></div>
    <div class="tb-amterr" id="trfAmtErr"></div>
    <div class="tb-chips" id="trfChips" hidden></div>
    <div class="tb-info" id="trfInfo" hidden>
@@ -666,6 +676,14 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
   <div class="tb-card"><div class="tb-noteh"><span>Catatan (opsional)</span><span id="trfNoteCnt">0/16</span></div><textarea id="trfNote" maxlength="16" aria-label="Catatan"></textarea></div>
  </div>
  <div class="tb-foot"><div class="tb-gomsg" id="trfGoMsg"></div><button class="tb-go" id="trfGo" disabled>Lanjut</button></div>
+ <div class="nkb" id="trfKb" role="group" aria-label="Papan angka">
+  <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+  <button type="button" class="k-del" data-k="del" aria-label="Hapus"><svg width="28" height="22" viewBox="0 0 28 22" fill="none" stroke="#222" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M9 2h15a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9L2 11z"/><path d="M13 7.5l7 7M20 7.5l-7 7"/></svg></button>
+  <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+  <button type="button" class="k-ok" data-k="ok">Selesai</button>
+  <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+  <button type="button" class="k-e" tabindex="-1" aria-hidden="true"></button><button type="button" data-k="0">0</button><button type="button" data-k="000">000</button>
+ </div>
 </div>
 <div class="pg" id="pg-kf">
 <header>
@@ -894,6 +912,7 @@ function view(l){
  level=l;
  if(l===0){reqId++;if(ctl){try{ctl.abort()}catch(e){}ctl=null}busy=false;rpick.classList.remove("busy")}
  if(l!==3)closePin(true);
+ if(l!==2&&typeof kbClose==="function")kbClose();
  $("pg-rek").classList.toggle("on",l>=1&&l<=3);
  $("pg-trf").classList.toggle("on",l===2||l===3);
  $("pg-kf").classList.toggle("on",l===3);
@@ -1053,12 +1072,14 @@ function renderAccount(){
  $("trfFee").textContent=account.fee==null?"-":(account.fee===0?"Gratis":rp(account.fee));
 }
 window.setAccount=function(a){Object.assign(account,a);renderAccount();if(level===2)validate()};
+var lastM="",kbOn=false;
+function paintErr(){var q=kbOn&&amount()===0;$("trfAmtErr").textContent=q?"":lastM;$("trfAmtBox").classList.toggle("bad",!!lastM&&!q)}
 function validate(){
  var n=amount(),m="";
  if(n<MIN_AMOUNT)m="Minimal transaksi adalah "+rp(MIN_AMOUNT)+".";
  else if(account.saldo!=null&&n>account.saldo)m="Saldo tidak mencukupi.";
  else if(limitOf()!=null&&n>limitOf())m="Nominal melebihi limit transfer.";
- $("trfAmtErr").textContent=m;$("trfAmtBox").classList.toggle("bad",!!m);
+ lastM=m;paintErr();
  $("trfGoMsg").textContent="";
  $("trfGo").disabled=!!m||!!(dest&&dest.vs==="loading");$("trfGo").classList.toggle("ready",!m);
 }
@@ -1087,6 +1108,7 @@ function openTrf(d){
  setSwitch(false);setFav(false);renderAccount();validate();
  go(2);
  $("tb-trf-body").scrollTop=0;
+ setTimeout(function(){if(level===2&&dest===d){try{amt.focus({preventScroll:true})}catch(e){amt.focus()}}},60);
  emit("tujuan:dipilih",d);
 }
 amt.addEventListener("input",function(){
@@ -1094,6 +1116,29 @@ amt.addEventListener("input",function(){
  amt.value=n?new Intl.NumberFormat("id-ID").format(parseInt(n,10)):"";
  validate();
 });
+/* papan angka sendiri (tanpa keyboard bawaan): muncul saat kolom nominal fokus */
+var kbEl=$("trfKb");
+function kbClose(){if(amt&&document.activeElement===amt)amt.blur()}
+function setDigits(dg){
+ dg=dg.replace(/^0+/,"");
+ var v=dg?new Intl.NumberFormat("id-ID").format(parseInt(dg,10)):"";
+ if(v.length>14)return;
+ amt.value=v;try{amt.setSelectionRange(v.length,v.length)}catch(e){}
+ validate();
+}
+kbEl.addEventListener("mousedown",function(e){e.preventDefault()});
+$("trfChips").addEventListener("mousedown",function(e){e.preventDefault()});
+kbEl.addEventListener("click",function(e){
+ var b=e.target.closest("button[data-k]");if(!b)return;
+ var k=b.dataset.k,dg=amt.value.replace(/\D/g,"");
+ if(k==="ok"){amt.blur();return}
+ if(k==="del")dg=dg.slice(0,-1);else if(k==="000"){if(!dg)return;dg+="000"}else dg+=k;
+ if(dg.length>12)return;
+ setDigits(dg);
+});
+amt.addEventListener("focus",function(){kbOn=true;$("pg-trf").classList.add("kb-on");paintErr()});
+amt.addEventListener("blur",function(){kbOn=false;$("pg-trf").classList.remove("kb-on");paintErr()});
+$("tb-trf-body").addEventListener("click",function(e){if(!e.target.closest("#trfAmtBox,#trfChips"))kbClose()});
 $("trfSched").addEventListener("click",function(e){setSwitch(!e.currentTarget.classList.contains("on"))});
 $("trfFav").addEventListener("click",function(){setFav(!favOn)});
 $("trfNote").addEventListener("input",function(e){$("trfNoteCnt").textContent=e.target.value.length+"/16"});
