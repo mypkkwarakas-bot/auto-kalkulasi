@@ -1058,6 +1058,22 @@ window.kontakPilih=function(k){
  if(ew)verifyDest(d);
 };
 
+/* ---------- kiriman dari beranda: pilih e-wallet (layar nomor) atau kontak (langsung input nominal) ---------- */
+window.ewPilih=function(code){
+ var name=BRAND[nk(code)];if(!name)return;
+ ewMsg.style.display="none";
+ var hit=cache.hp&&ewFind(cache.hp,name),fb={name:name,code:nk(name).toUpperCase(),_fb:name};
+ openRek(hit?Object.assign({},hit):fb,"hp","ew");
+ if(!hit){var ref0=cur;ewList(function(list){var q=list&&ewFind(list,name);if(q&&cur===ref0&&ref0.p===fb){ref0.p=Object.assign({},q);setLogo($("rekLogo"),ref0.p)}})}
+};
+setTimeout(function(){
+ var raw=null;try{raw=sessionStorage.getItem("bt:go");sessionStorage.removeItem("bt:go")}catch(e){}
+ if(!raw)return;var g;try{g=JSON.parse(raw)}catch(e){return}
+ if(!g||Date.now()-(g.t||0)>30000)return;
+ if(g.k==="kontak"&&g.item)window.kontakPilih(g.item);
+ else if(g.k==="ew"&&g.code)window.ewPilih(g.code);
+},0);
+
 /* ---------- layar 2: transfer (terisi dari hasil server) ---------- */
 /* limit e-wallet boleh beda dari bank: setAccount({limit,limitEw}); bila limitEw kosong dipakai limit */
 function limitOf(){return dest&&dest.kind==="hp"&&account.limitEw!=null?account.limitEw:account.limit}

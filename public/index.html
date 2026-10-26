@@ -335,7 +335,7 @@ window.maskNama=function(nama,bank,wallet){
 <div class="app" id="viewHome">
 <div class="hdr">
  <img class="av" src="assets/img/avatar_profil.png" alt="">
- <div class="nm"><b id="pfNama">Syamsur Rijal</b><span>No. Rekening: <em id="pfRek" style="font-style:normal">9018 3438 7252</em> <img src="assets/img/ikon_salin.png" alt=""></span></div>
+ <div class="nm"><b id="pfNama">Syamsur Rijal</b><span>No. Rekening: <em id="pfRek" style="font-style:normal">9018 3438 7252</em> <img id="pfCopy" src="assets/img/ikon_salin.png" alt="Salin nomor rekening" role="button" tabindex="0" style="cursor:pointer;padding:7px;margin:-7px;box-sizing:content-box"></span></div>
  <button type="button" class="hb" id="hbGift" aria-label="Hadiah"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="9" width="17" height="3.800" rx="1"/><path d="M5 12.800V19a1.500 1.500 0 0 0 1.500 1.500h11A1.500 1.500 0 0 0 19 19v-6.200M12 9v11.500"/><path d="M12 9c-1.300-2-3.500-2.400-3.800-1.100C7.900 9 10 9 12 9zm0 0c1.300-2 3.500-2.400 3.800-1.100C16.100 9 14 9 12 9z"/><path d="M18.600 1.500l.7 1.700 1.700.7-1.700.7-.7 1.700-.7-1.700-1.700-.7 1.700-.7zM5.600 3l.5 1.200 1.200.5-1.200.5-.5 1.200-.5-1.200L3.900 4.700l1.200-.5z" fill="#f26b00" stroke="none"/></svg></button>
  <button type="button" class="hb" id="hbBell" data-go="pesan" aria-label="Pesan"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2b2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.500a5.200 5.200 0 0 0-5.200 5.200v3c0 .9-.3 1.700-.9 2.400L5 15.200h14l-.9-1.100a3.700 3.700 0 0 1-.9-2.400v-3A5.200 5.200 0 0 0 12 3.500z"/><path d="M10 18.200a2 2 0 0 0 4 0"/></svg><span class="hbadge" id="hbBadge" hidden></span></button>
 </div>
@@ -633,12 +633,15 @@ function esc(x){return String(x==null?"":x).replace(/[&<>"']/g,function(c){retur
 function tc(n){return String(n).toLowerCase().replace(/(^|[\s.'-])([a-z])/g,function(m,p,c){return p+c.toUpperCase()})}
 var EW={shopeepay:1,gopay:1,ovo:1,dana:1,linkaja:1,isaku:1,astrapay:1};
 function ic(c){var k=String(c.bank).toLowerCase().replace(/[^a-z0-9]/g,"");return c.jenis==="ewallet"?(EW[k]?"logo_"+k:"ikon_gopay"):"ikon_orang_oranye"}
-function row(c){return '<div class="li"><img src="assets/img/'+ic(c)+'.png" alt="" onerror="this.onerror=null;this.src=\'assets/img/ikon_gopay.png\'"><div class="b"><div><strong>'+esc(maskNama(tc(c.nama),c.bank,c.jenis==="ewallet"))+'</strong><p>'+esc(c.bank)+': '+esc(c.no_rekening)+'</p></div></div></div>'}
-function draw(a){box.innerHTML=a.length?a.map(row).join(""):'<div class="txst">Belum ada transfer</div>';shown=true}
+var data=[];
+function row(c,i){return '<div class="li" data-k="'+i+'" style="cursor:pointer"><img src="assets/img/'+ic(c)+'.png" alt="" onerror="this.onerror=null;this.src=\'assets/img/ikon_gopay.png\'"><div class="b"><div><strong>'+esc(maskNama(tc(c.nama),c.bank,c.jenis==="ewallet"))+'</strong><p>'+esc(c.bank)+': '+esc(c.no_rekening)+'</p></div></div></div>'}
+function draw(a){data=a;box.innerHTML=a.length?a.map(row).join(""):'<div class="txst">Belum ada transfer</div>';shown=true}
 try{var c=JSON.parse(localStorage.getItem(CK)||"null");if(Array.isArray(c)){sig=JSON.stringify(c);draw(c)}}catch(e){}
 function load(){fetch(U+"/rest/v1/rpc/kontak_terakhir",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({p_limit:3}),cache:"no-store"})
 .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var a=(d&&d.items)||[],t=JSON.stringify(a);if(t===sig&&shown)return;sig=t;draw(a);try{localStorage.setItem(CK,t)}catch(e){}})
 .catch(function(){if(!shown)box.innerHTML='<div class="txst">Gagal memuat.<button type="button">Coba lagi</button></div>',box.querySelector("button").onclick=load})}
+box.addEventListener("click",function(e){var li=e.target.closest(".li[data-k]");if(!li)return;var c=data[li.getAttribute("data-k")];if(!c)return;
+try{sessionStorage.setItem("bt:go",JSON.stringify({k:"kontak",item:c,t:Date.now()}))}catch(x){}location.href="bayar-transfer.html"});
 load();setInterval(load,15000);document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
 })();
 </script>
@@ -667,9 +670,10 @@ pinjam:{t:"SeaBank Pinjam",or:1,h:function(){return'<div class="pj"><h2>Tertarik
 window.Menu={show:function(id){var p=P[id];if(!p){window.__mBack();return}document.title=p.t.replace(/&amp;/g,"&");X.className=p.or?"or":"";X.innerHTML='<div class="xw"><header class="hd"><button type="button" onclick="__mBack()" aria-label="Kembali"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 5.5 8.5 12l6.5 6.5"/></svg></button><b>'+p.t+"</b></header>"+p.h()+"</div>"}};
 var O=document.createElement("div");O.id="ewO";document.body.appendChild(O);
 function ew(){var L=[["shopeepay","ShopeePay","Gratis"],["gopay","GoPay"],["ovo","OVO"],["dana","Dana"],["linkaja","LinkAja"],["isaku","i.Saku"],["astrapay","AstraPay","Baru"]];
-O.innerHTML='<div class="sh2"><div class="s2h"><b>Pilih E-Wallet</b><i data-x="1">✕</i></div><h6>E-Wallet Terhubung</h6><div class="ewr"><div class="ec"><img src="'+IC+'logo_shopeepay.png" alt=""><span>B******d</span><b>Rp 2.347</b></div><div class="ec"><img src="'+IC+'logo_ovo.png" alt=""><span>OVO</span><u>Hubungkan ›</u></div><div class="ec"><img src="'+IC+'logo_astrapay.png" alt=""><em>Baru</em><span>AstraPay</span><u>Hubungkan ›</u></div></div><h6>E-Wallet Lainnya</h6><div class="ewg">'+L.map(function(i){return'<a data-t="Top up '+i[1]+' segera hadir"><img src="'+IC+"logo_"+i[0]+'.png" alt="">'+(i[2]?"<em>"+i[2]+"</em>":"")+i[1]+"</a>"}).join("")+"</div></div>";O.className="on"}
+O.innerHTML='<div class="sh2"><div class="s2h"><b>Pilih E-Wallet</b><i data-x="1">✕</i></div><h6>E-Wallet Terhubung</h6><div class="ewr"><div class="ec" data-ewc="shopeepay"><img src="'+IC+'logo_shopeepay.png" alt=""><span>B******d</span><b>Rp 2.347</b></div><div class="ec" data-ewc="ovo"><img src="'+IC+'logo_ovo.png" alt=""><span>OVO</span><u>Hubungkan ›</u></div><div class="ec" data-ewc="astrapay"><img src="'+IC+'logo_astrapay.png" alt=""><em>Baru</em><span>AstraPay</span><u>Hubungkan ›</u></div></div><h6>E-Wallet Lainnya</h6><div class="ewg">'+L.map(function(i){return'<a data-ewc="'+i[0]+'"><img src="'+IC+"logo_"+i[0]+'.png" alt="">'+(i[2]?"<em>"+i[2]+"</em>":"")+i[1]+"</a>"}).join("")+"</div></div>";O.className="on"}
 document.addEventListener("click",function(e){var t=e.target,a;
 if(t.closest("[data-ew]")){e.preventDefault();ew();return}
+if(a=t.closest("[data-ewc]")){e.preventDefault();O.className="";try{sessionStorage.setItem("bt:go",JSON.stringify({k:"ew",code:a.getAttribute("data-ewc"),t:Date.now()}))}catch(x){}location.href="bayar-transfer.html";return}
 if(t===O||t.closest("[data-x]")){O.className="";return}
 if(a=t.closest("[data-t]")){e.preventDefault();toast(a.getAttribute("data-t"));if(O.className)O.className="";return}
 if(a=t.closest("[data-cp]")){var c=a.getAttribute("data-cp");try{navigator.clipboard.writeText(c)}catch(x){}toast("Kode referral disalin");return}
@@ -1160,6 +1164,16 @@ function apply(p){if(!p)return;try{var a=document.getElementById("pfNama"),r=doc
 apply(ls());
 fetch(U+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:"{}",cache:"no-store"})
  .then(function(r){return r.ok?r.json():null}).then(function(p){if(!p||!p.nama)return;try{localStorage.setItem(CK,JSON.stringify(p))}catch(e){}apply(p)}).catch(function(){});
+})();
+</script>
+<script>
+/* ===== Salin nomor rekening dari header ===== */
+(function(){var b=document.getElementById("pfCopy"),t=document.getElementById("dToast");if(!b)return;
+function say(m){if(!t)return;t.textContent=m;t.classList.add("on");clearTimeout(say.t);say.t=setTimeout(function(){t.classList.remove("on")},1800)}
+function fb(v){var x=document.createElement("textarea");x.value=v;x.style.cssText="position:fixed;opacity:0";document.body.appendChild(x);x.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}document.body.removeChild(x);say(ok?"Nomor rekening disalin":"Gagal menyalin")}
+function go(){var r=document.getElementById("pfRek"),v=r?r.textContent.replace(/\D/g,""):"";if(!v)return;
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(function(){say("Nomor rekening disalin")},function(){fb(v)});else fb(v)}
+b.addEventListener("click",go);b.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
 })();
 </script>
 <script src="pwa.js"></script>
