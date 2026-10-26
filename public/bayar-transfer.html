@@ -929,12 +929,14 @@ function go(l){
 }
 function back(){if(pushed>0)history.back();else view(level-1)}
 var viaList=false;
-window.addEventListener("popstate",function(e){var l=(e.state&&e.state.tb)||0;pushed=l;if(done&&l<4){resetFlow();return}
+window.addEventListener("popstate",function(e){
+ if(kbOn){kbClose();history.go(1);return} /* tombol kembali perangkat saat papan angka terbuka: hanya menutup papan angka */
+ var l=(e.state&&e.state.tb)||0;pushed=l;if(done&&l<4){resetFlow();return}
  if(l===1&&viaList){history.back();return} /* masuk dari daftar kontak: lewati layar nomor, kembali ke daftar */
  if(l===0)viaList=false;
  view(l)});
 $("rekBack").addEventListener("click",back);
-$("trfBack").addEventListener("click",back);
+$("trfBack").addEventListener("click",function(){kbClose();back()});
 
 /* ---------- sheet "Pilih E-Wallet" -> alur transfer e-wallet (cek-ewallet) ---------- */
 function ewList(cb){
@@ -1038,7 +1040,7 @@ function verifyDest(d){
  .then(function(r){return r.json().catch(function(){return {}})})
  .then(function(j){
   if(j&&j.found===true&&typeof j.name==="string"&&j.name.trim()){
-   if(dest===d){d.name=j.name.trim();$("trfName").textContent=d.name}
+   if(dest===d)d.name=j.name.trim()
    fin(true)
   }else fin(false,(j&&j.message)||"Tujuan tidak dapat diverifikasi. Ketuk Lanjut untuk mencoba lagi.")
  })
@@ -1047,7 +1049,7 @@ function verifyDest(d){
 window.kontakPilih=function(k){
  if(!k||!k.no_rekening)return;
  var ew=k.jenis==="ewallet",
-  d=ew?{kind:"hp",provider:{code:k.wallet||nk(k.bank),name:k.bank,logo_path:k.logo||undefined},number:k.no_rekening,name:k.nama}
+  d=ew?{kind:"hp",provider:{code:k.wallet||nk(k.bank),name:k.bank,logo_path:k.logo||undefined},number:k.no_rekening,name:k.nama,shown:k.nama}
       :{kind:"rek",provider:{code:k.bank,name:k.bank},number:k.no_rekening,name:k.nama};
  if(ew)d.vs="loading";
  cur=null;src=ew?"ew":"bank";viaList=true;
@@ -1092,7 +1094,7 @@ function shortName(p,kind){
 }
 function openTrf(d){
  dest=d;
- $("trfName").textContent=d.name;
+ $("trfName").textContent=d.shown||d.name;
  $("trfSub").textContent=shortName(d.provider,d.kind)+": "+d.number;
  $("trfChips").hidden=d.kind!=="hp";$("trfBankRows").style.display=d.kind==="hp"?"none":"";
  var destAvatar=$("pg-trf").querySelector(".tb-dest .tb-avatar");
@@ -1108,7 +1110,6 @@ function openTrf(d){
  setSwitch(false);setFav(false);renderAccount();validate();
  go(2);
  $("tb-trf-body").scrollTop=0;
- setTimeout(function(){if(level===2&&dest===d){try{amt.focus({preventScroll:true})}catch(e){amt.focus()}}},60);
  emit("tujuan:dipilih",d);
 }
 amt.addEventListener("input",function(){
@@ -1138,6 +1139,7 @@ kbEl.addEventListener("click",function(e){
 });
 amt.addEventListener("focus",function(){kbOn=true;$("pg-trf").classList.add("kb-on");paintErr()});
 amt.addEventListener("blur",function(){kbOn=false;$("pg-trf").classList.remove("kb-on");paintErr()});
+$("trfAmtBox").addEventListener("click",function(){if(document.activeElement!==amt)amt.focus()});
 $("tb-trf-body").addEventListener("click",function(e){if(!e.target.closest("#trfAmtBox,#trfChips"))kbClose()});
 $("trfSched").addEventListener("click",function(e){setSwitch(!e.currentTarget.classList.contains("on"))});
 $("trfFav").addEventListener("click",function(){setFav(!favOn)});
@@ -1153,7 +1155,7 @@ $("trfGo").addEventListener("click",function(){
  if($("trfGo").disabled||!dest)return;
  if(dest.vs==="fail"){verifyDest(dest);return}
  var ev=new CustomEvent("transfer:lanjut",{cancelable:true,detail:{
-  kind:dest.kind,provider:dest.provider,number:dest.number,name:dest.name,amount:amount(),note:$("trfNote").value.trim(),
+  kind:dest.kind,provider:dest.provider,number:dest.number,name:dest.name,shown:dest.shown,amount:amount(),note:$("trfNote").value.trim(),
   scheduled:$("trfSched").classList.contains("on"),favorite:favOn,fee:account.fee}});
  document.dispatchEvent(ev);
  if(ev.defaultPrevented)return;
@@ -1187,7 +1189,7 @@ function openKf(d){
  $("kf-sName").textContent=SENDER.name;
  $("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number;
  loadSender(function(){if(tx!==d)return;$("kf-sName").textContent=SENDER.name;$("kf-sAcc").textContent=SENDER.bank+": "+SENDER.number});
- $("kf-rName").textContent=d.name;
+ $("kf-rName").textContent=d.shown||d.name;
  paintAv(document.querySelector("#pg-kf .kf-a2"),d.provider,d.kind==="hp");
  $("kf-rAcc").textContent=shortName(d.provider,d.kind)+": "+d.number;
  $("kf-total").textContent=fmt(d.amount+(d.fee||0));
@@ -1265,7 +1267,7 @@ function fillHasil(r){
  $("hs-total").textContent=fmt(total);
  $("hs-sName").textContent=r.sender_name;$("hs-sAcc").textContent=r.sender_bank+": "+r.sender_account;
  $("hs-sLogo").hidden=!/seabank/i.test(r.sender_bank);
- $("hs-rName").textContent=r.recipient_name;paintAv($("hs-rName").parentNode.querySelector("i"),{code:r.recipient_bank,name:r.recipient_bank},true);$("hs-rAcc").textContent=r.recipient_bank+": "+r.recipient_account;
+ $("hs-rName").textContent=(tx&&tx.shown)||r.recipient_name;paintAv($("hs-rName").parentNode.querySelector("i"),{code:r.recipient_bank,name:r.recipient_bank},true);$("hs-rAcc").textContent=r.recipient_bank+": "+r.recipient_account;
  $("hs-nom").textContent=rp(amt);
  var f=$("hs-fee");f.textContent="";f.classList.remove("hs-g");
  if(fee===0){if(NORMAL_FEE>0)f.appendChild(mk("span","hs-old","Rp "+fmt(NORMAL_FEE)));f.appendChild(mk("span","hs-g","GRATIS"))}else f.textContent=feeText(fee);
