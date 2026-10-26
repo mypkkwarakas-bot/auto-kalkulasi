@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Seabank",
   "short_name": "Seabank",
-  "description": "Prototipe antarmuka aplikasi bank mobile (data dummy).",
+  "description": "aplikasi antarmuka aplikasi bank mobile.",
   "lang": "id",
   "dir": "ltr",
   "start_url": "/",
@@ -10,7 +10,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#ea5f00",
+  "theme_color": "#ffffff",
   "categories": [
     "finance"
   ],
