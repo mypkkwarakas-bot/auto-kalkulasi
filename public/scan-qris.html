@@ -148,6 +148,8 @@
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<style id="scan-theme">html.scan-dark,html.scan-dark body{background:#000!important}</style>
 
 <style id="ui-proportionality-audit">
 /* UI-only audit: proportional viewport, safe edges, white system/navigation surfaces */
@@ -548,10 +550,16 @@ input, select, textarea, button { max-width: 100%; }
     });
   }
 
+  function setSystemBars(dark){
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', dark ? '#000000' : '#ffffff');
+    document.documentElement.classList.toggle('scan-dark', !!dark);
+  }
   function show(id, push = true){
     if (id !== 's-scan') stopScan();
     $$('.screen').forEach(s => s.classList.remove('active'));
     $('#' + id).classList.add('active');
+    setSystemBars(id === 's-scan');
     if (push && S.history[S.history.length-1] !== id) S.history.push(id);
   }
   function showError(title, msg, retry){
