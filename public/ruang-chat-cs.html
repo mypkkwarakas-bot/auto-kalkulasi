@@ -81,6 +81,56 @@ button:focus-visible{outline:2px solid var(--org);outline-offset:2px}
 .sheet h3{font-size:15px;font-weight:600;padding:0 16px 10px}
 .sheet button{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:6px 10px;font:inherit;cursor:pointer}
 </style>
+
+<style id="ui-proportionality-audit">
+/* UI-only audit: proportional viewport, safe edges, white system/navigation surfaces */
+:root { color-scheme: light; }
+html {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+  background: #ffffff;
+}
+body {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow-x: clip;
+  background-color: #ffffff;
+}
+*, *::before, *::after { box-sizing: border-box; }
+img, video, canvas, svg { max-width: 100%; }
+input, select, textarea, button { max-width: 100%; }
+.app {
+  width: 100%;
+  min-width: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+.nav, nav.nav, .bottom-nav, .bottomNavigation, [class*="bottom-nav"] {
+  background-color: #ffffff !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav::after, nav.nav::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  height: env(safe-area-inset-bottom, 0px);
+  background: #ffffff;
+  pointer-events: none;
+}
+@supports (height: 100dvh) {
+  .app { min-height: 100dvh; }
+}
+@media (max-width: 360px) {
+  body { overflow-wrap: anywhere; }
+  .app { max-width: min(100vw, 480px); }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -362,5 +412,48 @@ renderWelcome();
 })();
 </script>
 <script src="pwa.js"></script>
+<!-- Fallback layar pemuatan untuk aksi yang belum memiliki alur. Tidak mengubah handler yang sudah mencegah aksi default. -->
+<style id="pending-flow-loader-style">
+#pending-flow-loader{position:fixed;inset:0;z-index:2147483647;background:#fff;display:none;align-items:center;justify-content:center;min-height:100dvh;width:100%;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);box-sizing:border-box;}
+#pending-flow-loader.is-active{display:flex}
+#pending-flow-loader .pending-spinner{width:34px;height:34px;border:3px solid #e9edf2;border-top-color:#178bff;border-radius:50%;animation:pending-flow-spin .8s linear infinite}
+@keyframes pending-flow-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#pending-flow-loader .pending-spinner{animation-duration:1.8s}}
+</style>
+<div id="pending-flow-loader" aria-hidden="true"><span class="pending-spinner" role="status" aria-label="Memuat"></span></div>
+<script id="pending-flow-loader-script">
+(function(){
+  if(window.__pendingFlowLoaderInstalled)return;
+  window.__pendingFlowLoaderInstalled=true;
+  function showPendingLoader(){
+    var layer=document.getElementById('pending-flow-loader');
+    if(!layer)return;
+    layer.classList.add('is-active');
+    layer.setAttribute('aria-hidden','false');
+    document.documentElement.style.overflow='hidden';
+    document.body.style.overflow='hidden';
+  }
+  document.addEventListener('click',function(event){
+    if(event.defaultPrevented)return;
+    var target=event.target&&event.target.closest?event.target.closest('a[href="#"],button'):null;
+    if(!target||target.disabled||target.getAttribute('aria-hidden')==='true'||target.getAttribute('tabindex')==='-1')return;
+    if(target.matches('a[href="#"]')){
+      // Tautan dengan data-* biasanya dikendalikan oleh alur yang sudah ada; jangan sentuh.
+      if(target.attributes){for(var i=0;i<target.attributes.length;i++){if(target.attributes[i].name.indexOf('data-')===0)return;}}
+      if(target.hasAttribute('onclick'))return;
+      event.preventDefault();
+      showPendingLoader();
+      return;
+    }
+    // Hanya tombol tanpa penanda/aksi eksplisit; kontrol bernavigasi dan tombol ber-ID tetap utuh.
+    if(target.id||target.hasAttribute('onclick')||target.hasAttribute('data-action')||target.hasAttribute('data-go')||target.hasAttribute('data-t')||target.hasAttribute('data-k')||target.hasAttribute('data-b')||target.hasAttribute('data-x'))return;
+    if(target.matches('[role="tab"],[role="switch"],[aria-hidden="true"],.blank,.k-e'))return;
+    if(target.closest('#pending-flow-loader'))return;
+    // Tombol tanpa handler inline/penanda aksi dianggap belum memiliki alur yang tersambung.
+    event.preventDefault();
+    showPendingLoader();
+  },false);
+})();
+</script>
 </body>
 </html>
