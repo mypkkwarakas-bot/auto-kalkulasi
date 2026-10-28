@@ -161,14 +161,11 @@ svg{display:block}
 .cam-msg button{height:34px;padding:0 16px;border-radius:17px;font-size:13px;background:rgba(255,255,255,.16);color:#fff}
 .cam-msg button.pri{background:var(--orange)}
 .amt.locked{cursor:default}
-/* ---------- toast & demo ---------- */
+/* ---------- toast ---------- */
 .toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);background:rgba(0,0,0,.82);color:#fff;
   font-size:13px;padding:9px 14px;border-radius:18px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:88%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .toast.top{bottom:auto;top:92px}
-#demo{position:fixed;top:6px;right:6px;z-index:50;display:none}
-#demo.show{display:block}
-#demo button{font-size:11px;background:rgba(255,255,255,.88);color:#222;padding:6px 10px;border-radius:14px;box-shadow:0 1px 6px rgba(0,0,0,.3)}
 
 /* =====================================================================
    LAYAR 5 — PIN (bottom sheet di atas Konfirmasi)
@@ -429,7 +426,6 @@ svg{display:block}
 </div>
 
 <input type="file" id="file" accept="image/*" hidden>
-<div id="demo" class="show"><button id="btn-sim">▶ Simulasi scan QRIS statis</button> <button id="btn-sim2">▶ QRIS dinamis Rp 500</button></div>
 
 <script>
 /* =====================================================================
@@ -532,17 +528,6 @@ function parseQris(raw) {
     amount, fee, billNumber: t62['01'] || ''
   };
 }
-/* pembangun payload QRIS contoh (untuk demo/tes) — lewat parser & CRC yang sama dengan QR asli */
-const T = (t, v) => t + String(v.length).padStart(2, '0') + v;
-function sampleQris(o = {}) {
-  const body = T('00', '01') + T('01', o.amount ? '12' : '11')
-    + T('26', T('00', 'ID.CO.DANA.WWW') + T('01', '9360091530007450088') + T('02', '936009153000745008') + T('03', 'UMI'))
-    + T('51', T('00', 'ID.CO.QRIS.WWW') + T('02', 'ID1026481047599') + T('03', 'UMI'))
-    + T('52', '5411') + T('53', '360') + (o.amount ? T('54', String(o.amount)) : '')
-    + (o.feePct ? T('55', '03') + T('57', String(o.feePct)) : '')
-    + T('58', 'ID') + T('59', 'Warung As-syifa') + T('60', 'JAKARTA') + T('61', '12345') + T('62', T('07', '1205')) + '6304';
-  return body + crc16(body);
-}
 /*PURE-END*/
 
 /* =====================================================================
@@ -583,7 +568,6 @@ async function decodeQR(src, w, h, maxW, useJs = true) {
 function go(name) {
   state.screen = name; $('#toast').classList.remove('show');
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === name));
-  $('#demo').classList.toggle('show', name === 'scan');
   if (name === 'scan') { if (CFG.camera.autoStart) startCam(); } else stopCam();
 }
 let toastT;
@@ -684,8 +668,6 @@ $('#scan-back').onclick = () => toast('Kembali ke beranda (di luar cakupan alur)
 $('#btn-showqr').onclick = () => toast('Tampilkan QR di luar cakupan alur ini');
 $('#cam-retry').onclick = () => startCam();
 $('#cam-gallery').onclick = () => $('#file').click();
-$('#btn-sim').onclick = () => handleRaw(sampleQris(), 'camera');
-$('#btn-sim2').onclick = () => handleRaw(sampleQris({ amount: 500 }), 'camera');
 $('#btn-flash').onclick = async () => {
   const caps = cam.track && cam.track.getCapabilities ? cam.track.getCapabilities() : {};
   if (!caps.torch) return toast('Flash tidak tersedia di perangkat ini');
@@ -820,7 +802,7 @@ function pinKey(k) {
   $('#pin-hint').textContent = ''; renderPin();
   if (pin.v.length === PIN_LEN) {
     pin.busy = true;
-    setTimeout(() => { closePin(); startProcessing(); }, 220);   // PIN apa pun diterima (demo); sambungkan ke backend di sini
+    setTimeout(() => { closePin(); startProcessing(); }, 220);   // PIN apa pun diterima; sambungkan ke backend di sini
   }
 }
 $('#btn-confirm').onclick = openPin;
@@ -977,7 +959,7 @@ $('#r-share').onclick = () => {
   }).catch(() => toast('Gagal membagikan')).then(() => { sharing = false; });
 };
 
-window.QRIS = { parse: parseQris, crc16, sample: sampleQris, state, cfg: CFG };
+window.QRIS = { parse: parseQris, crc16, state, cfg: CFG };
 go('scan');
 </script>
 </body>
