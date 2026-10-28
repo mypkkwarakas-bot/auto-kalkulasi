@@ -1,371 +1,599 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scan QRIS</title>
-<meta name="theme-color" content="#0c0404">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Transfer QRIS</title>
 <style>
-*{box-sizing:border-box;margin:0}
-:root{--bg:#F5F6F8;--card:#fff;--ink:#1F1F1F;--mute:#6B6B6B;--line:#EBEBEB;--or:#FA5B00;--warn:#F59A00;--warnbg:#FFF7E6;--ph:#E6E6E6;--bad:#D93025;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141516;--card:#1F2022;--ink:#F2F2F2;--mute:#A3A3A3;--line:#2D2E30;--warnbg:#2B2416;--ph:#2E2F31}}
-:root[data-theme="dark"]{--bg:#141516;--card:#1F2022;--ink:#F2F2F2;--mute:#A3A3A3;--line:#2D2E30;--warnbg:#2B2416;--ph:#2E2F31}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-html,body{height:100%}
-body{font:400 14px/1.4 Roboto,system-ui,sans-serif;color:var(--ink);background:#0c0404;-webkit-tap-highlight-color:transparent}
-body.qr{background:var(--card)}
-button,input{font:inherit;color:inherit}
-button{background:none;border:0;cursor:pointer}
-button:focus-visible,input:focus-visible{outline:2px solid var(--or);outline-offset:2px}
-svg.i{width:24px;height:24px;flex:none}
-.app{position:relative;height:100%;max-width:430px;margin:0 auto;overflow:hidden;background:var(--bg)}
-.scr{position:absolute;inset:0;display:none;flex-direction:column}
-body.scan #s-scan,body.qr #s-qr{display:flex}
-/* ===== Scan ===== */
-#s-scan{background:linear-gradient(#2a2f2f,#140808 38%,#0c0404);color:#fff}
-#cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hd{position:relative;z-index:2;height:58px;display:flex;align-items:center;gap:14px;padding:0 12px 0 14px;flex:none}
-.hd h1{font-size:18px;font-weight:700}
-.frame{position:absolute;left:50%;top:21%;width:min(80vw,344px);aspect-ratio:1;transform:translateX(-50%);box-shadow:0 0 0 200vmax rgba(10,3,3,.74)}
-.c{position:absolute;width:19px;height:19px;border:3px solid #FF6A00}
-.c1{top:-2px;left:-2px;border-right:0;border-bottom:0}.c2{top:-2px;right:-2px;border-left:0;border-bottom:0}
-.c3{bottom:-2px;left:-2px;border-right:0;border-top:0}.c4{bottom:-2px;right:-2px;border-left:0;border-top:0}
-.lbl{position:absolute;top:calc(100% + 22px);left:-20%;right:-20%;text-align:center;font-size:14px;display:flex;justify-content:center;align-items:center;gap:6px}
-.lbl b{font-weight:700;letter-spacing:.5px;border:1.5px solid #fff;padding:0 4px;font-size:12px;line-height:16px}
-.bar{position:absolute;left:0;right:0;bottom:56px;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;padding:0 20px}
-.ctl{display:flex;flex-direction:column;align-items:center;gap:6px;width:76px;color:#fff;font-size:14px}
-.ctl i{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.55);display:grid;place-items:center}
-.ctl svg{width:22px;height:22px}
-.ctl.on i{background:#FF6A00}
-.pill{height:37px;padding:0 24px 0 18px;border-radius:19px;background:rgba(0,0,0,.55);display:flex;align-items:center;gap:10px;color:#fff;font-size:14px}
-.pill svg{width:22px;height:22px}
-.camfix{position:absolute;inset:0;margin:auto;width:max-content;height:40px;padding:0 22px;border-radius:20px;background:#FF6A00;color:#fff;z-index:3}
-/* ===== QR Code ===== */
-#s-qr{background:var(--bg)}
-#s-qr .hd{background:var(--card);height:47px;padding:0 15px 0 12px;justify-content:space-between;color:var(--ink)}
-#s-qr .hd div{display:flex;align-items:center;gap:14px}
-#s-qr .hd h1{font-weight:500}
-.help{width:33px;height:33px;border:1px solid #bbb;border-radius:50%;display:grid;place-items:center}
-.help svg{width:20px;height:20px}
-.main{flex:1;overflow:auto;padding:15px 15px 12px}
-.main>p{color:var(--mute);margin-bottom:16px;padding:0 0 0 0}
-.card{background:var(--card);border-radius:8px;padding:20px 20px 22px;text-align:center}
-.exp{display:flex;justify-content:center;align-items:center;gap:6px;color:var(--warn);margin-bottom:26px}
-.exp svg{width:17px;height:17px}.exp b{font-weight:700}
-.ph{width:62px;margin:0 auto 22px;display:block}
-.card h2{font-size:18px;font-weight:700;color:var(--mute);margin-bottom:22px}
-.retry{height:37px;padding:0 24px;border:1px solid var(--or);border-radius:4px;color:var(--or)}
-.card hr{border:0;border-top:1px solid var(--line);margin:18px 0 16px}
-.card small{display:block;font-size:14px;color:var(--mute);padding:0 14px;line-height:1.45}
-.limit{display:flex;align-items:center;gap:10px;background:var(--warnbg);border-radius:8px;padding:12px 15px;margin-top:8px}
-.limit svg{width:20px;height:20px}
-.foot{padding:12px;background:var(--card);border-top:1px solid var(--line);flex:none}
-.cta{display:block;width:100%;height:49px;border-radius:8px;background:var(--or);color:#fff;font-size:16px}
-/* ===== Sheet ===== */
-.shade{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:5}
-.sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;background:var(--card);color:var(--ink);border-radius:16px 16px 0 0;padding:18px 16px 16px;transform:translateY(105%);transition:transform .25s;max-height:92%;overflow:auto}
-.app.open .shade{opacity:1;pointer-events:auto}.app.open .sheet{transform:none}
-.tag{display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:10px;background:var(--warnbg);color:var(--warn);margin-bottom:8px}
-.sheet h3{font-size:18px;font-weight:700}
-.sheet .sub{color:var(--mute);margin-bottom:12px}
-.rows{border-top:1px solid var(--line);padding:6px 0;margin-bottom:10px}
-.r{display:flex;justify-content:space-between;gap:16px;padding:5px 0}
-.r span:first-child{color:var(--mute)}.r span:last-child{text-align:right;word-break:break-all}
-.amt{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:0 12px;height:52px;font-size:20px;font-weight:500;margin:4px 0 10px;background:var(--bg)}
-.amt input{flex:1;min-width:0;border:0;background:none;font-size:20px;font-weight:500;outline:0}
-.amt:focus-within{border-color:var(--or)}
-.tot{display:flex;justify-content:space-between;font-weight:700;font-size:16px;padding:8px 0}
-.err{color:var(--bad);min-height:20px;font-size:13px}
-.cta:disabled{opacity:.4;cursor:not-allowed}
-.ghost{display:block;margin:8px auto 0;color:var(--mute);height:36px}
-.toast{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);z-index:9;max-width:86%;background:rgba(30,30,30,.92);color:#fff;padding:9px 16px;border-radius:20px;text-align:center;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
-.toast.on{opacity:1}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-/* ===== Area tap & respons ===== */
-button{touch-action:manipulation}
-.ctl{width:92px;padding:6px 0 4px;margin:-6px 0 0;border-radius:12px;-webkit-user-select:none;user-select:none}
-.ctl i{transition:transform .1s ease,background .15s ease}
-.ctl:active i{transform:scale(.88)}
-.pill{position:relative;transition:background .15s ease}
-.pill::after{content:"";position:absolute;inset:-7px -10px}
-.pill:active{background:rgba(0,0,0,.78)}
-#b-back,#q-back{width:48px;height:48px;display:grid;place-items:center;margin:0 -10px 0 -14px}
-.help,.retry{position:relative}
-.help::after,.retry::after{content:"";position:absolute;inset:-6px}
-.camfix{height:48px;padding:0 26px}
-.ghost{height:48px}
+  :root{
+    --orange:#FA5B00; --orange-d:#E85D04; --bg:#F6F7F9; --card:#fff;
+    --text:#222; --muted:#777; --light:#9a9a9a; --green:#1FA45A; --blue:#0A84D0; --line:#EEE;
+    --key:#fff; --kbd:#DEDEDE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:Roboto,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--text);background:#d9dce1;display:flex;justify-content:center;align-items:center}
+  .app{position:relative;width:100%;max-width:400px;height:100dvh;max-height:860px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+  @media(min-width:500px){.app{border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.18)}}
+
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+  .screen.active{display:flex}
+  .bar{background:#fff;height:56px;display:flex;align-items:center;padding:0 14px;gap:14px;flex-shrink:0;padding-top:env(safe-area-inset-top,0)}
+  .bar h1{font-size:20px;font-weight:600}
+  .bar .back{width:24px;height:24px;background:none;border:0;display:grid;place-items:center;cursor:pointer}
+  .bar.left{padding-left:16px}
+  .body{flex:1;overflow-y:auto;padding:12px}
+  .card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px}
+
+  .merchant{display:flex;gap:12px;align-items:center}
+  .ava{width:30px;height:30px;border-radius:50%;background:var(--orange-d);display:grid;place-items:center;flex-shrink:0}
+  .ava.lg{width:30px;height:30px}
+  .merchant .nm{font-size:16px;font-weight:500}
+  .merchant .sub{font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+  .merchant .ava{width:30px;height:30px}
+  .big-ava{width:30px}
+
+  .amount-box{background:#FAFAFA;border-radius:8px;margin-top:16px;height:66px;display:flex;align-items:center;padding:0 12px;gap:8px}
+  .amount-box .rp{font-size:19px;color:#555}
+  .amount-box .val{font-size:34px;font-weight:500;display:flex;align-items:center;min-height:42px}
+  .amount-box .val.empty{color:#d7d7d7}
+  .caret{display:none;width:2px;height:34px;background:#3ed16a;margin-right:2px;animation:blink 1s steps(1) infinite}
+  .editing .caret{display:inline-block}
+  @keyframes blink{50%{opacity:0}}
+  .saldo{font-size:13px;color:var(--light);margin-top:10px}
+  .saldo.err{color:#D93025}
+  .link{color:var(--blue);font-size:14px;margin-top:4px;display:inline-block;background:none;border:0;cursor:pointer}
+  .hr{height:1px;background:var(--line);margin:14px 0}
+  .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:15px}
+  .row .k{color:#666}
+  .row .v{text-align:right;color:var(--text)}
+  .gratis{color:var(--green);font-weight:500}
+  .acq .v small{display:block;color:var(--light);font-size:13px;margin-top:6px}
+
+  .footer{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0));background:#fff;border-top:1px solid #eee;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+  .btn{height:50px;border-radius:10px;border:0;background:var(--orange);color:#fff;font-size:17px;cursor:pointer;width:100%}
+  .btn:disabled{background:#f3b79a;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--orange);border:1px solid var(--orange);height:48px}
+  .btn:active:not(:disabled){filter:brightness(.93)}
+
+  /* numpad */
+  .kbd{background:var(--kbd);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0));display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,50px);gap:6px 6px;flex-shrink:0}
+  .kbd button{background:var(--key);border:0;border-radius:6px;font-size:26px;color:#111;box-shadow:0 1px 0 rgba(0,0,0,.25);cursor:pointer}
+  .kbd button:active{background:#ececec}
+  .kbd .del{background:transparent;box-shadow:none;display:grid;place-items:center}
+  .kbd .done{grid-column:4;grid-row:2 / span 3;background:var(--orange);color:#fff;font-size:18px}
+  .kbd .done:active{background:#d85100}
+  .kbd .blank{background:transparent;box-shadow:none;pointer-events:none}
+  .hide-kbd .kbd{display:none}
+
+  /* confirm */
+  .flow{display:flex;flex-direction:column;gap:6px}
+  .flow .chev{padding-left:8px;height:14px;color:#aaa;display:flex}
+  .seabank{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#fff 0 22%,transparent 24%),linear-gradient(#f26a1b,#f58a2a);display:inline-block}
+  .total .v{font-size:30px;font-weight:600}
+  .total .v small{font-size:16px;font-weight:400;margin-right:6px}
+  .gap{height:22px}
+
+  /* PIN */
+  .pin-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 24px 0;background:#fff}
+  .lock{width:56px;height:56px;border-radius:50%;background:#FFF0E6;display:grid;place-items:center;margin-bottom:18px}
+  .pin-wrap h2{font-size:20px;font-weight:600}
+  .pin-wrap p{color:var(--muted);font-size:14px;margin-top:6px;text-align:center;line-height:1.45}
+  .dots{display:flex;gap:16px;margin:32px 0 12px}
+  .dot{width:14px;height:14px;border-radius:50%;border:2px solid #ccc;transition:.12s}
+  .dot.on{background:var(--orange);border-color:var(--orange)}
+  .dots.shake{animation:shake .4s}
+  @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  .pin-err{color:#D93025;font-size:13px;min-height:18px}
+  .pin-kbd{background:#fff;padding:8px 24px calc(14px + env(safe-area-inset-bottom,0));display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-shrink:0}
+  .pin-kbd button{height:58px;border:0;background:#fff;border-radius:12px;font-size:26px;cursor:pointer;color:#111}
+  .pin-kbd button:active{background:#f1f1f1}
+  .pin-kbd .blank{pointer-events:none}
+
+  /* processing */
+  #s-proc{background:#fff;align-items:center;justify-content:center}
+  .plane{width:130px;animation:float 1.4s ease-in-out infinite}
+  @keyframes float{50%{transform:translate(8px,-10px) rotate(-4deg)}}
+  .proc-t{margin-top:56px;color:#666;font-size:17px}
+
+  /* result */
+  .res-head{text-align:center;padding:20px 0 18px}
+  .check{width:48px;height:48px;border-radius:50%;background:#27AE45;display:grid;place-items:center;margin:0 auto 14px}
+  .res-head .st{color:#666;font-size:16px}
+  .res-head .amt{font-size:42px;font-weight:600;margin-top:12px}
+  .res-head .amt small{font-size:20px;font-weight:500;margin-right:6px}
+  .detail{padding:6px 16px}
+  .detail .item{padding:18px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;font-size:16px}
+  .detail .item:last-child{border:0}
+  .detail .k{color:#666;flex-shrink:0}
+  .detail .v{text-align:right;word-break:break-all;display:flex;flex-direction:column;align-items:flex-end}
+  .detail .v .line{display:flex;align-items:center;gap:8px}
+  .detail .v small{color:var(--light);font-size:13px;margin-top:8px}
+  .mini{display:flex;align-items:center;gap:8px}
+  .mini .ava{width:23px;height:23px}
+  .copy{background:none;border:0;cursor:pointer;padding:2px;display:grid;place-items:center;flex-shrink:0}
+  .help{text-align:center;color:var(--blue);padding:18px 0 22px;font-size:16px}
+
+  .toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,20px);background:rgba(30,30,30,.92);color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:20;white-space:nowrap}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .spinner{width:40px;height:40px;border-radius:50%;border:4px solid #eee;border-top-color:var(--orange);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  [hidden]{display:none!important}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body class="scan">
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-<symbol id="back" viewBox="0 0 24 24"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="flash" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17h16v6l-3 4v13a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2V27l-3-4z"/><path d="M24 31v5M24 6v4M15 9l2 3.5M33 9l-2 3.5"/></g></symbol>
-<symbol id="showqr" viewBox="0 0 40 40"><g fill="none" stroke="currentColor" stroke-width="3"><rect x="5" y="5" width="12" height="12" rx="1.5"/><rect x="23" y="5" width="12" height="12" rx="1.5"/><rect x="5" y="23" width="12" height="12" rx="1.5"/></g><g fill="currentColor"><rect x="23" y="23" width="4" height="4"/><rect x="31" y="23" width="4" height="4"/><rect x="27" y="29" width="4" height="4"/><rect x="31" y="33" width="4" height="3"/></g></symbol>
-<symbol id="gallery" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="34" height="30" rx="2.5"/><circle cx="16" cy="18" r="3"/><path d="m8 36 11-11 7 7 6-6 9 9"/></g></symbol>
-<symbol id="help" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M17 18.5c0-3.5 3-6 7-6s6.5 2.2 6.5 5.5c0 4.3-5.5 4.4-5.5 9"/></g><circle cx="25" cy="35" r="1.8" fill="currentColor"/></symbol>
-<symbol id="clock" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 9v7.5l4.5 3"/></g></symbol>
-<symbol id="bell" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#F59A00"/><path d="M20 9c-4 0-7 3-7 7v5l-2 3h18l-2-3v-5c0-4-3-7-7-7z" fill="#fff"/><path d="M17 27a3 3 0 0 0 6 0z" fill="#fff"/></symbol>
-</svg>
-
+<body>
 <div class="app" id="app">
-  <!-- Layar 1: Scan QRIS -->
-  <section class="scr" id="s-scan">
-    <video id="cam" playsinline muted></video>
-    <header class="hd">
-      <button id="b-back" aria-label="Kembali"><svg class="i"><use href="#back"/></svg></button>
-      <h1>Scan QRIS</h1>
-    </header>
-    <div class="frame">
-      <i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i>
-      <div class="lbl">Scan Kode <b>QRIS</b></div>
-      <button class="camfix" id="camfix" hidden>Buka kamera</button>
-    </div>
-    <div class="bar">
-      <button class="ctl" id="flash"><i><svg><use href="#flash"/></svg></i>Flash</button>
-      <button class="pill" id="b-show"><svg><use href="#showqr"/></svg>Tampilkan QR</button>
-      <button class="ctl" id="b-gal"><i><svg><use href="#gallery"/></svg></i>Galeri</button>
-    </div>
-    <input type="file" id="file" accept="image/*" hidden>
-    <input type="file" id="cap" accept="image/*" capture="environment" hidden>
+
+
+  <!-- 0. MEMUAT -->
+  <section class="screen active" id="s-load" style="background:#fff;align-items:center;justify-content:center">
+    <div class="spinner" aria-hidden="true"></div>
+    <div class="proc-t" style="margin-top:24px">Memuat...</div>
   </section>
 
-  <!-- Layar 2: QR Code -->
-  <section class="scr" id="s-qr">
-    <header class="hd">
-      <div><button id="q-back" aria-label="Kembali"><svg class="i"><use href="#back"/></svg></button><h1>QR Code</h1></div>
-      <button class="help" id="b-help" aria-label="Bantuan"><svg><use href="#help"/></svg></button>
+  <!-- ERROR -->
+  <section class="screen" id="s-error" style="background:#fff;align-items:center;justify-content:center;padding:32px;text-align:center">
+    <div class="lock" style="background:#FDECEA"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#D93025" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg></div>
+    <h2 id="errTitle" style="font-size:20px;font-weight:600">Terjadi kesalahan</h2>
+    <p id="errMsg" style="color:var(--muted);font-size:14px;margin-top:8px;line-height:1.45"></p>
+    <div style="width:100%;margin-top:28px;display:flex;flex-direction:column;gap:10px">
+      <button class="btn" id="errRetry" hidden>Coba lagi</button>
+      <button class="btn ghost" id="errExit">Kembali</button>
+    </div>
+  </section>
+
+  <!-- 1 & 2. INPUT NOMINAL -->
+  <section class="screen" id="s-amount">
+    <header class="bar">
+      <button class="back" data-back aria-label="Kembali"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="#777" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Transfer</h1>
     </header>
-    <div class="main">
-      <p>Tunjukkan QR Code ini ke kasir untuk menyelesaikan pembayaran.</p>
+    <div class="body">
       <div class="card">
-        <div class="exp"><svg><use href="#clock"/></svg>Kedaluwarsa dalam <b>--:--</b></div>
-        <svg class="ph" viewBox="0 0 128 116" aria-hidden="true"><rect x="112" y="6" width="12" height="104" rx="3" fill="var(--ph)" opacity=".6"/><rect x="4" width="112" height="112" rx="4" fill="var(--ph)"/><g fill="none" stroke="var(--card)" stroke-width="8"><rect x="22" y="22" width="26" height="26" rx="2"/><rect x="62" y="22" width="26" height="26" rx="2"/><rect x="22" y="62" width="26" height="26" rx="2"/></g><g fill="#F96A00"><rect x="64" y="64" width="9" height="9"/><rect x="80" y="64" width="9" height="9"/><rect x="72" y="76" width="9" height="9"/><rect x="82" y="88" width="9" height="9"/></g></svg>
-        <h2>Tidak dapat memuat kode QR</h2>
-        <button class="retry" id="b-retry">Muat Ulang</button>
-        <hr>
-        <small>Demi alasan keamanan, jangan membagikan QR Code dengan siapapun.</small>
+        <div class="merchant">
+          <div class="ava"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M1 15V3.5L10 1v14zM12 6h3v9h-3z"/><g fill="#E85D04"><rect x="3.5" y="4" width="1.8" height="1.8"/><rect x="6.5" y="4" width="1.8" height="1.8"/><rect x="3.5" y="7.5" width="1.8" height="1.8"/><rect x="6.5" y="7.5" width="1.8" height="1.8"/></g></svg></div>
+          <div><div class="nm" data-f="merchantName"></div><div class="sub" data-f="merchantId"></div></div>
+        </div>
+        <div class="amount-box" id="amountBox">
+          <span class="rp">Rp</span>
+          <span class="val empty" id="amtVal"><span class="caret"></span><span id="amtTxt">0</span></span>
+        </div>
+        <div class="saldo" id="saldo">Saldo Tersedia: Rp -</div>
+        <div class="hr"></div>
+        <div class="row"><span class="k">Biaya Transaksi</span><span class="v" id="fee">-</span></div>
       </div>
-      <div class="limit"><svg><use href="#bell"/></svg><span id="limit-t"></span></div>
+      <div class="card acq" data-acq>
+        <div class="row"><span class="k">Nama Acquirer</span><span class="v"><span data-f="acqName"></span><small data-f="acqNumber"></small></span></div>
+      </div>
     </div>
-    <div class="foot"><button class="cta" id="b-toscan">Scan QRIS</button></div>
+    <div class="footer" id="lanjutBar" style="display:none">
+      <button class="btn" id="lanjut">Lanjut</button>
+    </div>
+    <div class="kbd" id="kbd">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button class="del" data-k="del" aria-label="Hapus"><svg width="40" height="28" viewBox="0 0 40 28" fill="none" stroke="#222" stroke-width="1.8"><path d="M13 3h22a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H13L3 14z"/><path d="m19 9 10 10M29 9 19 19"/></svg></button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button class="done" id="kDone">Selesai</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="blank" tabindex="-1"></button><button data-k="0">0</button><button data-k="000">000</button>
+    </div>
   </section>
 
-  <div class="shade" id="shade"></div>
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Detail pembayaran"></div>
-  <div class="toast" id="toast" role="status"></div>
+  <!-- 3. KONFIRMASI -->
+  <section class="screen" id="s-confirm">
+    <header class="bar">
+      <button class="back" data-back aria-label="Kembali"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="#777" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Konfirmasi</h1>
+    </header>
+    <div class="body">
+      <div class="card">
+        <div class="flow">
+          <div class="merchant">
+            <div class="ava"><svg width="18" height="18" viewBox="0 0 18 18" fill="#fff"><circle cx="9" cy="6" r="3.2"/><path d="M2.5 16c0-3.4 2.9-5.4 6.5-5.4s6.5 2 6.5 5.4z"/></svg></div>
+            <div><div class="nm" data-f="senderName"></div><div class="sub"><span class="seabank" data-bankicon hidden></span><span data-f="senderLine"></span></div></div>
+          </div>
+          <div class="chev"><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="#aaa" stroke-width="2"><path d="m5 1 6 5 6-5M5 7l6 5 6-5"/></svg></div>
+          <div class="merchant">
+            <div class="ava"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M1 15V3.5L10 1v14zM12 6h3v9h-3z"/><g fill="#E85D04"><rect x="3.5" y="4" width="1.8" height="1.8"/><rect x="6.5" y="4" width="1.8" height="1.8"/><rect x="3.5" y="7.5" width="1.8" height="1.8"/><rect x="6.5" y="7.5" width="1.8" height="1.8"/></g></svg></div>
+            <div><div class="nm" data-f="merchantName"></div><div class="sub" data-f="merchantId"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row total"><span class="k">Total</span><span class="v"><small>Rp</small><span data-total></span></span></div>
+        <div class="gap"></div>
+        <div class="row"><span class="k">Nominal Transaksi</span><span class="v">Rp <span data-amt></span></span></div>
+        <div class="gap"></div>
+        <div class="row"><span class="k">Biaya Transaksi</span><span class="v" data-fee></span></div>
+      </div>
+      <div class="card acq" data-acq>
+        <div class="row"><span class="k">Nama Acquirer</span><span class="v"><span data-f="acqName"></span><small data-f="acqNumber"></small></span></div>
+      </div>
+    </div>
+    <div class="footer"><button class="btn" id="konfirmasi">Konfirmasi</button></div>
+  </section>
+
+  <!-- 4. INPUT PIN -->
+  <section class="screen" id="s-pin">
+    <header class="bar">
+      <button class="back" data-back aria-label="Kembali"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="#777" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Masukkan PIN</h1>
+    </header>
+    <div class="pin-wrap">
+      <div class="lock"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FA5B00" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <h2>Masukkan 6 digit PIN</h2>
+      <p>Untuk membayar Rp <span data-total></span> ke <span data-f="merchantName"></span></p>
+      <div class="dots" id="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="pin-err" id="pinErr"></div>
+    </div>
+    <div class="pin-kbd" id="pinKbd">
+      <button data-p="1">1</button><button data-p="2">2</button><button data-p="3">3</button>
+      <button data-p="4">4</button><button data-p="5">5</button><button data-p="6">6</button>
+      <button data-p="7">7</button><button data-p="8">8</button><button data-p="9">9</button>
+      <button class="blank" tabindex="-1"></button><button data-p="0">0</button>
+      <button data-p="del" aria-label="Hapus"><svg width="34" height="24" viewBox="0 0 40 28" fill="none" stroke="#222" stroke-width="1.8"><path d="M13 3h22a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H13L3 14z"/><path d="m19 9 10 10M29 9 19 19"/></svg></button>
+    </div>
+  </section>
+
+  <!-- 5. PROSES -->
+  <section class="screen" id="s-proc">
+    <svg class="plane" viewBox="0 0 240 190" fill="none">
+      <path d="M2 82 142 6c3-1 6 1 5 4l-37 160c-1 4-5 5-8 3L72 150 40 186c-3 3-7 1-7-3l-6-44z" fill="#E6E7E8" transform="translate(30 0) scale(.95)"/>
+      <path d="M80 94 150 52 100 100l-4 36z" fill="#EC6205" transform="translate(30 4)"/>
+    </svg>
+    <div class="proc-t">Transfer Diproses...</div>
+  </section>
+
+  <!-- 6. HASIL -->
+  <section class="screen" id="s-result">
+    <header class="bar left"><h1>Hasil Transfer</h1></header>
+    <div class="body" style="padding-top:0">
+      <div class="res-head">
+        <div class="check"><svg width="26" height="20" viewBox="0 0 26 20" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 7 7L23 3"/></svg></div>
+        <div class="st">Pembayaran Diterima</div>
+        <div class="amt"><small>Rp</small><span data-total></span></div>
+      </div>
+      <div class="card detail">
+        <div class="item" data-opt><span class="k">Dari</span><span class="v"><span class="mini"><span class="ava"><svg width="13" height="13" viewBox="0 0 18 18" fill="#fff"><circle cx="9" cy="6" r="3.2"/><path d="M2.5 16c0-3.4 2.9-5.4 6.5-5.4s6.5 2 6.5 5.4z"/></svg></span><span data-f="senderName"></span></span><small><span class="seabank" data-bankicon hidden style="vertical-align:-3px;margin-right:4px"></span><span data-f="senderLine"></span></small></span></div>
+        <div class="item" data-opt><span class="k">Ke</span><span class="v"><span class="mini"><span class="ava"><svg width="12" height="12" viewBox="0 0 16 16" fill="#fff"><path d="M1 15V3.5L10 1v14zM12 6h3v9h-3z"/></svg></span><span data-f="merchantName"></span></span><small data-f="merchantId"></small></span></div>
+        <div class="item" data-opt><span class="k">Nama Acquirer</span><span class="v"><span data-f="acqName"></span><small data-f="acqNumber"></small></span></div>
+        <div class="item"><span class="k">Nominal Transaksi</span><span class="v">Rp <span data-amt style="display:inline"></span></span></div>
+        <div class="item"><span class="k">Biaya Transaksi</span><span class="v" data-fee></span></div>
+        <div class="item"><span class="k">Jumlah Total</span><span class="v">Rp <span data-total style="display:inline"></span></span></div>
+        <div class="item" data-opt><span class="k">No. Transaksi</span><span class="v"><span class="line"><span id="trxNo" data-f="trxNo" style="max-width:190px"></span><button class="copy" data-copy="trxNo" aria-label="Salin"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.4"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button></span></span></div>
+        <div class="item" data-opt><span class="k">No. Referensi</span><span class="v"><span class="line"><span id="refNo" data-f="refNo"></span><button class="copy" data-copy="refNo" aria-label="Salin"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.4"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button></span></span></div>
+        <div class="item" data-opt><span class="k">Terminal ID</span><span class="v" data-f="terminalId"></span></div>
+        <div class="item" data-opt><span class="k">Metode Transaksi</span><span class="v" data-f="method"></span></div>
+        <div class="item" data-opt><span class="k">Waktu Transaksi</span><span class="v" data-f="trxTime"></span></div>
+      </div>
+      <div class="help" id="help" hidden>Butuh Bantuan?</div>
+    </div>
+    <div class="footer">
+      <button class="btn ghost" id="bagikan">Bagikan</button>
+      <button class="btn" id="ok">OK</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <script>
-/* ================= KONFIGURASI ================= */
-const CONFIG = {
-  allowStatic: true,        // QRIS statis (tag 01 = 11)
-  allowDynamic: true,       // QRIS dinamis (tag 01 = 12)
-  requireValidCRC: true,    // tolak jika CRC16 tidak cocok
-  currency: '360',          // IDR
-  country: 'ID',
-  minAmount: 1,
-  maxAmount: 10000000,      // limit pembayaran
-  scanIntervalMs: 120,
-  onPay(p){ console.log('QRIS siap dibayar', p); window.dispatchEvent(new CustomEvent('qris:pay', {detail: p})); },
-  onClose(){ if (history.length > 1) history.back(); else location.href = 'index.html'; }
-};
+/* =====================================================================
+   KONFIGURASI BACKEND
+   Isi lewat tag script terpisah sebelum file ini, mis.:
+     window.APP_CONFIG = {
+       apiBase: 'https://<project>.supabase.co/functions/v1',
+       apiKey:  '<publishable key>',                 // header "apikey" (opsional)
+       getToken: () => session.access_token,         // JWT user login (wajib bila endpoint terproteksi)
+       qrPayload: '<string QR dari scanner>',        // atau lewat URL ?qr=...
+       onExit: () => history.back()                  // aksi tombol kembali di layar pertama / OK
+     };
 
-/* ================= PARSER QRIS (EMVCo MPM) ================= */
-const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const rp = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
+   KONTRAK ENDPOINT (semua JSON, method POST kecuali dinyatakan lain)
+   1. POST {apiBase}/qris-inquiry   body: { qr }
+      -> { inquiry_id, merchant:{name,id}, acquirer:{name,number}|null,
+           terminal_id, amount: number|null (null = nominal diisi user),
+           fee: number }
+   2. POST {apiBase}/account-summary   body: {}
+      -> { balance, holder_name, bank_name, account_number }
+   3. POST {apiBase}/qris-pay   body: { inquiry_id, amount, pin, idempotency_key }
+      -> { status:'success'|'pending', balance_after?, transaction:{
+           transaction_no, reference_no, created_at(ISO), terminal_id, method } }
+      Gagal: HTTP 4xx dengan { error:{ code, message, attempts_left? } }
+        code: invalid_pin | pin_locked | insufficient_balance | inquiry_expired | ...
+   4. POST {apiBase}/qris-status   body: { idempotency_key }
+      -> sama seperti respons qris-pay (+ status 'failed')
+   Nominal, biaya, dan PIN diverifikasi ulang oleh server; nilai di sini hanya UX.
+   ===================================================================== */
+(function(){
+  const CFG = Object.assign({
+    apiBase: '', apiKey: '', getToken: null, qrPayload: '', onExit: null,
+    timeoutMs: 20000, statusPolls: 4, statusPollMs: 2500
+  }, window.APP_CONFIG || {});
+  const EP = { inquiry:'/qris-inquiry', summary:'/account-summary', pay:'/qris-pay', status:'/qris-status' };
 
-function tmap(s){
-  const m = {}; let i = 0;
-  while (i < s.length){
-    const t = s.substr(i, 2), l = parseInt(s.substr(i + 2, 2), 10);
-    if (isNaN(l) || i + 4 + l > s.length) throw new Error('TLV rusak');
-    m[t] = s.substr(i + 4, l); i += 4 + l;
+  class ApiError extends Error {
+    constructor(code, message, extra){ super(message); this.code = code; Object.assign(this, extra || {}); }
   }
-  return m;
-}
-function crc16(s){ // CRC-16/CCITT-FALSE
-  let c = 0xFFFF;
-  for (let i = 0; i < s.length; i++){
-    c ^= s.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF;
+  async function api(path, body){
+    if (!CFG.apiBase) throw new ApiError('config', 'Konfigurasi backend (apiBase) belum diisi.');
+    const headers = { 'Content-Type': 'application/json' };
+    if (CFG.apiKey) headers.apikey = CFG.apiKey;
+    if (typeof CFG.getToken === 'function'){
+      const t = await CFG.getToken();
+      if (t) headers.Authorization = 'Bearer ' + t;
+    }
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), CFG.timeoutMs);
+    let res;
+    try {
+      res = await fetch(CFG.apiBase.replace(/\/$/, '') + path, { method:'POST', headers, body: JSON.stringify(body || {}), signal: ctl.signal });
+    } catch (e) {
+      throw new ApiError('network', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+    } finally { clearTimeout(timer); }
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok){
+      const er = (data && data.error) || {};
+      throw new ApiError(er.code || ('http_' + res.status), er.message || 'Permintaan gagal (' + res.status + ').',
+        { status: res.status, attemptsLeft: er.attempts_left });
+    }
+    return data;
   }
-  return c.toString(16).toUpperCase().padStart(4, '0');
-}
-function parseQris(raw){
-  raw = String(raw).trim();
-  if (!/^000201/.test(raw)) throw new Error('Ini bukan kode QRIS.');
-  const i = raw.lastIndexOf('6304');
-  if (i < 0 || raw.length !== i + 8) throw new Error('Struktur QRIS tidak lengkap.');
-  const crcOk = crc16(raw.slice(0, i + 4)) === raw.slice(i + 4).toUpperCase();
-  if (CONFIG.requireValidCRC && !crcOk) throw new Error('CRC QRIS tidak cocok. Pindai ulang.');
-  let t; try { t = tmap(raw); } catch (e) { throw new Error('Data QRIS tidak terbaca.'); }
-  const type = t['01'] === '11' ? 'static' : t['01'] === '12' ? 'dynamic' : null;
-  if (!type) throw new Error('Jenis QRIS tidak dikenali.');
-  if (type === 'static' && !CONFIG.allowStatic) throw new Error('QRIS statis tidak diterima.');
-  if (type === 'dynamic' && !CONFIG.allowDynamic) throw new Error('QRIS dinamis tidak diterima.');
-  if (t['53'] && t['53'] !== CONFIG.currency) throw new Error('Mata uang bukan rupiah.');
-  if (t['58'] && t['58'] !== CONFIG.country) throw new Error('QRIS ini bukan untuk merchant Indonesia.');
-  let nmid = '', crit = '', pjsp = '';
-  for (let k = 26; k <= 51; k++){
-    const v = t[String(k)]; if (!v) continue;
-    let s; try { s = tmap(v); } catch (e) { continue; }
-    Object.values(s).forEach(x => { if (/^ID\d{10,}$/.test(x)) nmid = nmid || x; });
-    if (k === 51) crit = s['03'] || '';
-    else if (!pjsp) pjsp = (s['00'] || '').split('.')[2] || s['00'] || '';
-  }
-  let add = {}; try { add = t['62'] ? tmap(t['62']) : {}; } catch (e) {}
-  return {
-    raw, crcOk, type, merchant: t['59'] || '-', city: t['60'] || '', mcc: t['52'] || '',
-    amount: t['54'] ? parseFloat(t['54']) : null,
-    tipInd: t['55'] || '', feeFixed: t['56'] ? parseFloat(t['56']) : 0, feePct: t['57'] ? parseFloat(t['57']) : 0,
-    nmid, crit, pjsp, bill: add['01'] || '', store: add['03'] || '', ref: add['05'] || '', terminal: add['07'] || ''
+
+  const PIN_LEN = 6, MAX_DIGITS = 12;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+  const fmt = n => Number(n).toLocaleString('id-ID');
+  const exit = () => { if (typeof CFG.onExit === 'function') CFG.onExit(); else history.back(); };
+
+  /* state — semua dari server, tidak ada nilai bawaan */
+  const S = {
+    inquiryId: null, balance: 0, fee: 0, fixedAmount: false,
+    view: {},            // data tampilan (nama merchant, dst.)
+    amount: '', pin: '', history: [], busy: false, lastKey: null, payDone: false
   };
-}
 
-/* ================= STATE & NAVIGASI ================= */
-const S = {mode: 'scan', paused: false, stream: null, torch: false, det: null, timer: 0, q: null};
-const cv = document.createElement('canvas'), cx = cv.getContext('2d', {willReadFrequently: true});
-let toastT;
-function toast(m){ const e = $('#toast'); e.textContent = m; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
-function go(m){ S.mode = m; document.body.className = m; if (m === 'scan') startCam(); else stopCam(); }
+  const toast = msg => {
+    const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+  };
 
-/* ================= KAMERA & DETEKSI ================= */
-(async () => {
-  try { if ('BarcodeDetector' in window){ const f = await BarcodeDetector.getSupportedFormats(); if (f.includes('qr_code')) S.det = new BarcodeDetector({formats: ['qr_code']}); } } catch (e) {}
+  /* ---------- binding data ke layar ---------- */
+  function bind(){
+    const v = S.view;
+    $$('[data-f]').forEach(e => { e.textContent = v[e.dataset.f] || ''; });
+    $$('.item[data-opt]').forEach(row => {
+      const els = row.querySelectorAll('[data-f]');
+      row.hidden = els.length && ![...els].some(e => e.textContent.trim());
+    });
+    $$('[data-acq]').forEach(c => c.hidden = !v.acqName);
+    $$('[data-bankicon]').forEach(e => e.hidden = !/seabank/i.test(v.senderBank || ''));
+    const n = Number(S.amount || 0), total = n + S.fee;
+    $$('[data-amt]').forEach(e => e.textContent = fmt(n));
+    $$('[data-total]').forEach(e => e.textContent = fmt(total));
+    $$('[data-fee]').forEach(e => {
+      e.textContent = S.fee ? 'Rp ' + fmt(S.fee) : 'GRATIS';
+      e.classList.toggle('gratis', !S.fee);
+    });
+  }
+
+  function show(id, push = true){
+    $$('.screen').forEach(s => s.classList.remove('active'));
+    $('#' + id).classList.add('active');
+    if (push && S.history[S.history.length-1] !== id) S.history.push(id);
+  }
+  function showError(title, msg, retry){
+    $('#errTitle').textContent = title;
+    $('#errMsg').textContent = msg;
+    const r = $('#errRetry'); r.hidden = !retry; r.onclick = retry || null;
+    show('s-error', false);
+  }
+  function back(){
+    if (S.busy) return;
+    if (S.history.length <= 1) return exit();
+    S.history.pop();
+    const cur = S.history[S.history.length-1];
+    if (cur === 's-amount' && S.fixedAmount) return exit();
+    show(cur, false);
+    if (cur === 's-amount') setEditing(true);
+    if (cur === 's-pin') resetPin();
+  }
+  $$('[data-back]').forEach(b => b.addEventListener('click', back));
+  $('#errExit').addEventListener('click', exit);
+
+  /* ---------- Muat data awal ---------- */
+  async function boot(){
+    show('s-load', false);
+    const qr = CFG.qrPayload || new URLSearchParams(location.search).get('qr');
+    if (!qr) return showError('QR tidak ditemukan', 'Pindai ulang kode QRIS untuk melanjutkan.', null);
+    try {
+      const [inq, acc] = await Promise.all([ api(EP.inquiry, { qr }), api(EP.summary, {}) ]);
+      S.inquiryId = inq.inquiry_id;
+      S.fee = Number(inq.fee) || 0;
+      S.balance = Number(acc.balance) || 0;
+      S.fixedAmount = inq.amount != null && Number(inq.amount) > 0;
+      S.amount = S.fixedAmount ? String(Math.round(Number(inq.amount))) : '';
+      S.view = {
+        merchantName: inq.merchant && inq.merchant.name, merchantId: inq.merchant && inq.merchant.id,
+        acqName: inq.acquirer && inq.acquirer.name, acqNumber: inq.acquirer && inq.acquirer.number,
+        terminalId: inq.terminal_id, method: 'QRIS',
+        senderName: acc.holder_name, senderBank: acc.bank_name,
+        senderLine: [acc.bank_name, acc.account_number].filter(Boolean).join(': ')
+      };
+      S.history = [];
+      bind();
+      if (S.fixedAmount){ S.history = ['s-confirm']; show('s-confirm', false); }
+      else { S.history = ['s-amount']; show('s-amount', false); setEditing(true); }
+    } catch (e) {
+      showError('Gagal memuat', e.message, e.code === 'config' ? null : boot);
+    }
+  }
+
+  /* ---------- Input nominal ---------- */
+  const amtTxt = $('#amtTxt'), amtVal = $('#amtVal'), box = $('#amountBox');
+  function setEditing(on){
+    $('#s-amount').classList.toggle('hide-kbd', !on);
+    box.classList.toggle('editing', on);
+    $('#lanjutBar').style.display = on ? 'none' : 'flex';
+    render();
+  }
+  function render(){
+    const n = Number(S.amount || 0);
+    amtTxt.textContent = n ? fmt(n) : '0';
+    amtVal.classList.toggle('empty', !n);
+    const over = n + S.fee > S.balance;
+    $('#saldo').classList.toggle('err', over && n > 0);
+    $('#saldo').textContent = (over && n > 0 ? 'Saldo tidak cukup. ' : '') + 'Saldo Tersedia: Rp ' + fmt(S.balance);
+    const fee = $('#fee');
+    if (n){ fee.textContent = S.fee ? 'Rp ' + fmt(S.fee) : 'GRATIS'; fee.className = 'v' + (S.fee ? '' : ' gratis'); }
+    else { fee.textContent = '-'; fee.className = 'v'; }
+    $('#lanjut').disabled = !n || over;
+    bind();
+  }
+  $('#kbd').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !b.dataset.k) return;
+    const k = b.dataset.k;
+    if (k === 'del') S.amount = S.amount.slice(0, -1);
+    else {
+      if (!S.amount && (k === '0' || k === '000')) return;
+      if ((S.amount + k).length > MAX_DIGITS) return;
+      S.amount += k;
+    }
+    render();
+  });
+  $('#kDone').addEventListener('click', () => {
+    if (!Number(S.amount)) { toast('Masukkan nominal terlebih dahulu'); return; }
+    setEditing(false);
+  });
+  amtVal.addEventListener('click', () => setEditing(true));
+  box.addEventListener('click', () => setEditing(true));
+  $('#lanjut').addEventListener('click', () => {
+    const n = Number(S.amount);
+    if (!n || n + S.fee > S.balance) return;
+    bind(); show('s-confirm');
+  });
+
+  /* ---------- Konfirmasi ---------- */
+  $('#konfirmasi').addEventListener('click', () => { resetPin(); bind(); show('s-pin'); });
+
+  /* ---------- PIN ---------- */
+  function resetPin(){ S.pin = ''; drawDots(); $('#pinErr').textContent = ''; }
+  function drawDots(){ $$('#dots .dot').forEach((d, i) => d.classList.toggle('on', i < S.pin.length)); }
+  function pushPin(k){
+    if (S.pin.length >= PIN_LEN) return;
+    S.pin += k; $('#pinErr').textContent = ''; drawDots();
+    if (S.pin.length === PIN_LEN) setTimeout(submitPin, 180);
+  }
+  $('#pinKbd').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !b.dataset.p || S.busy) return;
+    if (b.dataset.p === 'del'){ S.pin = S.pin.slice(0, -1); $('#pinErr').textContent = ''; drawDots(); }
+    else pushPin(b.dataset.p);
+  });
+  document.addEventListener('keydown', e => {
+    const cur = S.history[S.history.length-1];
+    if (cur === 's-pin' && !S.busy){
+      if (/^\d$/.test(e.key)) pushPin(e.key);
+      else if (e.key === 'Backspace'){ S.pin = S.pin.slice(0,-1); drawDots(); }
+    } else if (cur === 's-amount' && box.classList.contains('editing')){
+      if (/^\d$/.test(e.key)){ if (!(S.amount === '' && e.key === '0') && (S.amount+e.key).length <= MAX_DIGITS){ S.amount += e.key; render(); } }
+      else if (e.key === 'Backspace'){ S.amount = S.amount.slice(0,-1); render(); }
+      else if (e.key === 'Enter'){ $('#kDone').click(); }
+    }
+  });
+
+  /* ---------- Bayar ---------- */
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  function shakePin(msg){
+    const d = $('#dots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
+    $('#pinErr').textContent = msg;
+  }
+  async function submitPin(){
+    if (S.busy || S.payDone) return;
+    S.busy = true;
+    const pin = S.pin;
+    S.pin = ''; drawDots();                       // PIN tidak disimpan di state
+    const key = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+    S.lastKey = key;
+    show('s-proc');
+    try {
+      const res = await api(EP.pay, { inquiry_id: S.inquiryId, amount: Number(S.amount), pin, idempotency_key: key });
+      await handlePayResult(res);
+    } catch (e) {
+      await handlePayError(e, key);
+    } finally { S.busy = false; }
+  }
+  async function handlePayError(e, key){
+    if (e.code === 'network'){                    // hasil tidak pasti: cek status, jangan langsung dianggap gagal
+      try { return await handlePayResult(await pollStatus(key)); } catch (_) {}
+      return showError('Status transaksi belum pasti',
+        'Kami belum bisa memastikan hasil pembayaran. Jangan ulangi pembayaran; periksa riwayat transaksi Anda sebelum mencoba lagi.', null);
+    }
+    if (e.code === 'invalid_pin' || e.code === 'pin_invalid'){
+      show('s-pin', false);
+      return shakePin(e.attemptsLeft != null ? 'PIN salah. Sisa percobaan: ' + e.attemptsLeft : 'PIN salah');
+    }
+    if (e.code === 'pin_locked') return showError('PIN terkunci', e.message, null);
+    if (e.code === 'insufficient_balance') return showError('Saldo tidak cukup', e.message, null);
+    if (e.code === 'inquiry_expired') return showError('QR kedaluwarsa', 'Pindai ulang kode QRIS untuk melanjutkan.', null);
+    showError('Pembayaran gagal', e.message, null);
+  }
+  async function pollStatus(key){
+    let last;
+    for (let i = 0; i < CFG.statusPolls; i++){
+      try {
+        const r = await api(EP.status, { idempotency_key: key });
+        if (r.status !== 'pending') return r;
+        last = r;
+      } catch (e) { if (e.code !== 'network') throw e; }
+      await sleep(CFG.statusPollMs);
+    }
+    if (last) return last;
+    throw new ApiError('network', 'status tidak diketahui');
+  }
+  async function handlePayResult(res){
+    if (res.status === 'pending'){ res = await pollStatus(S.lastKey); }
+    if (res.status === 'failed') return showError('Pembayaran gagal', (res.error && res.error.message) || 'Transaksi tidak berhasil.', null);
+    if (res.status !== 'success') return showError('Status transaksi belum pasti',
+      'Pembayaran masih diproses. Periksa riwayat transaksi Anda sebelum mencoba lagi.', null);
+    const t = res.transaction || {};
+    if (res.balance_after != null) S.balance = Number(res.balance_after);
+    else S.balance = Math.max(0, S.balance - Number(S.amount) - S.fee);
+    const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const p = x => String(x).padStart(2, '0');
+    let when = '';
+    if (t.created_at){
+      const d = new Date(t.created_at);
+      if (!isNaN(d)) when = `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}, ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+    Object.assign(S.view, {
+      trxNo: t.transaction_no, refNo: t.reference_no, trxTime: when,
+      terminalId: t.terminal_id || S.view.terminalId, method: t.method || S.view.method
+    });
+    S.payDone = true;
+    bind();
+    S.history = [];
+    show('s-result', false);
+    $('#s-result .body').scrollTop = 0;
+  }
+
+  /* ---------- Hasil ---------- */
+  $$('[data-copy]').forEach(b => b.addEventListener('click', () => {
+    const txt = document.getElementById(b.dataset.copy).textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => toast('Disalin'), () => toast('Gagal menyalin'));
+  }));
+  $('#bagikan').addEventListener('click', () => {
+    const v = S.view;
+    const text = `Pembayaran QRIS Rp ${fmt(Number(S.amount) + S.fee)} ke ${v.merchantName || ''} berhasil.\nNo. Transaksi: ${v.trxNo || '-'}\nNo. Referensi: ${v.refNo || '-'}\n${v.trxTime || ''}`;
+    if (navigator.share) navigator.share({ text }).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('Detail transaksi disalin'));
+  });
+  $('#ok').addEventListener('click', exit);
+
+  boot();
 })();
-
-async function startCam(){
-  if (S.stream) return;
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ camFail(window.isSecureContext ? 'Kamera tidak tersedia di sini.' : 'Kamera butuh koneksi HTTPS.'); return; }
-  try {
-    S.stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: {ideal: 'environment'}, width: {ideal: 1280}, height: {ideal: 720}}, audio: false});
-    const v = $('#cam'); v.srcObject = S.stream; await v.play();
-    S.paused = false; $('#camfix').hidden = true; tick();
-  } catch (e) { S.stream = null; camFail(e && e.name === 'NotAllowedError' ? 'Izin kamera diblokir. Ketuk Buka kamera.' : 'Kamera tidak bisa dibuka. Ketuk Buka kamera.'); }
-}
-function camFail(m){ toast(m); $('#camfix').hidden = false; }
-function stopCam(){
-  clearTimeout(S.timer);
-  if (S.stream) S.stream.getTracks().forEach(t => t.stop());
-  S.stream = null; S.torch = false; $('#flash').classList.remove('on');
-}
-async function tick(){
-  if (S.mode !== 'scan' || S.paused || !S.stream) return;
-  try {
-    const v = $('#cam'); let raw = '';
-    if (v.readyState >= 2 && v.videoWidth){
-      if (S.det){ const r = await S.det.detect(v); raw = r[0] ? r[0].rawValue : ''; }
-      else if (window.jsQR){
-        const w = Math.min(640, v.videoWidth), h = Math.round(w * v.videoHeight / v.videoWidth);
-        cv.width = w; cv.height = h; cx.drawImage(v, 0, 0, w, h);
-        const r = jsQR(cx.getImageData(0, 0, w, h).data, w, h, {inversionAttempts: 'attemptBoth'}); raw = r ? r.data : '';
-      }
-    }
-    if (raw) handleRaw(raw);
-  } catch (e) {}
-  S.timer = setTimeout(tick, CONFIG.scanIntervalMs);
-}
-async function fromFile(f){
-  if (!f) return;
-  try {
-    const bmp = await createImageBitmap(f); let raw = '';
-    for (const m of [1600, 900, 500]){
-      const sc = Math.min(1, m / Math.max(bmp.width, bmp.height)), w = Math.round(bmp.width * sc), h = Math.round(bmp.height * sc);
-      cv.width = w; cv.height = h; cx.drawImage(bmp, 0, 0, w, h);
-      if (S.det){ const r = await S.det.detect(cv); raw = r[0] ? r[0].rawValue : ''; }
-      if (!raw && window.jsQR){ const r = jsQR(cx.getImageData(0, 0, w, h).data, w, h, {inversionAttempts: 'attemptBoth'}); raw = r ? r.data : ''; }
-      if (raw) break;
-    }
-    raw ? handleRaw(raw) : toast('Tidak ada kode QR pada gambar itu.');
-  } catch (e) { toast('Gambar tidak bisa dibaca.'); }
-}
-let lastBad = 0;
-function handleRaw(raw){
-  try { const q = parseQris(raw); S.paused = true; clearTimeout(S.timer); if (navigator.vibrate) navigator.vibrate(40); openSheet(q); }
-  catch (e){ if (Date.now() - lastBad > 2500){ lastBad = Date.now(); toast(e.message); } }
-}
-
-/* ================= SHEET PEMBAYARAN ================= */
-const digits = s => parseInt(String(s).replace(/\D/g, ''), 10) || 0;
-function row(k, v){ return v ? '<div class="r"><span>' + k + '</span><span>' + esc(v) + '</span></div>' : ''; }
-function openSheet(q){
-  S.q = q; const fixed = q.amount != null;
-  $('#sheet').innerHTML =
-    '<span class="tag">' + (q.type === 'dynamic' ? 'QRIS Dinamis' : 'QRIS Statis') + '</span>' +
-    '<h3>' + esc(q.merchant) + '</h3><div class="sub">' + esc(q.city) + '</div>' +
-    '<div class="rows">' + row('NMID', q.nmid) + row('Penyelenggara', q.pjsp) + row('Kategori', q.crit) + row('Toko', q.store) + row('Terminal', q.terminal) + row('No. tagihan', q.bill) + row('Referensi', q.ref) + '</div>' +
-    (fixed ? '<div class="r"><span>Nominal</span><span>' + rp(q.amount) + '</span></div>'
-           : '<label for="amt">Nominal pembayaran</label><div class="amt">Rp<input id="amt" inputmode="numeric" placeholder="0" autocomplete="off"></div>') +
-    (q.tipInd === '01' ? '<label for="tip">Tip (opsional)</label><div class="amt">Rp<input id="tip" inputmode="numeric" placeholder="0" autocomplete="off"></div>' : '') +
-    '<div class="r" id="feeR" hidden><span>Biaya layanan</span><span id="fee"></span></div>' +
-    '<div class="tot"><span>Total</span><span id="tot">Rp0</span></div>' +
-    '<div class="err" id="err"></div>' +
-    '<button class="cta" id="pay">Bayar</button><button class="ghost" id="again">Pindai ulang</button>';
-  $('#app').classList.add('open');
-  ['amt', 'tip'].forEach(id => { const e = $('#' + id); if (e) e.addEventListener('input', () => { e.value = digits(e.value) ? digits(e.value).toLocaleString('id-ID') : ''; calc(); }); });
-  $('#pay').onclick = pay; $('#again').onclick = closeSheet; calc();
-  const a = $('#amt'); if (a) a.focus();
-}
-function calc(){
-  const q = S.q, base = q.amount != null ? q.amount : digits(($('#amt') || {}).value);
-  const tip = q.tipInd === '01' ? digits(($('#tip') || {}).value) : 0;
-  let fee = 0;
-  if (q.tipInd === '03' || (!q.tipInd && q.feePct)) fee = base * q.feePct / 100;
-  else if (q.tipInd === '02' || (!q.tipInd && q.feeFixed)) fee = q.feeFixed;
-  fee = Math.round(fee); const total = base + fee + tip;
-  $('#feeR').hidden = !fee; $('#fee').textContent = rp(fee); $('#tot').textContent = rp(total);
-  let err = '';
-  if (base < CONFIG.minAmount) err = q.amount == null ? 'Masukkan nominal pembayaran.' : 'Nominal tidak valid.';
-  else if (total > CONFIG.maxAmount) err = 'Melebihi limit pembayaran ' + rp(CONFIG.maxAmount) + '.';
-  $('#err').textContent = err; $('#pay').disabled = !!err;
-  S.pay = {base, fee, tip, total};
-}
-function pay(){ CONFIG.onPay({qris: S.q, ...S.pay}); toast('Pembayaran diteruskan ke onPay().'); }
-function closeSheet(){ $('#app').classList.remove('open'); S.paused = false; if (S.mode === 'scan' && S.stream) tick(); }
-
-/* ================= EVENT ================= */
-$('#camfix').onclick = async () => { await startCam(); if (!S.stream) $('#cap').click(); };
-$('#cap').onchange = e => { fromFile(e.target.files[0]); e.target.value = ''; };
-$('#b-back').onclick = () => CONFIG.onClose();
-$('#q-back').onclick = $('#b-toscan').onclick = () => go('scan');
-$('#b-show').onclick = () => go('qr');
-$('#b-gal').onclick = () => $('#file').click();
-$('#file').onchange = e => { fromFile(e.target.files[0]); e.target.value = ''; };
-$('#shade').onclick = closeSheet;
-$('#b-help').onclick = () => toast('Arahkan kamera ke QRIS merchant, atau pilih gambar dari Galeri.');
-$('#limit-t').textContent = 'Limit pembayaran: sampai ' + CONFIG.maxAmount.toLocaleString('id-ID');
-$('#b-retry').onclick = function(){
-  this.disabled = true; this.textContent = 'Memuat…';
-  setTimeout(() => { this.disabled = false; this.textContent = 'Muat Ulang'; toast('Belum bisa memuat. Hubungkan layanan QR pembayaran Anda.'); }, 900);
-};
-let torchBusy = false;
-$('#flash').onclick = async function(){
-  const tr = S.stream && S.stream.getVideoTracks()[0];
-  if (!tr){ toast('Kamera belum aktif.'); return; }
-  S.torch = !S.torch; this.classList.toggle('on', S.torch);   // umpan balik langsung saat ditekan
-  if (navigator.vibrate) navigator.vibrate(15);
-  if (torchBusy) return;                                       // ketukan cepat: status terakhir yang dipakai
-  torchBusy = true;
-  try {
-    let w;
-    do { w = S.torch; await tr.applyConstraints({advanced: [{torch: w}]}); } while (w !== S.torch);
-  } catch (e) {
-    S.torch = false; this.classList.remove('on'); toast('Flash tidak didukung perangkat ini.');
-  } finally { torchBusy = false; }
-};
-document.addEventListener('visibilitychange', () => { if (document.hidden) stopCam(); else if (S.mode === 'scan' && !$('#app').classList.contains('open')) startCam(); });
-/* Uji tanpa kamera: buka halaman dengan #qris=<payload> */
-if (location.hash.startsWith('#qris=')) handleRaw(decodeURIComponent(location.hash.slice(6)));
-go('scan');
 </script>
-<script src="pwa.js"></script>
 </body>
 </html>
