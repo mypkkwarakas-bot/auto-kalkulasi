@@ -328,6 +328,15 @@
 </div>
 
 <script>
+/* Konfigurasi Supabase (kunci anon memang publik; akses dibatasi RLS dan Edge Function) */
+window.APP_CONFIG = {
+  apiBase: 'https://jtdnsrsollmknfijdqty.supabase.co/functions/v1',
+  apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTIxMDAsImV4cCI6MjEwODA2ODEwMH0.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE',
+  getToken: function(){ return window.APP_CONFIG.apiKey; }
+};
+</script>
+
+<script>
 /* =====================================================================
    KONFIGURASI BACKEND
    Isi lewat tag script terpisah sebelum file ini, mis.:
@@ -342,7 +351,11 @@
        onExit: () => history.back()                  // aksi tombol kembali di layar pertama / OK
      };
 
-   KONTRAK ENDPOINT (semua JSON, method POST kecuali dinyatakan lain)
+   CATATAN: versi ini terhubung ke Supabase (lihat APP_CONFIG di atas). Pembayaran lewat POST /konfirmasi-cx
+   (PIN divalidasi server, insert ke tabel Cx; trigger database mengurangi saldo tabel A dan mencatat ke log_abc).
+   Saldo dibaca dari tabel A, data pengirim dari RPC get_profil(). Kontrak di bawah adalah kontrak lama (tidak dipakai).
+
+   KONTRAK ENDPOINT LAMA (semua JSON, method POST kecuali dinyatakan lain)
    1. POST {apiBase}/qris-inquiry   body: { qr }
       -> { inquiry_id, merchant:{name,id}, acquirer:{name,number}|null,
            terminal_id, amount: number|null (null = nominal diisi user),
@@ -363,7 +376,7 @@
     apiBase: '', apiKey: '', getToken: null, qrPayload: '', onExit: null, onShowQr: null, account: null, verifyPin: null,
     timeoutMs: 20000, statusPolls: 4, statusPollMs: 2500
   }, window.APP_CONFIG || {});
-  const EP = { inquiry:'/qris-inquiry', summary:'/account-summary', pay:'/qris-pay', status:'/qris-status' };
+  const EP = { pay:'/konfirmasi-cx' };
 
   class ApiError extends Error {
     constructor(code, message, extra){ super(message); this.code = code; Object.assign(this, extra || {}); }
@@ -387,9 +400,11 @@
     let data = null;
     try { data = await res.json(); } catch (_) {}
     if (!res.ok){
+      // Edge Function mengirim { error: 'kode', message } ; format lama { error: { code, message } } tetap didukung
       const er = (data && data.error) || {};
-      throw new ApiError(er.code || ('http_' + res.status), er.message || 'Permintaan gagal (' + res.status + ').',
-        { status: res.status, attemptsLeft: er.attempts_left });
+      const code = typeof er === 'string' ? er : (er.code || ('http_' + res.status));
+      const msg = (data && data.message) || er.message || 'Permintaan gagal (' + res.status + ').';
+      throw new ApiError(code, msg, { status: res.status, attemptsLeft: er.attempts_left });
     }
     return data;
   }
@@ -437,7 +452,7 @@
     if (m['55'] === '02') rule.fixed = Math.round(parseFloat(m['56'] || '0')) || 0;
     if (m['55'] === '03') rule.pct = parseFloat(m['57'] || '0') || 0;
     return {
-      merchant: { name: m['59'], id: (nm && nm['02']) || (acq && acq['02']) || '' },
+      merchant: { name: m['59'], id: (nm && nm['02']) || (acq && acq['02']) || '', city: m['60'] || '' },
       acquirer: acq && (acq['00'] || acq['01']) ? { name: acqLabel(acq['00']), number: acq['01'] || '' } : null,
       terminal_id: (add && add['07']) || '',
       amount: amt > 0 ? amt : null,
@@ -450,8 +465,42 @@
     if (r.pct && n) return Math.round(n * r.pct / 100);
     return 0;
   };
+  /* ---------- Akses data Supabase ---------- */
+  const restBase = () => CFG.restBase || (CFG.apiBase.replace(/\/functions\/v1\/?$/, '') + '/rest/v1');
+  async function rest(path, opt){
+    const headers = { apikey: CFG.apiKey, Authorization: 'Bearer ' + CFG.apiKey, 'Content-Type': 'application/json' };
+    let res;
+    try { res = await fetch(restBase() + path, Object.assign({ headers }, opt || {})); }
+    catch (e) { throw new ApiError('network', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'); }
+    if (!res.ok) throw new ApiError('http_' + res.status, 'Gagal membaca data (' + res.status + ').');
+    return res.json();
+  }
+  async function getBalance(){                      // saldo = tabel A (baris pertama)
+    const r = await rest('/A?select=amount_rupiah&order=id.asc&limit=1');
+    if (!r.length) throw new ApiError('no_balance', 'Saldo belum tersedia.');
+    return Number(r[0].amount_rupiah);
+  }
+  async function payRemote(pin){
+    const v = S.view;
+    const res = await api(EP.pay, {
+      pin, amount_rupiah: Number(S.amount), fee_rupiah: S.fee,
+      merchant_name: v.merchantName, merchant_city: v.merchantCity || '-',
+      acquirer_name: v.acqName || '-', payment_method: 'QRIS', terminal_id: v.terminalId || '-'
+    });
+    if (!res || res.ok !== true) throw new ApiError('server', 'Pembayaran gagal.');
+    const d = res.data || {};
+    let after = null;
+    try { after = await getBalance(); } catch (_) {}
+    return { status: 'success', balance_after: after, transaction: {
+      transaction_no: d.transaction_no, reference_no: d.reference_no, created_at: d.transaction_time,
+      terminal_id: d.terminal_id, method: d.payment_method } };
+  }
   async function getAccount(){
-    if (CFG.apiBase) return api(EP.summary, {});
+    if (CFG.apiBase){
+      const [balance, prof] = await Promise.all([getBalance(), rest('/rpc/get_profil', { method: 'POST', body: '{}' })]);
+      if (!prof || !prof.nama) throw new ApiError('profil', 'Profil pengirim belum diisi.');
+      return { balance, holder_name: prof.nama, bank_name: prof.bank || 'SeaBank', account_number: prof.no_rekening };
+    }
     return Object.assign({ balance: 1000000, holder_name: 'Nama Pengguna', bank_name: 'SeaBank', account_number: '1234567890' }, CFG.account || {});
   }
   async function payLocal(pin){
@@ -537,6 +586,7 @@
       S.amount = S.fixedAmount ? String(Math.round(Number(inq.amount))) : '';
       S.view = {
         merchantName: inq.merchant && inq.merchant.name, merchantId: inq.merchant && inq.merchant.id,
+        merchantCity: inq.merchant && inq.merchant.city,
         acqName: inq.acquirer && inq.acquirer.name, acqNumber: inq.acquirer && inq.acquirer.number,
         terminalId: inq.terminal_id, method: 'QRIS',
         senderName: acc.holder_name, senderBank: acc.bank_name,
@@ -635,12 +685,10 @@
     const pin = S.pin;
     S.pin = ''; drawDots();                       // PIN tidak disimpan di state
     const key = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
-    S.lastKey = key;
+    S.lastKey = key; S.balanceBefore = S.balance;
     show('s-proc');
     try {
-      const res = CFG.apiBase
-        ? await api(EP.pay, { inquiry_id: S.inquiryId, amount: Number(S.amount), pin, idempotency_key: key })
-        : await payLocal(pin);
+      const res = CFG.apiBase ? await payRemote(pin) : await payLocal(pin);
       await handlePayResult(res);
     } catch (e) {
       await handlePayError(e, key);
@@ -652,26 +700,28 @@
       return showError('Status transaksi belum pasti',
         'Kami belum bisa memastikan hasil pembayaran. Jangan ulangi pembayaran; periksa riwayat transaksi Anda sebelum mencoba lagi.', null);
     }
-    if (e.code === 'invalid_pin' || e.code === 'pin_invalid'){
+    if (e.code === 'invalid_pin' || e.code === 'pin_invalid' || e.code === 'pin_salah'){
       show('s-pin', false);
       return shakePin(e.attemptsLeft != null ? 'PIN salah. Sisa percobaan: ' + e.attemptsLeft : 'PIN salah');
     }
-    if (e.code === 'pin_locked') return showError('PIN terkunci', e.message, null);
-    if (e.code === 'insufficient_balance') return showError('Saldo tidak cukup', e.message, null);
+    if (e.code === 'pin_locked' || e.code === 'terlalu_banyak_percobaan') return showError('PIN terkunci', e.message, null);
+    if (e.code === 'insufficient_balance' || e.code === 'saldo_tidak_cukup') return showError('Saldo tidak cukup', e.message, null);
     if (e.code === 'inquiry_expired') return showError('QR kedaluwarsa', 'Pindai ulang kode QRIS untuk melanjutkan.', null);
     showError('Pembayaran gagal', e.message, null);
   }
+  // Tidak ada endpoint status: bila respons pembayaran hilang (jaringan), cek apakah saldo A sudah berkurang
   async function pollStatus(key){
-    let last;
+    const total = Number(S.amount) + S.fee;
     for (let i = 0; i < CFG.statusPolls; i++){
-      try {
-        const r = await api(EP.status, { idempotency_key: key });
-        if (r.status !== 'pending') return r;
-        last = r;
-      } catch (e) { if (e.code !== 'network') throw e; }
       await sleep(CFG.statusPollMs);
+      try {
+        const b = await getBalance();
+        if (b <= S.balanceBefore - total){
+          return { status: 'success', balance_after: b, transaction: {
+            created_at: new Date().toISOString(), terminal_id: S.view.terminalId, method: 'QRIS' } };
+        }
+      } catch (_) { /* coba lagi */ }
     }
-    if (last) return last;
     throw new ApiError('network', 'status tidak diketahui');
   }
   async function handlePayResult(res){
