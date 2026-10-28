@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transfer QRIS</title>
+<style>
+  :root{
+    --orange:#FA5B00; --orange-d:#E85D04; --bg:#F6F7F9; --card:#fff;
+    --text:#222; --muted:#777; --light:#9a9a9a; --green:#1FA45A; --blue:#0A84D0; --line:#EEE;
+    --key:#fff; --kbd:#DEDEDE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:Roboto,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--text);background:#d9dce1;display:flex;justify-content:center;align-items:center}
+  .app{position:relative;width:100%;max-width:400px;height:100dvh;max-height:860px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+  @media(min-width:500px){.app{border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.18)}}
+
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+  .screen.active{display:flex}
+  .bar{background:#fff;height:56px;display:flex;align-items:center;padding:0 14px;gap:14px;flex-shrink:0;padding-top:env(safe-area-inset-top,0)}
+  .bar h1{font-size:20px;font-weight:600}
+  .bar .back{width:24px;height:24px;background:none;border:0;display:grid;place-items:center;cursor:pointer}
+  .bar.left{padding-left:16px}
+  .body{flex:1;overflow-y:auto;padding:12px}
+  .card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px}
+
+  .merchant{display:flex;gap:12px;align-items:center}
+  .ava{width:30px;height:30px;border-radius:50%;background:var(--orange-d);display:grid;place-items:center;flex-shrink:0}
+  .ava.lg{width:30px;height:30px}
+  .merchant .nm{font-size:16px;font-weight:500}
+  .merchant .sub{font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+  .merchant .ava{width:30px;height:30px}
+  .big-ava{width:30px}
+
+  .amount-box{background:#FAFAFA;border-radius:8px;margin-top:16px;height:66px;display:flex;align-items:center;padding:0 12px;gap:8px}
+  .amount-box .rp{font-size:19px;color:#555}
+  .amount-box .val{font-size:34px;font-weight:500;display:flex;align-items:center;min-height:42px}
+  .amount-box .val.empty{color:#d7d7d7}
+  .caret{display:none;width:2px;height:34px;background:#3ed16a;margin-right:2px;animation:blink 1s steps(1) infinite}
+  .editing .caret{display:inline-block}
+  @keyframes blink{50%{opacity:0}}
+  .saldo{font-size:13px;color:var(--light);margin-top:10px}
+  .saldo.err{color:#D93025}
+  .link{color:var(--blue);font-size:14px;margin-top:4px;display:inline-block;background:none;border:0;cursor:pointer}
+  .hr{height:1px;background:var(--line);margin:14px 0}
+  .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:15px}
+  .row .k{color:#666}
+  .row .v{text-align:right;color:var(--text)}
+  .gratis{color:var(--green);font-weight:500}
+  .acq .v small{display:block;color:var(--light);font-size:13px;margin-top:6px}
+
+  .footer{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0));background:#fff;border-top:1px solid #eee;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+  .btn{height:50px;border-radius:10px;border:0;background:var(--orange);color:#fff;font-size:17px;cursor:pointer;width:100%}
+  .btn:disabled{background:#f3b79a;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--orange);border:1px solid var(--orange);height:48px}
+  .btn:active:not(:disabled){filter:brightness(.93)}
+
+  /* numpad */
+  .kbd{background:var(--kbd);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0));display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,50px);gap:6px 6px;flex-shrink:0}
+  .kbd button{background:var(--key);border:0;border-radius:6px;font-size:26px;color:#111;box-shadow:0 1px 0 rgba(0,0,0,.25);cursor:pointer}
+  .kbd button:active{background:#ececec}
+  .kbd .del{background:transparent;box-shadow:none;display:grid;place-items:center}
+  .kbd .done{grid-column:4;grid-row:2 / span 3;background:var(--orange);color:#fff;font-size:18px}
+  .kbd .done:active{background:#d85100}
+  .kbd .blank{background:transparent;box-shadow:none;pointer-events:none}
+  .hide-kbd .kbd{display:none}
+
+  /* confirm */
+  .flow{display:flex;flex-direction:column;gap:6px}
+  .flow .chev{padding-left:8px;height:14px;color:#aaa;display:flex}
+  .seabank{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#fff 0 22%,transparent 24%),linear-gradient(#f26a1b,#f58a2a);display:inline-block}
+  .total .v{font-size:30px;font-weight:600}
+  .total .v small{font-size:16px;font-weight:400;margin-right:6px}
+  .gap{height:22px}
+
+  /* PIN */
+  .pin-wrap{flex:1;display:flex;flex-direction:column;align-items:center;padding:36px 24px 0;background:#fff}
+  .lock{width:56px;height:56px;border-radius:50%;background:#FFF0E6;display:grid;place-items:center;margin-bottom:18px}
+  .pin-wrap h2{font-size:20px;font-weight:600}
+  .pin-wrap p{color:var(--muted);font-size:14px;margin-top:6px;text-align:center;line-height:1.45}
+  .dots{display:flex;gap:16px;margin:32px 0 12px}
+  .dot{width:14px;height:14px;border-radius:50%;border:2px solid #ccc;transition:.12s}
+  .dot.on{background:var(--orange);border-color:var(--orange)}
+  .dots.shake{animation:shake .4s}
+  @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  .pin-err{color:#D93025;font-size:13px;min-height:18px}
+  .pin-kbd{background:#fff;padding:8px 24px calc(14px + env(safe-area-inset-bottom,0));display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-shrink:0}
+  .pin-kbd button{height:58px;border:0;background:#fff;border-radius:12px;font-size:26px;cursor:pointer;color:#111}
+  .pin-kbd button:active{background:#f1f1f1}
+  .pin-kbd .blank{pointer-events:none}
+
+  /* processing */
+  #s-proc{background:#fff;align-items:center;justify-content:center}
+  .plane{width:130px;animation:float 1.4s ease-in-out infinite}
+  @keyframes float{50%{transform:translate(8px,-10px) rotate(-4deg)}}
+  .proc-t{margin-top:56px;color:#666;font-size:17px}
+
+  /* result */
+  .res-head{text-align:center;padding:20px 0 18px}
+  .check{width:48px;height:48px;border-radius:50%;background:#27AE45;display:grid;place-items:center;margin:0 auto 14px}
+  .res-head .st{color:#666;font-size:16px}
+  .res-head .amt{font-size:42px;font-weight:600;margin-top:12px}
+  .res-head .amt small{font-size:20px;font-weight:500;margin-right:6px}
+  .detail{padding:6px 16px}
+  .detail .item{padding:18px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;font-size:16px}
+  .detail .item:last-child{border:0}
+  .detail .k{color:#666;flex-shrink:0}
+  .detail .v{text-align:right;word-break:break-all;display:flex;flex-direction:column;align-items:flex-end}
+  .detail .v .line{display:flex;align-items:center;gap:8px}
+  .detail .v small{color:var(--light);font-size:13px;margin-top:8px}
+  .mini{display:flex;align-items:center;gap:8px}
+  .mini .ava{width:23px;height:23px}
+  .copy{background:none;border:0;cursor:pointer;padding:2px;display:grid;place-items:center;flex-shrink:0}
+  .help{text-align:center;color:var(--blue);padding:18px 0 22px;font-size:16px}
+
+  .toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,20px);background:rgba(30,30,30,.92);color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:20;white-space:nowrap}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- 1 & 2. INPUT NOMINAL -->
+  <section class="screen active" id="s-amount">
+    <header class="bar">
+      <button class="back" data-back aria-label="Kembali"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="#777" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Transfer</h1>
+    </header>
+    <div class="body">
+      <div class="card">
+        <div class="merchant">
+          <div class="ava"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M1 15V3.5L10 1v14zM12 6h3v9h-3z"/><g fill="#E85D04"><rect x="3.5" y="4" width="1.8" height="1.8"/><rect x="6.5" y="4" width="1.8" height="1.8"/><rect x="3.5" y="7.5" width="1.8" height="1.8"/><rect x="6.5" y="7.5" width="1.8" height="1.8"/></g></svg></div>
+          <div><div class="nm">Warung As-syifa</div><div class="sub">1205</div></div>
+        </div>
+        <div class="amount-box" id="amountBox">
+          <span class="rp">Rp</span>
+          <span class="val empty" id="amtVal"><span class="caret"></span><span id="amtTxt">0</span></span>
+        </div>
+        <div class="saldo" id="saldo">Saldo Tersedia: Rp 715</div>
+        <button class="link" id="ubahLimit">Ubah limit</button>
+        <div class="hr"></div>
+        <div class="row"><span class="k">Biaya Transaksi</span><span class="v" id="fee">-</span></div>
+      </div>
+      <div class="card acq">
+        <div class="row"><span class="k">Nama Acquirer</span><span class="v">Dana<small>9360-0915-3000-7450-088</small></span></div>
+      </div>
+    </div>
+    <div class="footer" id="lanjutBar" style="display:none">
+      <button class="btn" id="lanjut">Lanjut</button>
+    </div>
+    <div class="kbd" id="kbd">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button class="del" data-k="del" aria-label="Hapus"><svg width="40" height="28" viewBox="0 0 40 28" fill="none" stroke="#222" stroke-width="1.8"><path d="M13 3h22a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H13L3 14z"/><path d="m19 9 10 10M29 9 19 19"/></svg></button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button class="done" id="kDone">Selesai</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="blank" tabindex="-1"></button><button data-k="0">0</button><button data-k="000">000</button>
+    </div>
+  </section>
+
+  <!-- 3. KONFIRMASI -->
+  <section class="screen" id="s-confirm">
+    <header class="bar">
+      <button class="back" data-back aria-label="Kembali"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="#777" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Konfirmasi</h1>
+    </header>
+    <div class="body">
+      <div class="card">
+        <div class="flow">
+          <div class="merchant">
+            <div class="ava"><svg width="18" height="18" viewBox="0 0 18 18" fill="#fff"><circle cx="9" cy="6" r="3.2"/><path d="M2.5 16c0-3.4 2.9-5.4 6.5-5.4s6.5 2 6.5 5.4z"/></svg></div>
+            <div><div class="nm">Syamsur Rijal</div><div class="sub"><span class="seabank"></span>SeaBank: 901834387252</div></div>
+          </div>
+          <div class="chev"><svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke="#aaa" stroke-width="2"><path d="m5 1 6 5 6-5M5 7l6 5 6-5"/></svg></div>
+          <div class="merchant">
+            <div class="ava"><svg width="16" height="16" viewBox="0 0 16 16" fill="#fff"><path d="M1 15V3.5L10 1v14zM12 6h3v9h-3z"/><g fill="#E85D04"><rect x="3.5" y="4" width="1.8" height="1.8"/><rect x="6.5" y="4" width="1.8" height="1.8"/><rect x="3.5" y="7.5" width="1.8" height="1.8"/><rect x="6.5" y="7.5" width="1.8" height="1.8"/></g></svg></div>
+            <div><div class="nm">Warung As-syifa</div><div class="sub">1205</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row total"><span class="k">Total</span><span class="v"><small>Rp</small><span data-amt>1</span></span></div>
+        <div class="gap"></div>
+        <div class="row"><span class="k">Nominal Transaksi</span><span class="v">Rp <span data-amt>1</span></span></div>
+        <div class="gap"></div>
+        <div class="row"><span class="k">Biaya Transaksi</span><span class="v gratis">GRATIS</span></div>
+      </div>
+      <div class="card acq">
+        <div class="row"><span class="k">Nama Acquirer</span><span class="v">Dana<small>9360-0915-3000-7450-088</small></span></div>
+      </div>
+    </div>
+    <div class="footer"><button class="btn" id="konfirmasi">Konfirmasi</button></div>
+  </section>
+
+  <!-- 4. INPUT PIN -->
+  <section class="screen" id="s-pin">
+    <header class="bar">
+      <button class="back" data-back aria-label="Kembali"><svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="#777" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Masukkan PIN</h1>
+    </header>
+    <div class="pin-wrap">
+      <div class="lock"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FA5B00" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+      <h2>Masukkan 6 digit PIN</h2>
+      <p>Untuk membayar Rp <span data-amt>1</span> ke Warung As-syifa</p>
+      <div class="dots" id="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="pin-err" id="pinErr"></div>
+    </div>
+    <div class="pin-kbd" id="pinKbd">
+      <button data-p="1">1</button><button data-p="2">2</button><button data-p="3">3</button>
+      <button data-p="4">4</button><button data-p="5">5</button><button data-p="6">6</button>
+      <button data-p="7">7</button><button data-p="8">8</button><button data-p="9">9</button>
+      <button class="blank" tabindex="-1"></button><button data-p="0">0</button>
+      <button data-p="del" aria-label="Hapus"><svg width="34" height="24" viewBox="0 0 40 28" fill="none" stroke="#222" stroke-width="1.8"><path d="M13 3h22a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H13L3 14z"/><path d="m19 9 10 10M29 9 19 19"/></svg></button>
+    </div>
+  </section>
+
+  <!-- 5. PROSES -->
+  <section class="screen" id="s-proc">
+    <svg class="plane" viewBox="0 0 240 190" fill="none">
+      <path d="M2 82 142 6c3-1 6 1 5 4l-37 160c-1 4-5 5-8 3L72 150 40 186c-3 3-7 1-7-3l-6-44z" fill="#E6E7E8" transform="translate(30 0) scale(.95)"/>
+      <path d="M80 94 150 52 100 100l-4 36z" fill="#EC6205" transform="translate(30 4)"/>
+    </svg>
+    <div class="proc-t">Transfer Diproses...</div>
+  </section>
+
+  <!-- 6. HASIL -->
+  <section class="screen" id="s-result">
+    <header class="bar left"><h1>Hasil Transfer</h1></header>
+    <div class="body" style="padding-top:0">
+      <div class="res-head">
+        <div class="check"><svg width="26" height="20" viewBox="0 0 26 20" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 7 7L23 3"/></svg></div>
+        <div class="st">Pembayaran Diterima</div>
+        <div class="amt"><small>Rp</small><span data-amt>1</span></div>
+      </div>
+      <div class="card detail">
+        <div class="item"><span class="k">Dari</span><span class="v"><span class="mini"><span class="ava"><svg width="13" height="13" viewBox="0 0 18 18" fill="#fff"><circle cx="9" cy="6" r="3.2"/><path d="M2.5 16c0-3.4 2.9-5.4 6.5-5.4s6.5 2 6.5 5.4z"/></svg></span>Syamsur Rijal</span><small><span class="seabank" style="vertical-align:-3px;margin-right:4px"></span>SeaBank: 901834387252</small></span></div>
+        <div class="item"><span class="k">Ke</span><span class="v"><span class="mini"><span class="ava"><svg width="12" height="12" viewBox="0 0 16 16" fill="#fff"><path d="M1 15V3.5L10 1v14zM12 6h3v9h-3z"/></svg></span>Warung As-syifa</span><small>1205</small></span></div>
+        <div class="item"><span class="k">Nama Acquirer</span><span class="v">Dana<small>9360-0915-3000-7450-088</small></span></div>
+        <div class="item"><span class="k">Nominal Transaksi</span><span class="v">Rp <span data-amt style="display:inline">1</span></span></div>
+        <div class="item"><span class="k">Biaya Transaksi</span><span class="v gratis">GRATIS</span></div>
+        <div class="item"><span class="k">Jumlah Total</span><span class="v">Rp <span data-amt style="display:inline">1</span></span></div>
+        <div class="item"><span class="k">No. Transaksi</span><span class="v"><span class="line"><span id="trxNo" style="max-width:190px">-</span><button class="copy" data-copy="trxNo" aria-label="Salin"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.4"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button></span></span></div>
+        <div class="item"><span class="k">No. Referensi</span><span class="v"><span class="line"><span id="refNo">-</span><button class="copy" data-copy="refNo" aria-label="Salin"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.4"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button></span></span></div>
+        <div class="item"><span class="k">Terminal ID</span><span class="v">000745008</span></div>
+        <div class="item"><span class="k">Metode Transaksi</span><span class="v">QRIS</span></div>
+        <div class="item"><span class="k">Waktu Transaksi</span><span class="v" id="trxTime">-</span></div>
+      </div>
+      <div class="help">Butuh Bantuan?</div>
+    </div>
+    <div class="footer">
+      <button class="btn ghost" id="bagikan">Bagikan</button>
+      <button class="btn" id="ok">OK</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  const SALDO = 715;
+  const MAX_DIGITS = 12;
+  const PIN_LEN = 6;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+  const fmt = n => Number(n).toLocaleString('id-ID');
+
+  let amount = '';          // string digit
+  let pin = '';
+  let history = ['s-amount'];
+  let balance = SALDO;
+  let busy = false;
+
+  const toast = msg => {
+    const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800);
+  };
+
+  function show(id, push = true){
+    $$('.screen').forEach(s => s.classList.remove('active'));
+    $('#' + id).classList.add('active');
+    if (push && history[history.length-1] !== id) history.push(id);
+  }
+  function back(){
+    if (busy) return;
+    if (history.length > 1){ history.pop(); show(history[history.length-1], false); }
+    const cur = history[history.length-1];
+    if (cur === 's-amount') setEditing(true);
+    if (cur === 's-pin') resetPin();
+  }
+  $$('[data-back]').forEach(b => b.addEventListener('click', back));
+
+  /* ---------- Input nominal ---------- */
+  const amtTxt = $('#amtTxt'), amtVal = $('#amtVal'), box = $('#amountBox');
+  function setEditing(on){
+    $('#s-amount').classList.toggle('hide-kbd', !on);
+    box.classList.toggle('editing', on);
+    $('#lanjutBar').style.display = on ? 'none' : 'flex';
+    render();
+  }
+  function render(){
+    const n = Number(amount || 0);
+    amtTxt.textContent = n ? fmt(n) : '0';
+    amtVal.classList.toggle('empty', !n);
+    const over = n > balance;
+    $('#saldo').classList.toggle('err', over);
+    $('#saldo').textContent = over ? 'Saldo tidak cukup. Saldo Tersedia: Rp ' + fmt(balance) : 'Saldo Tersedia: Rp ' + fmt(balance);
+    const fee = $('#fee');
+    if (n){ fee.textContent = 'GRATIS'; fee.className = 'v gratis'; }
+    else { fee.textContent = '-'; fee.className = 'v'; }
+    $('#lanjut').disabled = !n || over;
+    $('#kDone').disabled = false;
+    $$('[data-amt]').forEach(e => e.textContent = fmt(n));
+  }
+  $('#kbd').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !b.dataset.k) return;
+    const k = b.dataset.k;
+    if (k === 'del') amount = amount.slice(0, -1);
+    else {
+      if (!amount && (k === '0' || k === '000')) return;
+      if ((amount + k).length > MAX_DIGITS) return;
+      amount += k;
+    }
+    render();
+  });
+  $('#kDone').addEventListener('click', () => {
+    if (!Number(amount)) { toast('Masukkan nominal terlebih dahulu'); return; }
+    setEditing(false);
+  });
+  amtVal.addEventListener('click', () => setEditing(true));
+  box.addEventListener('click', () => setEditing(true));
+  $('#ubahLimit').addEventListener('click', () => toast('Fitur ubah limit belum tersedia'));
+  $('#lanjut').addEventListener('click', () => {
+    if (!Number(amount) || Number(amount) > balance) return;
+    show('s-confirm');
+  });
+
+  /* ---------- Konfirmasi ---------- */
+  $('#konfirmasi').addEventListener('click', () => { resetPin(); show('s-pin'); });
+
+  /* ---------- PIN ---------- */
+  function resetPin(){
+    pin = ''; drawDots(); $('#pinErr').textContent = '';
+  }
+  function drawDots(){
+    $$('#dots .dot').forEach((d, i) => d.classList.toggle('on', i < pin.length));
+  }
+  $('#pinKbd').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !b.dataset.p || busy) return;
+    const k = b.dataset.p;
+    if (k === 'del') pin = pin.slice(0, -1);
+    else if (pin.length < PIN_LEN) pin += k;
+    $('#pinErr').textContent = '';
+    drawDots();
+    if (pin.length === PIN_LEN) setTimeout(submitPin, 180);
+  });
+  // dukungan keyboard fisik
+  document.addEventListener('keydown', e => {
+    const cur = history[history.length-1];
+    if (cur === 's-pin' && !busy){
+      if (/^\d$/.test(e.key) && pin.length < PIN_LEN){ pin += e.key; drawDots(); if (pin.length === PIN_LEN) setTimeout(submitPin, 180); }
+      else if (e.key === 'Backspace'){ pin = pin.slice(0,-1); drawDots(); }
+    } else if (cur === 's-amount' && box.classList.contains('editing')){
+      if (/^\d$/.test(e.key)){ if (!(amount === '' && e.key === '0') && (amount+e.key).length <= MAX_DIGITS){ amount += e.key; render(); } }
+      else if (e.key === 'Backspace'){ amount = amount.slice(0,-1); render(); }
+      else if (e.key === 'Enter'){ $('#kDone').click(); }
+    }
+  });
+
+  function submitPin(){
+    // Demo: PIN apa pun (6 digit) diterima. Ganti dengan verifikasi ke backend.
+    busy = true;
+    show('s-proc');
+    setTimeout(() => { finish(); busy = false; }, 2200);
+  }
+
+  /* ---------- Hasil ---------- */
+  const rand = (len, chars) => Array.from({length:len}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  function finish(){
+    const n = Number(amount);
+    balance -= n;
+    const now = new Date();
+    const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const p = x => String(x).padStart(2, '0');
+    $('#trxTime').textContent = `${now.getDate()} ${bulan[now.getMonth()]} ${now.getFullYear()}, ${p(now.getHours())}:${p(now.getMinutes())}`;
+    const ymd = `${now.getFullYear()}${p(now.getMonth()+1)}${p(now.getDate())}`;
+    $('#trxNo').textContent = ymd + '43500' + rand(12, '0123456789');
+    $('#refNo').textContent = '0115001' + rand(4, 'ABCDEFGHJKLMNPQRSTUVWXYZ');
+    $$('[data-amt]').forEach(e => e.textContent = fmt(n));
+    history = ['s-amount'];
+    show('s-result', false);
+    $('#s-result .body').scrollTop = 0;
+  }
+  $$('[data-copy]').forEach(b => b.addEventListener('click', () => {
+    const txt = document.getElementById(b.dataset.copy).textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => toast('Disalin'), () => toast('Gagal menyalin'));
+  }));
+  $('#bagikan').addEventListener('click', () => {
+    const text = `Pembayaran QRIS Rp ${fmt(amount)} ke Warung As-syifa berhasil.\nNo. Transaksi: ${$('#trxNo').textContent}\nNo. Referensi: ${$('#refNo').textContent}\n${$('#trxTime').textContent}`;
+    if (navigator.share) navigator.share({ text }).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('Detail transaksi disalin'));
+  });
+  $('#ok').addEventListener('click', () => {
+    amount = ''; resetPin(); history = ['s-amount'];
+    show('s-amount', false); setEditing(true);
+  });
+
+  setEditing(true);
+})();
+</script>
+</body>
+</html>

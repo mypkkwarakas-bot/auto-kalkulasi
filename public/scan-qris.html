@@ -337,6 +337,8 @@
        getToken: () => session.access_token,         // JWT user login (wajib bila endpoint terproteksi)
        qrPayload: '<string QR>',                     // opsional; bila kosong, layar Scan QRIS dibuka dulu
        onShowQr: () => openMyQr(),                   // aksi tombol "Tampilkan QR" di layar scan
+       account: { balance, holder_name, bank_name, account_number },  // mode lokal (tanpa apiBase)
+       verifyPin: async pin => true,                 // opsional, mode lokal
        onExit: () => history.back()                  // aksi tombol kembali di layar pertama / OK
      };
 
@@ -358,7 +360,7 @@
    ===================================================================== */
 (function(){
   const CFG = Object.assign({
-    apiBase: '', apiKey: '', getToken: null, qrPayload: '', onExit: null, onShowQr: null,
+    apiBase: '', apiKey: '', getToken: null, qrPayload: '', onExit: null, onShowQr: null, account: null, verifyPin: null,
     timeoutMs: 20000, statusPolls: 4, statusPollMs: 2500
   }, window.APP_CONFIG || {});
   const EP = { inquiry:'/qris-inquiry', summary:'/account-summary', pay:'/qris-pay', status:'/qris-status' };
@@ -393,14 +395,80 @@
   }
 
   const PIN_LEN = 6, MAX_DIGITS = 12;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
   const $ = s => document.querySelector(s);
   const $$ = s => document.querySelectorAll(s);
   const fmt = n => Number(n).toLocaleString('id-ID');
   const exit = () => { if (typeof CFG.onExit === 'function') CFG.onExit(); else history.back(); };
 
-  /* state — semua dari server, tidak ada nilai bawaan */
+  /* ---------- Parser QRIS (EMV QR, dibaca lokal tanpa backend) ---------- */
+  function crc16(s){
+    let c = 0xFFFF;
+    for (let i = 0; i < s.length; i++){
+      c ^= s.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF;
+    }
+    return c.toString(16).toUpperCase().padStart(4, '0');
+  }
+  function tlv(s){
+    const o = {}; let i = 0;
+    while (i + 4 <= s.length){
+      const t = s.substr(i, 2), l = parseInt(s.substr(i + 2, 2), 10);
+      if (isNaN(l) || i + 4 + l > s.length) return null;
+      o[t] = s.substr(i + 4, l); i += 4 + l;
+    }
+    return i === s.length ? o : null;
+  }
+  const acqLabel = g => String(g || '').replace(/^ID\.CO\./i, '').replace(/\.WWW$/i, '').replace(/^COM\./i, '').toUpperCase();
+  function parseQris(text){
+    text = String(text || '').trim();
+    if (!/^000201/.test(text)) return { err: 'Bukan kode QRIS' };
+    const bad = { err: 'Kode QRIS tidak valid' };
+    const m = tlv(text);
+    if (!m || !m['63'] || m['63'].length !== 4 || crc16(text.slice(0, -4)) !== m['63'].toUpperCase()) return bad;
+    if (m['53'] && m['53'] !== '360') return { err: 'Hanya mendukung QRIS Rupiah' };
+    if (!m['59']) return bad;
+    let acq = null;
+    for (let k = 26; k <= 45 && !acq; k++){ const t = m[String(k)]; if (t) acq = tlv(t); }
+    const nm = m['51'] ? tlv(m['51']) : null;
+    const add = m['62'] ? tlv(m['62']) : null;
+    const amt = Math.round(parseFloat(m['54'] || '0')) || 0;
+    const rule = {};
+    if (m['55'] === '02') rule.fixed = Math.round(parseFloat(m['56'] || '0')) || 0;
+    if (m['55'] === '03') rule.pct = parseFloat(m['57'] || '0') || 0;
+    return {
+      merchant: { name: m['59'], id: (nm && nm['02']) || (acq && acq['02']) || '' },
+      acquirer: acq && (acq['00'] || acq['01']) ? { name: acqLabel(acq['00']), number: acq['01'] || '' } : null,
+      terminal_id: (add && add['07']) || '',
+      amount: amt > 0 ? amt : null,
+      feeRule: rule
+    };
+  }
+  const calcFee = n => {
+    const r = S.feeRule || {};
+    if (r.fixed) return r.fixed;
+    if (r.pct && n) return Math.round(n * r.pct / 100);
+    return 0;
+  };
+  async function getAccount(){
+    if (CFG.apiBase) return api(EP.summary, {});
+    return Object.assign({ balance: 1000000, holder_name: 'Nama Pengguna', bank_name: 'SeaBank', account_number: '1234567890' }, CFG.account || {});
+  }
+  async function payLocal(pin){
+    await sleep(1600);
+    if (typeof CFG.verifyPin === 'function' && !(await CFG.verifyPin(pin))) throw new ApiError('invalid_pin', 'PIN salah');
+    const total = Number(S.amount) + S.fee;
+    if (total > S.balance) throw new ApiError('insufficient_balance', 'Saldo tidak cukup.');
+    const now = new Date(), p2 = x => String(x).padStart(2, '0');
+    const rnd = n => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join('');
+    return { status: 'success', balance_after: S.balance - total, transaction: {
+      transaction_no: 'TRX' + now.getFullYear() + p2(now.getMonth() + 1) + p2(now.getDate()) + p2(now.getHours()) + p2(now.getMinutes()) + p2(now.getSeconds()) + rnd(6),
+      reference_no: rnd(12), created_at: now.toISOString(), terminal_id: S.view.terminalId, method: 'QRIS' } };
+  }
+
+  /* state */
   const S = {
-    fromScan: false, inquiryId: null, balance: 0, fee: 0, fixedAmount: false,
+    fromScan: false, inquiryId: null, balance: 0, fee: 0, feeRule: {}, fixedAmount: false,
     view: {},            // data tampilan (nama merchant, dst.)
     amount: '', pin: '', history: [], busy: false, lastKey: null, payDone: false
   };
@@ -420,7 +488,7 @@
     });
     $$('[data-acq]').forEach(c => c.hidden = !v.acqName);
     $$('[data-bankicon]').forEach(e => e.hidden = !/seabank/i.test(v.senderBank || ''));
-    const n = Number(S.amount || 0), total = n + S.fee;
+    const n = Number(S.amount || 0); S.fee = calcFee(n); const total = n + S.fee;
     $$('[data-amt]').forEach(e => e.textContent = fmt(n));
     $$('[data-total]').forEach(e => e.textContent = fmt(total));
     $$('[data-fee]').forEach(e => {
@@ -460,9 +528,10 @@
   async function boot(qr){
     show('s-load', false);
     try {
-      const [inq, acc] = await Promise.all([ api(EP.inquiry, { qr }), api(EP.summary, {}) ]);
-      S.inquiryId = inq.inquiry_id;
-      S.fee = Number(inq.fee) || 0;
+      const inq = qr, acc = await getAccount();       // info merchant dibaca dari QR, tanpa backend
+      S.inquiryId = 'local-' + Date.now();
+      S.feeRule = inq.feeRule || {};
+      S.fee = 0;
       S.balance = Number(acc.balance) || 0;
       S.fixedAmount = inq.amount != null && Number(inq.amount) > 0;
       S.amount = S.fixedAmount ? String(Math.round(Number(inq.amount))) : '';
@@ -474,6 +543,7 @@
         senderLine: [acc.bank_name, acc.account_number].filter(Boolean).join(': ')
       };
       S.history = [];
+      S.fee = calcFee(Number(S.amount || 0));
       bind();
       if (S.fixedAmount){ S.history = ['s-confirm']; show('s-confirm', false); }
       else { S.history = ['s-amount']; show('s-amount', false); setEditing(true); }
@@ -491,7 +561,7 @@
     render();
   }
   function render(){
-    const n = Number(S.amount || 0);
+    const n = Number(S.amount || 0); S.fee = calcFee(n);
     amtTxt.textContent = n ? fmt(n) : '0';
     amtVal.classList.toggle('empty', !n);
     const over = n + S.fee > S.balance;
@@ -555,7 +625,6 @@
   });
 
   /* ---------- Bayar ---------- */
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
   function shakePin(msg){
     const d = $('#dots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
     $('#pinErr').textContent = msg;
@@ -569,7 +638,9 @@
     S.lastKey = key;
     show('s-proc');
     try {
-      const res = await api(EP.pay, { inquiry_id: S.inquiryId, amount: Number(S.amount), pin, idempotency_key: key });
+      const res = CFG.apiBase
+        ? await api(EP.pay, { inquiry_id: S.inquiryId, amount: Number(S.amount), pin, idempotency_key: key })
+        : await payLocal(pin);
       await handlePayResult(res);
     } catch (e) {
       await handlePayError(e, key);
@@ -730,18 +801,18 @@
   }
   function onDetected(text){
     if (scan.handled) return;
-    text = String(text || '').trim();
-    if (!/^000201/.test(text)){                       // payload QRIS selalu diawali 000201
-      if (Date.now() - scan.lastBad > 2000){ scan.lastBad = Date.now(); toast('Bukan kode QRIS'); }
+    const q = parseQris(text);
+    if (q.err){
+      if (Date.now() - scan.lastBad > 2000){ scan.lastBad = Date.now(); toast(q.err); }
       return;
     }
     scan.handled = true;
     if (navigator.vibrate) navigator.vibrate(60);
     S.fromScan = true;
-    boot(text);
+    boot(q);
   }
   function openScan(){
-    Object.assign(S, { payDone: false, busy: false, amount: '', pin: '', inquiryId: null, fixedAmount: false, fee: 0 });
+    Object.assign(S, { payDone: false, busy: false, amount: '', pin: '', inquiryId: null, fixedAmount: false, fee: 0, feeRule: {} });
     S.history = ['s-scan'];
     show('s-scan', false);
     startScan();
@@ -781,7 +852,8 @@
   });
 
   const startQr = CFG.qrPayload || new URLSearchParams(location.search).get('qr');
-  if (startQr) boot(startQr); else openScan();
+  const pq = startQr ? parseQris(startQr) : null;
+  if (pq && !pq.err) boot(pq); else { openScan(); if (pq) toast(pq.err); }
 })();
 </script>
 </body>
