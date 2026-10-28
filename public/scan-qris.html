@@ -118,6 +118,32 @@
   .toast.show{opacity:1;transform:translate(-50%,0)}
   .spinner{width:40px;height:40px;border-radius:50%;border:4px solid #eee;border-top-color:var(--orange);animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* scan qris */
+  #s-scan{background:#111;color:#fff;overflow:hidden}
+  #scanVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111}
+  .scan-top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;gap:18px;height:calc(64px + env(safe-area-inset-top,0));padding:env(safe-area-inset-top,0) 16px 0 18px;background:linear-gradient(rgba(0,0,0,.55),transparent)}
+  .scan-top h1{font-size:20px;font-weight:600}
+  .scan-top .back{width:28px;height:28px;background:none;border:0;display:grid;place-items:center;cursor:pointer}
+  .scan-frame{position:absolute;left:10%;top:26%;width:80%;aspect-ratio:1;z-index:2;box-shadow:0 0 0 100vmax rgba(0,0,0,.55);pointer-events:none}
+  .scan-frame i{position:absolute;width:38px;height:38px;border:0 solid var(--orange)}
+  .scan-frame .tl{left:-3px;top:-3px;border-left-width:4px;border-top-width:4px}
+  .scan-frame .tr{right:-3px;top:-3px;border-right-width:4px;border-top-width:4px}
+  .scan-frame .bl{left:-3px;bottom:-3px;border-left-width:4px;border-bottom-width:4px}
+  .scan-frame .br{right:-3px;bottom:-3px;border-right-width:4px;border-bottom-width:4px}
+  .scan-frame .line{position:absolute;left:6%;right:6%;top:0;height:2px;border:0;width:auto;background:linear-gradient(90deg,transparent,var(--orange),transparent);animation:sweep 2.2s ease-in-out infinite alternate}
+  @keyframes sweep{to{top:calc(100% - 2px)}}
+  .scan-hint{position:absolute;left:0;right:0;top:calc(100% + 22px);text-align:center;font-size:17px;display:flex;justify-content:center;align-items:center;gap:8px;color:#fff}
+  .qris-logo{font-weight:900;font-style:italic;letter-spacing:1px;font-size:15px;padding:1px 5px;border:2px solid #fff;border-radius:3px;line-height:1.1}
+  .scan-msg{position:absolute;left:24px;right:24px;top:calc(26% + 40px);z-index:4;background:rgba(20,20,20,.88);border-radius:14px;padding:16px;text-align:center;font-size:14px;line-height:1.45}
+  .scan-msg button{margin-top:12px;background:var(--orange);color:#fff;border:0;border-radius:8px;padding:9px 18px;font-size:14px;cursor:pointer}
+  .scan-actions{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;padding:0 20px calc(34px + env(safe-area-inset-bottom,0));background:linear-gradient(transparent,rgba(0,0,0,.5))}
+  .scan-actions .act{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;color:#fff;font-size:16px;cursor:pointer;width:76px}
+  .scan-actions .ic{width:56px;height:56px;border-radius:50%;background:rgba(20,20,20,.85);display:grid;place-items:center;transition:.15s}
+  .scan-actions .act.on .ic{background:#fff}
+  .scan-actions .act.on .ic svg{stroke:#111;fill:none}
+  .scan-actions .pill{height:56px;padding:0 16px;border-radius:28px;background:rgba(20,20,20,.85);color:#fff;border:0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px;white-space:nowrap;cursor:pointer;flex:1;margin:0 8px}
+  .scan-actions .act:active .ic,.scan-actions .pill:active{filter:brightness(1.4)}
   [hidden]{display:none!important}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -125,6 +151,29 @@
 <body>
 <div class="app" id="app">
 
+
+  <!-- SCAN QRIS -->
+  <section class="screen" id="s-scan">
+    <video id="scanVideo" playsinline muted autoplay></video>
+    <header class="scan-top">
+      <button class="back" id="scanBack" aria-label="Kembali"><svg width="16" height="26" viewBox="0 0 14 22" fill="none" stroke="#fff" stroke-width="1.6"><path d="M12 2 3 11l9 9"/></svg></button>
+      <h1>Scan QRIS</h1>
+    </header>
+    <div class="scan-frame"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i><i class="line"></i><div class="scan-hint">Scan Kode <span class="qris-logo">QRIS</span></div></div>
+    <div class="scan-msg" id="scanMsg" hidden><div id="scanMsgTxt"></div><button id="scanRetry">Coba lagi</button></div>
+    <div class="scan-actions">
+      <button class="act" id="flashBtn" aria-label="Flash">
+        <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6l-1 5H10zM10 7h4v2.5l1 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 20v-9l1-1.5zM12 12v3M6 3.5 4.5 2M18 3.5 19.5 2M12 0v0"/></svg></span>
+        Flash
+      </button>
+      <button class="pill" id="showQrBtn"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h2v2h-2zM18 14h3M14 18h2M18 18v3M21 18v0"/></svg>Tampilkan QR</button>
+      <button class="act" id="galBtn" aria-label="Galeri">
+        <span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m4 17 5-5 3 3 3-4 5 6"/><circle cx="16" cy="9" r="1.2" fill="#fff"/></svg></span>
+        Galeri
+      </button>
+    </div>
+    <input type="file" id="galFile" accept="image/*" hidden>
+  </section>
 
   <!-- 0. MEMUAT -->
   <section class="screen active" id="s-load" style="background:#fff;align-items:center;justify-content:center">
@@ -286,7 +335,8 @@
        apiBase: 'https://<project>.supabase.co/functions/v1',
        apiKey:  '<publishable key>',                 // header "apikey" (opsional)
        getToken: () => session.access_token,         // JWT user login (wajib bila endpoint terproteksi)
-       qrPayload: '<string QR dari scanner>',        // atau lewat URL ?qr=...
+       qrPayload: '<string QR>',                     // opsional; bila kosong, layar Scan QRIS dibuka dulu
+       onShowQr: () => openMyQr(),                   // aksi tombol "Tampilkan QR" di layar scan
        onExit: () => history.back()                  // aksi tombol kembali di layar pertama / OK
      };
 
@@ -308,7 +358,7 @@
    ===================================================================== */
 (function(){
   const CFG = Object.assign({
-    apiBase: '', apiKey: '', getToken: null, qrPayload: '', onExit: null,
+    apiBase: '', apiKey: '', getToken: null, qrPayload: '', onExit: null, onShowQr: null,
     timeoutMs: 20000, statusPolls: 4, statusPollMs: 2500
   }, window.APP_CONFIG || {});
   const EP = { inquiry:'/qris-inquiry', summary:'/account-summary', pay:'/qris-pay', status:'/qris-status' };
@@ -350,7 +400,7 @@
 
   /* state — semua dari server, tidak ada nilai bawaan */
   const S = {
-    inquiryId: null, balance: 0, fee: 0, fixedAmount: false,
+    fromScan: false, inquiryId: null, balance: 0, fee: 0, fixedAmount: false,
     view: {},            // data tampilan (nama merchant, dst.)
     amount: '', pin: '', history: [], busy: false, lastKey: null, payDone: false
   };
@@ -380,6 +430,7 @@
   }
 
   function show(id, push = true){
+    if (id !== 's-scan') stopScan();
     $$('.screen').forEach(s => s.classList.remove('active'));
     $('#' + id).classList.add('active');
     if (push && S.history[S.history.length-1] !== id) S.history.push(id);
@@ -392,22 +443,22 @@
   }
   function back(){
     if (S.busy) return;
-    if (S.history.length <= 1) return exit();
+    if (S.history.length <= 1) return root();
     S.history.pop();
     const cur = S.history[S.history.length-1];
-    if (cur === 's-amount' && S.fixedAmount) return exit();
+    if (cur === 's-amount' && S.fixedAmount) return root();
     show(cur, false);
     if (cur === 's-amount') setEditing(true);
     if (cur === 's-pin') resetPin();
   }
   $$('[data-back]').forEach(b => b.addEventListener('click', back));
-  $('#errExit').addEventListener('click', exit);
+  // dari layar transaksi, "kembali" = kembali ke pemindai bila alur dimulai dari scan
+  const root = () => (S.fromScan ? openScan() : exit());
+  $('#errExit').addEventListener('click', () => (S.payDone ? exit() : openScan()));
 
   /* ---------- Muat data awal ---------- */
-  async function boot(){
+  async function boot(qr){
     show('s-load', false);
-    const qr = CFG.qrPayload || new URLSearchParams(location.search).get('qr');
-    if (!qr) return showError('QR tidak ditemukan', 'Pindai ulang kode QRIS untuk melanjutkan.', null);
     try {
       const [inq, acc] = await Promise.all([ api(EP.inquiry, { qr }), api(EP.summary, {}) ]);
       S.inquiryId = inq.inquiry_id;
@@ -427,7 +478,7 @@
       if (S.fixedAmount){ S.history = ['s-confirm']; show('s-confirm', false); }
       else { S.history = ['s-amount']; show('s-amount', false); setEditing(true); }
     } catch (e) {
-      showError('Gagal memuat', e.message, e.code === 'config' ? null : boot);
+      showError('Gagal memuat', e.message, e.code === 'config' ? null : () => boot(qr));
     }
   }
 
@@ -592,7 +643,145 @@
   });
   $('#ok').addEventListener('click', exit);
 
-  boot();
+  /* ---------- Scan QRIS (kamera) ---------- */
+  const video = $('#scanVideo');
+  const scan = { stream: null, track: null, timer: 0, det: null, jsqrP: null, handled: false, torch: false, token: 0, lastBad: 0 };
+
+  function scanMsg(text, retry){
+    $('#scanMsg').hidden = !text;
+    $('#scanMsgTxt').textContent = text || '';
+    $('#scanRetry').hidden = !retry;
+  }
+  function loadJsQR(){
+    if (window.jsQR) return Promise.resolve();
+    if (scan.jsqrP) return scan.jsqrP;
+    scan.jsqrP = new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
+      s.onload = res; s.onerror = () => { scan.jsqrP = null; rej(new Error('jsqr')); };
+      document.head.appendChild(s);
+    });
+    return scan.jsqrP;
+  }
+  const cvs = document.createElement('canvas');
+  async function decode(src, w, h, deep){
+    if ('BarcodeDetector' in window){
+      try {
+        scan.det = scan.det || new BarcodeDetector({ formats: ['qr_code'] });
+        const r = await scan.det.detect(src);
+        if (r.length) return r[0].rawValue;
+        if (!deep) return null;
+      } catch (_) { /* lanjut ke jsQR */ }
+    }
+    try { await loadJsQR(); } catch (_) { return null; }
+    const m = Math.min(1, 900 / Math.max(w, h));
+    const cw = Math.max(1, Math.round(w * m)), ch = Math.max(1, Math.round(h * m));
+    cvs.width = cw; cvs.height = ch;
+    const ctx = cvs.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(src, 0, 0, cw, ch);
+    const q = window.jsQR(ctx.getImageData(0, 0, cw, ch).data, cw, ch, { inversionAttempts: 'attemptBoth' });
+    return q ? q.data : null;
+  }
+
+  async function startScan(){
+    stopScan();
+    const my = ++scan.token;
+    scan.handled = false;
+    scanMsg('');
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)){
+      return scanMsg(window.isSecureContext === false
+        ? 'Kamera hanya bisa dibuka lewat HTTPS. Gunakan Galeri untuk memilih gambar QR.'
+        : 'Kamera tidak tersedia di perangkat ini. Gunakan Galeri untuk memilih gambar QR.', false);
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false
+      });
+      if (my !== scan.token){ stream.getTracks().forEach(t => t.stop()); return; }   // layar sudah ditinggalkan
+      scan.stream = stream; scan.track = stream.getVideoTracks()[0];
+      video.srcObject = stream;
+      try { await video.play(); } catch (_) {}
+      tick(my);
+    } catch (e) {
+      if (my !== scan.token) return;
+      const denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+      scanMsg(denied ? 'Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser, atau pilih QR dari Galeri.'
+                     : 'Kamera tidak dapat dibuka. Pastikan tidak dipakai aplikasi lain, atau pilih QR dari Galeri.', true);
+    }
+  }
+  function stopScan(){
+    scan.token++;
+    clearTimeout(scan.timer);
+    if (scan.stream) scan.stream.getTracks().forEach(t => t.stop());
+    scan.stream = scan.track = null;
+    video.srcObject = null;
+    scan.torch = false; $('#flashBtn').classList.remove('on');
+  }
+  async function tick(my){
+    if (my !== scan.token || scan.handled) return;
+    if (video.readyState >= 2 && video.videoWidth){
+      try {
+        const txt = await decode(video, video.videoWidth, video.videoHeight, false);
+        if (my !== scan.token) return;
+        if (txt) onDetected(txt);
+      } catch (_) {}
+    }
+    if (my === scan.token && !scan.handled) scan.timer = setTimeout(() => tick(my), 160);
+  }
+  function onDetected(text){
+    if (scan.handled) return;
+    text = String(text || '').trim();
+    if (!/^000201/.test(text)){                       // payload QRIS selalu diawali 000201
+      if (Date.now() - scan.lastBad > 2000){ scan.lastBad = Date.now(); toast('Bukan kode QRIS'); }
+      return;
+    }
+    scan.handled = true;
+    if (navigator.vibrate) navigator.vibrate(60);
+    S.fromScan = true;
+    boot(text);
+  }
+  function openScan(){
+    Object.assign(S, { payDone: false, busy: false, amount: '', pin: '', inquiryId: null, fixedAmount: false, fee: 0 });
+    S.history = ['s-scan'];
+    show('s-scan', false);
+    startScan();
+  }
+  window.openScanQris = openScan;                    // bisa dipanggil dari tombol "Scan QR" di halaman lain
+
+  $('#scanBack').addEventListener('click', exit);
+  $('#scanRetry').addEventListener('click', startScan);
+  $('#showQrBtn').addEventListener('click', () => {
+    if (typeof CFG.onShowQr === 'function') CFG.onShowQr(); else toast('Tampilkan QR belum tersedia');
+  });
+  $('#flashBtn').addEventListener('click', async () => {
+    const t = scan.track;
+    if (!t) return toast('Kamera belum aktif');
+    const caps = t.getCapabilities ? t.getCapabilities() : {};
+    if (!caps.torch) return toast('Flash tidak didukung perangkat ini');
+    try {
+      await t.applyConstraints({ advanced: [{ torch: !scan.torch }] });
+      scan.torch = !scan.torch; $('#flashBtn').classList.toggle('on', scan.torch);
+    } catch (_) { toast('Flash gagal dinyalakan'); }
+  });
+  $('#galBtn').addEventListener('click', () => $('#galFile').click());
+  $('#galFile').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    toast('Membaca gambar...');
+    try {
+      const bmp = await createImageBitmap(f);
+      const txt = await decode(bmp, bmp.width, bmp.height, true);
+      if (bmp.close) bmp.close();
+      if (txt) onDetected(txt); else toast('QR tidak ditemukan pada gambar');
+    } catch (_) { toast('Gagal membaca gambar'); }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!$('#s-scan').classList.contains('active') || scan.handled) return;
+    if (document.hidden) stopScan(); else startScan();
+  });
+
+  const startQr = CFG.qrPayload || new URLSearchParams(location.search).get('qr');
+  if (startQr) boot(startQr); else openScan();
 })();
 </script>
 </body>
