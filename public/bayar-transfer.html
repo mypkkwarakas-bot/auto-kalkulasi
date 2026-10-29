@@ -970,7 +970,7 @@ function view(l){
  if(l===0&&!cur)return;
  $("sh-bank").classList.toggle("on",l===0&&src==="bank");
  $("sh-ew").classList.toggle("on",l===0&&src==="ew");
- $("ov").classList.toggle("on",l===0);
+ $("ov").classList.toggle("on",l===0&&src!=="sb");
  if(l===0)rb();
 }
 function go(l){
@@ -1014,6 +1014,33 @@ ewBox.querySelector(".eg").addEventListener("click",function(e){
  if(!hit){var ref0=cur;ewList(function(list){var q=list&&ewFind(list,name);if(q&&cur===ref0&&ref0.p===fb){ref0.p=Object.assign({},q,{_html:html});setLogo($("rekLogo"),ref0.p)}})}
 });
 
+/* ---------- SeaBank: alur sama dengan Bank Lain, tetapi bank terkunci ke SeaBank (lewati sheet pilih bank) ---------- */
+function bankList(cb){
+ if(cache.rek&&cache.rek.length){cb(cache.rek);return}
+ fetch(CFG.rek.url,{headers:HEADERS}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json()})
+ .then(function(j){cache.rek=Array.isArray(j.data)?j.data:[];status.rek="ok";cb(cache.rek)}).catch(function(){cb(null)});
+}
+function seaFind(list){
+ for(var i=0;i<list.length;i++){var p=list[i];if(/sea\s*bank/i.test(String(p.name||""))||nk(p.code)==="seabank")return p}
+ return null;
+}
+function seaProv(hit){
+ var p=Object.assign({name:"SeaBank",code:"SEABANK"},hit||{});
+ if(!logoSrc(p))p.logo_data=SEA; /* SEA = ikon SeaBank bawaan halaman */
+ return p;
+}
+document.querySelector('[data-a="seabank"]').addEventListener("click",function(){
+ var hit=cache.rek&&seaFind(cache.rek);
+ openRek(seaProv(hit),"rek","sb");
+ if(!hit){
+  var ref0=cur;
+  bankList(function(list){
+   var q=list&&seaFind(list);
+   if(q&&cur===ref0){ref0.p=seaProv(q);setLogo($("rekLogo"),ref0.p)}
+  });
+ }
+});
+
 /* ---------- layar 1: cari rekening / nomor ---------- */
 var rq=$("rekQ"),rerr=$("rekErr"),rsec=$("rekSec"),rpick=$("rekPick"),busy=false,reqId=0,ctl=null;
 var BRAND={shopeepay:"ShopeePay",gopay:"GoPay",ovo:"OVO",dana:"Dana",linkaja:"LinkAja",isaku:"i.Saku",astrapay:"AstraPay"};
@@ -1022,6 +1049,7 @@ function brand(p){var n=String((p&&(p.name||p.code))||"").replace(/_/g," ");retu
 function labelOf(p,kind){
  if(kind==="hp")return brand(p);
  var n=String(p.name||p.code||"");
+ if(/sea\s*bank/i.test(n))return "SEABANK";
  return (kind==="rek"&&!/\bbank\b/i.test(n)?"BANK "+n:n).toUpperCase();
 }
 function openRek(p,k,sr){
