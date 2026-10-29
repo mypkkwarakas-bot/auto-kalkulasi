@@ -905,7 +905,7 @@ function rb(){
   return;
  }
  if(!list.length){msg(CFG[tab].none);return}
- var f=list.filter(function(p){return !t||String(p.name||"").toLowerCase().indexOf(t)>=0||String(p.code||"").toLowerCase().indexOf(t)>=0});
+ var f=list.filter(function(p){if(tab==="rek"&&nk(p.code)==="seabank")return false;return !t||String(p.name||"").toLowerCase().indexOf(t)>=0||String(p.code||"").toLowerCase().indexOf(t)>=0});
  if(!f.length){msg("Tidak ditemukan");return}
  var frag=document.createDocumentFragment();
  function grp(title,arr){
@@ -1025,7 +1025,7 @@ function seaFind(list){
  return null;
 }
 function seaProv(hit){
- var p=Object.assign({name:"SeaBank",code:"SEABANK"},hit||{});
+ var p=Object.assign({name:"SeaBank",code:"seabank"},hit||{});
  if(!logoSrc(p))p.logo_data=SEA; /* SEA = ikon SeaBank bawaan halaman */
  return p;
 }
