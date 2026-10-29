@@ -482,6 +482,25 @@ input, select, textarea, button { max-width: 100%; }
 }
 </style>
 
+<style id="pin-sheet-style">
+/* Sheet PIN: tampilan seperti aplikasi (judul + kembali, titik PIN, papan angka putih di dasar abu-abu) */
+#pg-kf .kf-sheet{left:0;right:0;width:100%;max-width:none;border-radius:0;padding:0 0 env(safe-area-inset-bottom,0px);text-align:left;background:#fff}
+#pg-kf .kf-ph{position:relative;height:49px;display:flex;align-items:center;justify-content:center}
+#pg-kf .kf-sx{left:8px;right:auto;top:6px;display:flex;align-items:center;justify-content:center}
+#pg-kf .kf-sheet h2{font-size:16px;font-weight:500;margin:0}
+#pg-kf .kf-sheet .kf-sub{margin:8px 0 0;padding:0 15px;font-size:13px;color:#666}
+#pg-kf .kf-forgot{display:block;margin:6px 15px 0;padding:0;border:0;background:none;color:#0b84d6;font:inherit;font-size:13px;cursor:pointer}
+#pg-kf .kf-dots{justify-content:space-between;gap:0;margin:34px 0 0;padding:0 13%}
+#pg-kf .kf-dots i{width:10px;height:10px;border:0;background:#c4c4c4}
+#pg-kf .kf-dots i.kf-f{background:#222}
+#pg-kf .kf-pmsg{min-height:20px;margin:14px 15px;text-align:center}
+#pg-kf .kf-pad{background:#dcdcdc;padding:7px 4px 8px;gap:6px 4px}
+#pg-kf .kf-pad button{height:48px;border-radius:5px;background:#fff;box-shadow:0 1.5px 0 #9c9c9c;font-size:22px}
+#pg-kf .kf-pad button:active{background:#ececec}
+#pg-kf .kf-pad button:disabled{visibility:visible;background:none;box-shadow:none}
+#pg-kf .kf-pad button.kf-del{background:none;box-shadow:none}
+#pg-kf .kf-pad button.kf-del:active{background:rgba(0,0,0,.07)}
+</style>
 </head>
 <body>
 <div class="app">
@@ -771,9 +790,12 @@ document.querySelectorAll('.grid a').forEach(function(a){a.addEventListener('cli
 <div class="kf-ov" id="kf-ov" hidden></div>
 <div class="kf-sheet" id="kf-sheet" role="dialog" aria-modal="true" aria-labelledby="kf-pinTitle" hidden>
   <div id="kf-viewPin">
-    <button class="kf-sx" id="kf-pinX" type="button" aria-label="Tutup">&times;</button>
-    <h2 id="kf-pinTitle">Masukkan PIN</h2>
+    <div class="kf-ph">
+      <button class="kf-sx" id="kf-pinX" type="button" aria-label="Kembali"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#8a8a8a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3.5 6.5 12 15 20.5"/></svg></button>
+      <h2 id="kf-pinTitle">PIN SeaBank Kamu</h2>
+    </div>
     <p class="kf-sub">Masukkan 6 digit PIN untuk konfirmasi transfer</p>
+    <button class="kf-forgot" id="kf-forgot" type="button">Lupa PIN?</button>
     <div class="kf-dots" id="kf-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="kf-pmsg" id="kf-pmsg" role="alert" aria-live="polite"></div>
     <div class="kf-pad" id="kf-pad"></div>
@@ -1298,7 +1320,7 @@ function openKf(d){
 var pad=$("kf-pad");
 ["1","2","3","4","5","6","7","8","9","","0","\u232b"].forEach(function(k){
  var b=document.createElement("button");b.type="button";
- if(k==="")b.disabled=true;else{b.textContent=k;b.dataset.k=k;if(k==="\u232b")b.setAttribute("aria-label","Hapus")}
+ if(k==="")b.disabled=true;else{b.textContent=k;b.dataset.k=k;if(k==="\u232b"){b.className="kf-del";b.setAttribute("aria-label","Hapus");b.innerHTML='<svg width="28" height="22" viewBox="0 0 28 22" fill="none" stroke="#222" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M9 2h15a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9L2 11z"/><path d="M13 7.5l7 7M20 7.5l-7 7"/></svg>'}}
  pad.appendChild(b);
 });
 pad.addEventListener("click",function(e){var b=e.target.closest("button");if(b&&b.dataset.k)press(b.dataset.k)});
@@ -1332,6 +1354,7 @@ function submitPin(){
  .catch(function(){submitting=false;pin="";paintPin();pmsg("Tidak dapat terhubung. Periksa koneksi lalu coba lagi.")});
 }
 $("kf-cta").addEventListener("click",openPin);
+$("kf-forgot").addEventListener("click",function(){pmsg("Hubungi layanan pelanggan untuk mengatur ulang PIN.")});
 $("kf-pinX").addEventListener("click",function(){closePin()});
 $("kf-ov").addEventListener("click",function(){closePin()});
 $("kf-back").addEventListener("click",function(){if(!submitting)back()});
