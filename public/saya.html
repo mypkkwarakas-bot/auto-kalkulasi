@@ -23,13 +23,13 @@
 :root{--or:#ea5f00;--bg:#f6f7f8;--ln:#eee;--ff:Roboto,Arial,"Helvetica Neue",sans-serif}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#dfe1e5;font-family:var(--ff);color:#222}a{text-decoration:none;color:inherit}button{font-family:inherit}img{display:block}
-.app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:70px}
-.hdr{position:sticky;top:0;z-index:10;height:95.5px;background:var(--or);color:#fff}.hdr>*{position:absolute}.hdr .g{right:49px;top:7px;width:40px;height:39px}.hdr .bl{right:0;top:6px;width:48px;height:40px}.hdr .av{left:11px;top:46px;width:37px;height:37px}.hdr .nm{left:54.5px;top:46.5px;font-size:16px;line-height:20px;font-weight:500}.hdr .ph{left:54.5px;top:68.5px;font-size:13px;line-height:18px}
-.card{position:relative;background:#fff;border-radius:8px;margin:11px 11.5px 0;box-shadow:0 1px 3px rgba(0,0,0,.16);overflow:hidden}
-.pr{height:57px;display:flex;align-items:center;padding-left:13px;gap:13px;font-size:16px;color:#222}.pr .ic{width:22px;height:22px}.pr span{padding-top:3px}.pr .im{position:absolute;right:0;top:0;width:134px;height:57px}
-.it{display:flex;align-items:center;height:56.25px;padding-left:13px;gap:13px}.it>img{width:22px;height:22px;flex:none}.it .b{flex:1;height:100%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ln);margin-right:11px;font-size:16px;line-height:20px;color:#222}.it:last-child .b{border-bottom:0}.it .b span{white-space:nowrap;overflow:hidden;min-width:0;padding-top:3px}.it .b i{flex:none;width:8.5px;height:8.5px;border-right:1.3px solid #888;border-top:1.3px solid #888;transform:rotate(45deg);margin-right:13px;margin-left:8px}
-.lo{height:44.5px;display:flex;align-items:center;justify-content:center;color:var(--or);font-size:16px;font-weight:500}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:flex-start;height:calc(47.5px + env(safe-area-inset-bottom));padding-top:6.5px;z-index:20}.nav a{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;line-height:12px;color:#777;flex:1}.nav a img{width:22px;height:22px;object-fit:contain}.nav a.on{color:var(--or);font-weight:500}.nav a.q{position:relative;margin-top:-31px;z-index:2;color:#8a8a8a;-webkit-user-select:none;user-select:none}.nav a.q .qb{width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:linear-gradient(160deg,#ff7a1a 0%,#f05a00 100%);box-shadow:0 3px 10px rgba(232,97,0,.38);display:grid;place-items:center;transition:transform .12s ease,box-shadow .12s ease}.nav a.q .qb svg{width:28px;height:28px;display:block}.nav a.q:active .qb{transform:scale(.93);box-shadow:0 1px 5px rgba(232,97,0,.4)}.nav a.q:focus-visible{outline:none}.nav a.q:focus-visible .qb{outline:2px solid var(--or);outline-offset:2px}@media (prefers-reduced-motion:reduce){.nav a.q .qb{transition:none}}
+.app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;padding-bottom:calc(48px + 16px + env(safe-area-inset-bottom,0px))}
+.hdr{position:sticky;top:0;z-index:10;height:96px;background:var(--or);color:#fff}.hdr>*{position:absolute}.hdr .g{right:49px;top:7px;width:40px;height:39px}.hdr .bl{right:0;top:6px;width:48px;height:40px}.hdr .av{left:12px;top:46px;width:38px;height:38px;border-radius:50%;object-fit:cover}.hdr .nm{left:56px;right:12px;top:46px;font-size:16px;line-height:20px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hdr .ph{left:56px;right:12px;top:68px;font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card{position:relative;background:#fff;border-radius:8px;margin:12px 12px 0;box-shadow:0 1px 3px rgba(0,0,0,.16);overflow:hidden}
+.pr{height:56px;display:flex;align-items:center;padding-left:16px;gap:12px;font-size:16px;color:#222}.pr .ic{width:22px;height:22px}.pr span{padding-top:3px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 200px)}.pr .im{position:absolute;right:0;top:0;width:134px;height:56px;max-width:45%;object-fit:cover;object-position:right center}
+.it{display:flex;align-items:center;min-height:56px;padding-left:16px;gap:12px}.it>img{width:22px;height:22px;flex:none}.it .b{flex:1;min-width:0;min-height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ln);margin-right:12px;font-size:16px;line-height:20px;color:#222}.it:last-child .b{border-bottom:0}.it .b span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding-top:3px}.it .b i{flex:none;width:8.5px;height:8.5px;border-right:1.3px solid #888;border-top:1.3px solid #888;transform:rotate(45deg);margin-right:4px;margin-left:8px}
+.lo{height:48px;display:flex;align-items:center;justify-content:center;color:var(--or);font-size:16px;font-weight:500}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:flex-start;height:calc(48px + env(safe-area-inset-bottom));padding-top:6px;z-index:20}.nav a{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;line-height:12px;color:#777;flex:1;min-width:0;text-align:center;white-space:nowrap}.nav a img{width:22px;height:22px;object-fit:contain}.nav a.on{color:var(--or);font-weight:500}.nav a.q{position:relative;margin-top:-30px;z-index:2;color:#8a8a8a;-webkit-user-select:none;user-select:none}.nav a.q .qb{width:54px;height:54px;border-radius:50%;border:3px solid #fff;background:linear-gradient(160deg,#ff7a1a 0%,#f05a00 100%);box-shadow:0 3px 10px rgba(232,97,0,.38);display:grid;place-items:center;transition:transform .12s ease,box-shadow .12s ease}.nav a.q .qb svg{width:28px;height:28px;display:block}.nav a.q:active .qb{transform:scale(.93);box-shadow:0 1px 5px rgba(232,97,0,.4)}.nav a.q:focus-visible{outline:none}.nav a.q:focus-visible .qb{outline:2px solid var(--or);outline-offset:2px}@media (prefers-reduced-motion:reduce){.nav a.q .qb{transition:none}}
 </style>
 <style id="ui-proportionality-audit">
 :root{color-scheme:light}html{width:100%;min-height:100%;overflow-x:clip;background:#fff}body{width:100%;min-width:0;margin:0;overflow-x:clip;background-color:#fff}*,*::before,*::after{box-sizing:border-box}img,video,canvas,svg{max-width:100%}input,select,textarea,button{max-width:100%}.app{width:100%;min-width:0;margin-left:auto;margin-right:auto}.nav,nav.nav,.bottom-nav,.bottomNavigation,[class*="bottom-nav"]{background-color:#fff!important;padding-bottom:env(safe-area-inset-bottom,0px)}.nav::after,nav.nav::after{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:calc(-1 * env(safe-area-inset-bottom,0px));height:env(safe-area-inset-bottom,0px);background:#fff;pointer-events:none}@supports(height:100dvh){.app{min-height:100dvh}}@media(max-width:360px){body{overflow-wrap:anywhere}.app{max-width:min(100vw,480px)}}
@@ -43,7 +43,7 @@ body{background:#dfe1e5;font-family:var(--ff);color:#222}a{text-decoration:none;
 <body>
 <div class="app">
 <div class="hdr">
- <img class="g" src="assets/img/sy_gift.png" alt=""><img class="bl" src="assets/img/sy_bell.png" alt="Aktifkan audio dan notifikasi Dx" role="button" tabindex="0">
+ <img class="g" src="assets/img/sy_gift.png" alt=""><img class="bl" src="assets/img/sy_bell.png" alt="Notifikasi" role="button" tabindex="0">
  <img class="av" src="assets/img/sy_avatar.png" alt="">
  <div class="nm" id="pfNama">Syamsur Rijal</div><div class="ph" id="pfHp">081******614</div>
 </div>
@@ -79,8 +79,31 @@ apply(ls());fetch(U+"/rest/v1/rpc/get_profil",{method:"POST",headers:{apikey:K,"
 })();
 </script>
 <script src="pwa.js"></script>
+<script>
+/* Web Push: daftarkan langganan perangkat ke Supabase (RPC push_daftar_public) agar push sampai saat aplikasi tertutup */
+(function(){var U="https://jtdnsrsollmknfijdqty.supabase.co",K="sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn",VAPID="BP8PSj4XhGxYKyzBuA-ZhlYvJb4zm7IdSG8of3Cnm3JURtGg3EyD-hbHJL7EZqsbllT6-OxysMXoTVDV9_x4UFc";
+function u8(s){var p="=".repeat((4-s.length%4)%4),b=(s+p).replace(/-/g,"+").replace(/_/g,"/"),r=atob(b),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
+function b64u(buf){var a=new Uint8Array(buf),s="";for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+async function push(fresh){
+ try{
+  if(!("serviceWorker"in navigator)||!("PushManager"in window)||!("Notification"in window)||Notification.permission!=="granted")return null;
+  var r=await navigator.serviceWorker.getRegistration();if(!r)r=await navigator.serviceWorker.register("sw.js");
+  r=await navigator.serviceWorker.ready;
+  var s=await r.pushManager.getSubscription();
+  if(s&&fresh){try{await s.unsubscribe()}catch(e){}s=null}
+  if(!s)s=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(VAPID)});
+  var k=s.getKey("p256dh"),a=s.getKey("auth");if(!k||!a)return false;
+  var res=await fetch(U+"/rest/v1/rpc/push_daftar_public",{method:"POST",headers:{apikey:K,"Content-Type":"application/json"},body:JSON.stringify({p_endpoint:s.endpoint,p_p256dh:b64u(k),p_auth:b64u(a)})});
+  var j=await res.json().catch(function(){return null});
+  return !!(res.ok&&j&&j.ok);
+ }catch(e){console.warn("[Dx Push]",e);return false}
+}
+window.DxPush=push;
+window.addEventListener("load",function(){push(false)});
+})();
+</script>
 <script type="module">
-/* Dx ANUBIS — Realtime foreground notification + bell + speech queue.
+/* Realtime foreground notification + bell + speech queue.
    Push saat aplikasi tertutup memerlukan SW dan backend Web Push yang aktif. */
 const SUPABASE_URL='https://jtdnsrsollmknfijdqty.supabase.co';
 const SUPABASE_KEY='sb_publishable_kFtJtS9LwGLmnaq_jvv2HQ_7KlhluBn';
@@ -88,15 +111,15 @@ const SUPABASE_ESM='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+e
 const toastEl=document.createElement('div');toastEl.id='dx-live-toast';toastEl.setAttribute('role','status');toastEl.setAttribute('aria-live','polite');document.body.appendChild(toastEl);
 let audioCtx=null,queue=[],speaking=false,connected=false;const seen=new Set();let toastTimer;
 function toast(msg,error=false){toastEl.textContent=msg;toastEl.classList.toggle('error',error);toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),4500)}
-async function unlockAudio(){const C=window.AudioContext||window.webkitAudioContext;if(!C){toast('Perangkat tidak mendukung audio Web.');return}try{audioCtx??=new C();if(audioCtx.state==='suspended')await audioCtx.resume();toast('Audio notifikasi Dx siap.')}catch(e){toast('Audio belum dapat diaktifkan.',true)}}
+async function unlockAudio(silent){const C=window.AudioContext||window.webkitAudioContext;if(!C){toast('Perangkat tidak mendukung notifikasi suara.');return}try{audioCtx??=new C();if(audioCtx.state==='suspended')await audioCtx.resume();if(!silent)toast('Notifikasi suara aktif.')}catch(e){if(!silent)toast('Notifikasi suara belum dapat diaktifkan.',true)}}
 function bellOneSecond(){return new Promise(resolve=>{if(!audioCtx||audioCtx.state!=='running'){setTimeout(resolve,1000);return}const t=audioCtx.currentTime+.025;[1046.5,1568,2093].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.15/(i+1),t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.9);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+.94)});setTimeout(resolve,1000)})}
 function speakText(text){return new Promise(resolve=>{if(!('speechSynthesis'in window)){resolve();return}const u=new SpeechSynthesisUtterance(text);u.lang='id-ID';u.rate=.94;u.pitch=1;u.volume=1;let done=false;const finish=()=>{if(done)return;done=true;resolve()};u.onend=finish;u.onerror=finish;window.speechSynthesis.speak(u);setTimeout(finish,Math.max(15000,text.length*130))})}
 async function runQueue(){if(speaking||!queue.length)return;speaking=true;const n=queue.shift();try{await bellOneSecond();await speakText(n.judul+'. '+n.teks)}catch(e){console.warn('[Dx audio]',e)}speaking=false;runQueue()}
 function notifyDevice(n){if('Notification'in window&&Notification.permission==='granted'&&document.visibilityState!=='visible'){try{new Notification(n.judul,{body:n.teks,tag:'dx-'+n.id,icon:'icons/apple-touch-icon.png'})}catch(e){}}}
-function onBroadcast(message){let row=message?.payload??message?.row??message;if(row?.row)row=row.row;if(!row||row.id==null)return;const id=String(row.id);if(seen.has(id))return;seen.add(id);if(seen.size>500)seen.delete(seen.values().next().value);const n={id,judul:String(row.judul||'Notifikasi Dx'),teks:String(row.teks||'Ada data baru pada Dx ANUBIS.')};toast(n.judul+' — '+n.teks);notifyDevice(n);queue.push(n);runQueue()}
-const bell=document.querySelector('.hdr .bl');if(bell){bell.addEventListener('click',async()=>{await unlockAudio();if('Notification'in window&&Notification.permission==='default'){try{const p=await Notification.requestPermission();toast(p==='granted'?'Izin notifikasi perangkat aktif.':'Izin notifikasi tidak diberikan.')}catch(e){}}});bell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();bell.click()}})}
-document.addEventListener('pointerdown',()=>{if(!audioCtx)unlockAudio()},{once:true,passive:true});
-try{const {createClient}=await import(SUPABASE_ESM);const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:10}}});const ch=sb.channel('dx',{config:{broadcast:{self:false}}});ch.on('broadcast',{event:'notif'},onBroadcast).subscribe(status=>{if(status==='SUBSCRIBED'){connected=true;toast('Dx ANUBIS terhubung. Menunggu data baru.')}else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)){connected=false;console.warn('[Dx Realtime]',status)}});window.DxANUBIS={status:()=>connected?'connected':'disconnected',unlockAudio,stopVoice:()=>{queue=[];if('speechSynthesis'in window)window.speechSynthesis.cancel()}}}catch(e){console.error('[Dx Realtime]',e);toast('Koneksi Dx gagal. Periksa jaringan atau konfigurasi Supabase.',true)}
+function onBroadcast(message){let row=message?.payload??message?.row??message;if(row?.row)row=row.row;if(!row||row.id==null)return;const id=String(row.id);if(seen.has(id))return;seen.add(id);if(seen.size>500)seen.delete(seen.values().next().value);const n={id,judul:String(row.judul||'Notifikasi'),teks:String(row.teks||'Ada pembaruan baru.')};toast(n.judul+' — '+n.teks);notifyDevice(n);queue.push(n);runQueue()}
+const bell=document.querySelector('.hdr .bl');if(bell){bell.addEventListener('click',async()=>{await unlockAudio();if('Notification'in window&&Notification.permission==='default'){try{const p=await Notification.requestPermission();toast(p==='granted'?'Izin notifikasi diaktifkan.':'Izin notifikasi tidak diberikan.')}catch(e){}}if(window.DxPush){const ok=await window.DxPush(true);if(ok===true)toast('Notifikasi perangkat diaktifkan.');else if(ok===false&&'Notification'in window&&Notification.permission==='granted')toast('Gagal mengaktifkan notifikasi. Coba lagi.',true)}});bell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();bell.click()}})}
+document.addEventListener('pointerdown',()=>{if(!audioCtx)unlockAudio(true)},{once:true,passive:true});
+try{const {createClient}=await import(SUPABASE_ESM);const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},realtime:{params:{eventsPerSecond:10}}});const ch=sb.channel('dx',{config:{broadcast:{self:false}}});ch.on('broadcast',{event:'notif'},onBroadcast).subscribe(status=>{if(status==='SUBSCRIBED'){connected=true}else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)){connected=false;console.warn('[Dx Realtime]',status)}});window.DxANUBIS={status:()=>connected?'connected':'disconnected',unlockAudio,stopVoice:()=>{queue=[];if('speechSynthesis'in window)window.speechSynthesis.cancel()}}}catch(e){console.error('[Dx Realtime]',e);toast('Notifikasi sementara tidak tersedia. Periksa koneksi internet Anda.',true)}
 </script>
 </body>
 </html>
