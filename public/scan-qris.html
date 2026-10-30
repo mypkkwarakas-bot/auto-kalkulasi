@@ -203,6 +203,28 @@ input, select, textarea, button { max-width: 100%; }
 }
 </style>
 
+
+<style id="native-layout-fix">
+  html, body { min-height:100%; overscroll-behavior:none; }
+  body { min-height:100dvh; align-items:stretch; background:#fff; }
+  .app { height:100dvh; min-height:100dvh; max-height:none; width:100%; max-width:480px; margin:0 auto; }
+  .screen { min-height:0; }
+  .bar { height:calc(56px + env(safe-area-inset-top, 0px)); min-height:calc(56px + env(safe-area-inset-top, 0px)); padding-top:env(safe-area-inset-top, 0px); }
+  .footer { padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .kbd, .pin-kbd { padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .body { min-height:0; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+  button { touch-action:manipulation; }
+  @media (min-width:520px) {
+    body { align-items:center; padding:18px 0; background:#e9edf2; }
+    .app { height:min(900px, calc(100dvh - 36px)); min-height:min(900px, calc(100dvh - 36px)); border-radius:26px; box-shadow:0 16px 50px rgba(20,32,48,.16); overflow:hidden; }
+  }
+  @media (max-height:640px) and (max-width:519px) {
+    .pin-wrap { padding-top:18px; } .dots { margin:18px 0 8px; }
+    .kbd { grid-template-rows:repeat(4, minmax(38px, 1fr)); }
+    .pin-kbd button { height:42px; }
+  }
+</style>
+
 </head>
 <body>
 <div class="app" id="app">
@@ -493,11 +515,12 @@ input, select, textarea, button { max-width: 100%; }
     if (m['55'] === '02') rule.fixed = Math.round(parseFloat(m['56'] || '0')) || 0;
     if (m['55'] === '03') rule.pct = parseFloat(m['57'] || '0') || 0;
     return {
-      merchant: { name: m['59'], id: (nm && nm['02']) || (acq && acq['02']) || '' },
+      merchant: { name: m['59'], id: (nm && nm['02']) || (acq && acq['02']) || '', city: (m['60'] || '').trim() },
       acquirer: acq && (acq['00'] || acq['01']) ? { name: acqLabel(acq['00']), number: acq['01'] || '' } : null,
       terminal_id: (add && add['07']) || '',
       amount: amt > 0 ? amt : null,
-      feeRule: rule
+      feeRule: rule,
+      raw: text
     };
   }
   const calcFee = n => {
@@ -508,13 +531,55 @@ input, select, textarea, button { max-width: 100%; }
   };
   async function getAccount(){
     if (CFG.apiBase) return api(EP.summary, {});
-    return Object.assign({ balance: 1000000, holder_name: 'Nama Pengguna', bank_name: 'SeaBank', account_number: '1234567890' }, CFG.account || {});
+    if (CFG.account) return Object.assign({ balance: null, holder_name: '', bank_name: 'SeaBank', account_number: '' }, CFG.account);
+    const r = await fetch(CX_URL + '/rest/v1/rpc/get_profil', {
+      method: 'POST',
+      headers: { apikey: CX_KEY, 'Content-Type': 'application/json' },
+      body: '{}', cache: 'no-store'
+    });
+    if (!r.ok) throw new ApiError('profile', 'Profil pengirim tidak dapat dimuat. Silakan coba lagi.');
+    const p = await r.json();
+    const profile = Array.isArray(p) ? p[0] : p;
+    if (!profile || !profile.nama) throw new ApiError('profile', 'Nama profil pengirim belum tersedia.');
+    return { balance: null, holder_name: profile.nama, bank_name: 'SeaBank', account_number: '' };
+  }
+  /* ---------- Pembayaran QRIS -> Edge Function konfirmasi-cx -> tabel Cx (anubis) ---------- */
+  const CX_URL = 'https://jtdnsrsollmknfijdqty.supabase.co';
+  const CX_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTIxMDAsImV4cCI6MjEwODA2ODEwMH0.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE';
+  async function payCx(pin){
+    const v = S.view;
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), CFG.timeoutMs);
+    let res, data = null;
+    try {
+      res = await fetch(CX_URL + '/functions/v1/konfirmasi-cx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: CX_KEY, Authorization: 'Bearer ' + CX_KEY },
+        body: JSON.stringify({
+          pin, amount_rupiah: Number(S.amount), fee_rupiah: Number(S.fee) || 0,
+          qr_payload: S.qrPayload,
+          merchant_name: v.merchantName || '', merchant_city: v.merchantCity || '',
+          acquirer_name: v.acqName || '', payment_method: 'QRIS', terminal_id: v.terminalId || ''
+        }),
+        signal: ctl.signal
+      });
+    } catch (e) {
+      throw new ApiError('network', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+    } finally { clearTimeout(timer); }
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok || !data || !data.ok) {
+      const code = data && data.error;
+      const map = { pin_salah: 'invalid_pin', pin_format: 'invalid_pin', terlalu_banyak_percobaan: 'pin_locked', saldo_tidak_cukup: 'insufficient_balance' };
+      throw new ApiError(map[code] || code || ('http_' + res.status), (data && data.message) || 'Pembayaran gagal.');
+    }
+    const d = data.data;
+    return { status: 'success', transaction: { transaction_no: d.transaction_no, reference_no: d.reference_no,
+             created_at: d.transaction_time, terminal_id: d.terminal_id, method: d.payment_method } };
   }
   async function payLocal(pin){
     await sleep(1600);
     if (typeof CFG.verifyPin === 'function' && !(await CFG.verifyPin(pin))) throw new ApiError('invalid_pin', 'PIN salah');
     const total = Number(S.amount) + S.fee;
-    if (total > S.balance) throw new ApiError('insufficient_balance', 'Saldo tidak cukup.');
+    if (S.balance != null && total > S.balance) throw new ApiError('insufficient_balance', 'Saldo tidak cukup.');
     const now = new Date(), p2 = x => String(x).padStart(2, '0');
     const rnd = n => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join('');
     return { status: 'success', balance_after: S.balance - total, transaction: {
@@ -526,7 +591,7 @@ input, select, textarea, button { max-width: 100%; }
   const S = {
     fromScan: false, inquiryId: null, balance: 0, fee: 0, feeRule: {}, fixedAmount: false,
     view: {},            // data tampilan (nama merchant, dst.)
-    amount: '', pin: '', history: [], busy: false, lastKey: null, payDone: false
+    amount: '', pin: '', history: [], busy: false, lastKey: null, payDone: false, qrPayload: null
   };
 
   const toast = msg => {
@@ -594,11 +659,12 @@ input, select, textarea, button { max-width: 100%; }
       S.inquiryId = 'local-' + Date.now();
       S.feeRule = inq.feeRule || {};
       S.fee = 0;
-      S.balance = Number(acc.balance) || 0;
+      S.balance = acc.balance == null || acc.balance === '' ? null : Number(acc.balance);
+      S.qrPayload = inq.raw || null;
       S.fixedAmount = inq.amount != null && Number(inq.amount) > 0;
       S.amount = S.fixedAmount ? String(Math.round(Number(inq.amount))) : '';
       S.view = {
-        merchantName: inq.merchant && inq.merchant.name, merchantId: inq.merchant && inq.merchant.id,
+        merchantName: inq.merchant && inq.merchant.name, merchantId: inq.merchant && inq.merchant.id, merchantCity: inq.merchant && inq.merchant.city,
         acqName: inq.acquirer && inq.acquirer.name, acqNumber: inq.acquirer && inq.acquirer.number,
         terminalId: inq.terminal_id, method: 'QRIS',
         senderName: acc.holder_name, senderBank: acc.bank_name,
@@ -626,9 +692,12 @@ input, select, textarea, button { max-width: 100%; }
     const n = Number(S.amount || 0); S.fee = calcFee(n);
     amtTxt.textContent = n ? fmt(n) : '0';
     amtVal.classList.toggle('empty', !n);
-    const over = n + S.fee > S.balance;
+    const balanceKnown = S.balance != null && Number.isFinite(S.balance);
+    const over = balanceKnown && n + S.fee > S.balance;
     $('#saldo').classList.toggle('err', over && n > 0);
-    $('#saldo').textContent = (over && n > 0 ? 'Saldo tidak cukup. ' : '') + 'Saldo Tersedia: Rp ' + fmt(S.balance);
+    $('#saldo').textContent = balanceKnown
+      ? ((over && n > 0 ? 'Saldo tidak cukup. ' : '') + 'Saldo Tersedia: Rp ' + fmt(S.balance))
+      : 'Saldo akan diverifikasi saat pembayaran';
     const fee = $('#fee');
     if (n){ fee.textContent = S.fee ? 'Rp ' + fmt(S.fee) : 'GRATIS'; fee.className = 'v' + (S.fee ? '' : ' gratis'); }
     else { fee.textContent = '-'; fee.className = 'v'; }
@@ -702,17 +771,16 @@ input, select, textarea, button { max-width: 100%; }
     try {
       const res = CFG.apiBase
         ? await api(EP.pay, { inquiry_id: S.inquiryId, amount: Number(S.amount), pin, idempotency_key: key })
-        : await payLocal(pin);
+        : await payCx(pin);
       await handlePayResult(res);
     } catch (e) {
       await handlePayError(e, key);
     } finally { S.busy = false; }
   }
   async function handlePayError(e, key){
-    if (e.code === 'network'){                    // hasil tidak pasti: cek status, jangan langsung dianggap gagal
-      try { return await handlePayResult(await pollStatus(key)); } catch (_) {}
+    if (e.code === 'network'){
       return showError('Status transaksi belum pasti',
-        'Kami belum bisa memastikan hasil pembayaran. Jangan ulangi pembayaran; periksa riwayat transaksi Anda sebelum mencoba lagi.', null);
+        'Koneksi terputus saat mengirim pembayaran. Jangan ulangi pembayaran. Periksa riwayat transaksi terlebih dahulu untuk memastikan apakah transaksi sudah tercatat.', null);
     }
     if (e.code === 'invalid_pin' || e.code === 'pin_invalid'){
       show('s-pin', false);
@@ -743,7 +811,7 @@ input, select, textarea, button { max-width: 100%; }
       'Pembayaran masih diproses. Periksa riwayat transaksi Anda sebelum mencoba lagi.', null);
     const t = res.transaction || {};
     if (res.balance_after != null) S.balance = Number(res.balance_after);
-    else S.balance = Math.max(0, S.balance - Number(S.amount) - S.fee);
+    else if (S.balance != null) S.balance = Math.max(0, S.balance - Number(S.amount) - S.fee);
     const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
     const p = x => String(x).padStart(2, '0');
     let when = '';
@@ -874,7 +942,7 @@ input, select, textarea, button { max-width: 100%; }
     boot(q);
   }
   function openScan(){
-    Object.assign(S, { payDone: false, busy: false, amount: '', pin: '', inquiryId: null, fixedAmount: false, fee: 0, feeRule: {} });
+    Object.assign(S, { payDone: false, busy: false, amount: '', pin: '', inquiryId: null, fixedAmount: false, fee: 0, feeRule: {}, qrPayload: null });
     S.history = ['s-scan'];
     show('s-scan', false);
     startScan();
@@ -919,47 +987,5 @@ input, select, textarea, button { max-width: 100%; }
 })();
 </script>
 <!-- Fallback layar pemuatan untuk aksi yang belum memiliki alur. Tidak mengubah handler yang sudah mencegah aksi default. -->
-<style id="pending-flow-loader-style">
-#pending-flow-loader{position:fixed;inset:0;z-index:2147483647;background:#fff;display:none;align-items:center;justify-content:center;min-height:100dvh;width:100%;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);box-sizing:border-box;}
-#pending-flow-loader.is-active{display:flex}
-#pending-flow-loader .pending-spinner{width:34px;height:34px;border:3px solid #e9edf2;border-top-color:#178bff;border-radius:50%;animation:pending-flow-spin .8s linear infinite}
-@keyframes pending-flow-spin{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){#pending-flow-loader .pending-spinner{animation-duration:1.8s}}
-</style>
-<div id="pending-flow-loader" aria-hidden="true"><span class="pending-spinner" role="status" aria-label="Memuat"></span></div>
-<script id="pending-flow-loader-script">
-(function(){
-  if(window.__pendingFlowLoaderInstalled)return;
-  window.__pendingFlowLoaderInstalled=true;
-  function showPendingLoader(){
-    var layer=document.getElementById('pending-flow-loader');
-    if(!layer)return;
-    layer.classList.add('is-active');
-    layer.setAttribute('aria-hidden','false');
-    document.documentElement.style.overflow='hidden';
-    document.body.style.overflow='hidden';
-  }
-  document.addEventListener('click',function(event){
-    if(event.defaultPrevented)return;
-    var target=event.target&&event.target.closest?event.target.closest('a[href="#"],button'):null;
-    if(!target||target.disabled||target.getAttribute('aria-hidden')==='true'||target.getAttribute('tabindex')==='-1')return;
-    if(target.matches('a[href="#"]')){
-      // Tautan dengan data-* biasanya dikendalikan oleh alur yang sudah ada; jangan sentuh.
-      if(target.attributes){for(var i=0;i<target.attributes.length;i++){if(target.attributes[i].name.indexOf('data-')===0)return;}}
-      if(target.hasAttribute('onclick'))return;
-      event.preventDefault();
-      showPendingLoader();
-      return;
-    }
-    // Hanya tombol tanpa penanda/aksi eksplisit; kontrol bernavigasi dan tombol ber-ID tetap utuh.
-    if(target.id||target.hasAttribute('onclick')||target.hasAttribute('data-action')||target.hasAttribute('data-go')||target.hasAttribute('data-t')||target.hasAttribute('data-k')||target.hasAttribute('data-b')||target.hasAttribute('data-x')||target.hasAttribute('data-p')||target.hasAttribute('data-back')||target.hasAttribute('data-copy'))return;
-    if(target.matches('[role="tab"],[role="switch"],[aria-hidden="true"],.blank,.k-e'))return;
-    if(target.closest('#pending-flow-loader'))return;
-    // Tombol tanpa handler inline/penanda aksi dianggap belum memiliki alur yang tersambung.
-    event.preventDefault();
-    showPendingLoader();
-  },false);
-})();
-</script>
 </body>
 </html>
