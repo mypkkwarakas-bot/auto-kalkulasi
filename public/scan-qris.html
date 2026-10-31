@@ -552,10 +552,27 @@ input, select, textarea, button { max-width: 100%; }
     if (raw.has(word)) return Promise.resolve(raw.get(word));
     if (inflight.has(word)) return inflight.get(word);
     if (WORDS.indexOf(word) < 0) return Promise.reject(new Error('Audio tidak dikenal: ' + word));
-    var p = fetch(opts.base + 'audio/' + word + '.mp3').then(function (r) {
-      if (!r.ok) throw new Error('Gagal memuat ' + word + '.mp3 (' + r.status + ')');
-      return r.arrayBuffer();
-    }).then(decode).then(function (buf) {
+
+    // Prioritaskan audio Base64 yang ditanam langsung di HTML agar file tunggal
+    // tetap dapat memutar suara tanpa folder ./dve/audio/.
+    var embedded = root.DVE_AUDIO_DATA && root.DVE_AUDIO_DATA[word];
+    var bytesPromise;
+    if (typeof embedded === 'string' && embedded.indexOf('data:audio/') === 0) {
+      bytesPromise = Promise.resolve().then(function () {
+        var comma = embedded.indexOf(',');
+        if (comma < 0) throw new Error('Data audio tertanam rusak: ' + word);
+        var binary = root.atob(embedded.slice(comma + 1));
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes.buffer;
+      });
+    } else {
+      bytesPromise = fetch(opts.base + 'audio/' + word + '.mp3').then(function (r) {
+        if (!r.ok) throw new Error('Gagal memuat ' + word + '.mp3 (' + r.status + ')');
+        return r.arrayBuffer();
+      });
+    }
+    var p = bytesPromise.then(decode).then(function (buf) {
       raw.set(word, buf); inflight.delete(word); return buf;
     }).catch(function (e) { inflight.delete(word); throw e; });
     inflight.set(word, p);
