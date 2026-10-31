@@ -166,8 +166,8 @@ const CONFIG = {
   ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YmJmcmdlYmtlYmJicHR4cWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MDMwOTQsImV4cCI6MjEwNzk3OTA5NH0.JCU8yoF_2IWwv_M862iE81NUyzyYFhqAXbrJn1pz0KM",   // anon key (aman di sisi klien)
   HISTORY_LIMIT: 20,
   DELAY_MIN: 1000, DELAY_MAX: 3000,   // jeda acak (ms) sebelum balasan muncul, biar tidak terasa robot
-  TRIGGER: ",!",   // pemicu jawaban khusus (di akhir pesan)
-  SPECIAL_ANSWER: "Transaksi kamu sudah berhasil dan terkirim ke tujuan.\n\nJika dalam 1x24 jam pihak tujuan belum menerimanya, silakan hubungi pihak penerima dana dan sebaiknya lakukan konfirmasi ke pihak bank tujuan, karena pengecekan sudah dilakukan dan transaksi dinyatakan telah berhasil terkirim ke pihak tujuan.",   // dibalas saat pesan diakhiri CONFIG.TRIGGER
+  TRIGGER: ",?",   // trigger khusus untuk keluhan pembayaran merchant belum diterima
+  SPECIAL_ANSWER: "Baik, mohon tunggu sebentar ya. Saya akan membantu memeriksa transaksi kamu terlebih dahulu dengan tim terkait. Mohon kesediaannya menunggu sekitar 2 menit.",
   SLA: "3 hari kerja sejak laporan diterima lengkap",   // CONTOH, ganti dengan SLA resmi
   TRANSACTIONS_LIMIT: 20,   // jumlah transaksi terakhir dari log_abc pada opsi "Pilih Transaksi"
 
@@ -208,7 +208,7 @@ const SWAP='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="
 
 // ===================== STATE & UTIL =====================
 const $=id=>document.getElementById(id), msgs=$("msgs");
-const history=[]; let si=0, busy=false, msgSeq=0;
+const history=[]; let si=0, busy=false, msgSeq=0, specialPaymentFlow=false;
 const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e};
 const row=cls=>{const r=mk("div","row "+cls);msgs.appendChild(r);return r};
 const down=()=>{msgs.scrollTop=msgs.scrollHeight};
@@ -311,7 +311,14 @@ async function send(text){
   busy=true;
   userBubble(text);history.push({role:"user",content:text});
   $("inp").value="";$("send").classList.remove("on");
-  if(text.endsWith(CONFIG.TRIGGER)){busy=false;await say({reply:CONFIG.SPECIAL_ANSWER,feedback:true});return}
+  if(text.includes(CONFIG.TRIGGER)){
+    busy=false;
+    specialPaymentFlow=true;
+    await say({reply:CONFIG.SPECIAL_ANSWER,feedback:true});
+    if(flow.tx){startSpecialPaymentReply(flow.tx);}
+    else await say({reply:"Agar saya bisa menyampaikan informasi transaksi yang tepat, silakan pilih transaksi pembayaran yang saldo-nya sudah terpotong tetapi belum diterima merchant tujuan.",feedback:true,action:{label:"Pilih Transaksi",name:"pick_transaction"}});
+    return;
+  }
   const fl=intent(text);
   if(fl){busy=false;try{await fl()}catch(e){console.error(e)}return}
   const t=showTyping(),t0=Date.now();
@@ -335,6 +342,7 @@ const rp=n=>"Rp "+n.toLocaleString("id-ID");
 let flow={};
 const intent=t=>{t=t.toLowerCase();
   if(/petugas|manusia|operator|agen cs/.test(t))return handoff;
+  if(/(merchant|pembayaran|bayar).{0,60}(belum|tidak).{0,25}(masuk|diterima|sampai)|saldo.{0,25}(terpotong|berkurang).{0,60}(merchant|pembayaran|belum diterima)/.test(t))return askPick;
   if(/dana belum masuk ke rekening tujuan lebih dari 1x24 jam/.test(t))return danaBelumMasuk;
   if(/(belum|tidak).{0,15}(masuk|diterima|sampai)|gagal transfer|terpotong/.test(t))return startTransfer;
   return null};
@@ -350,7 +358,7 @@ async function startTransfer(){
 }
 const thanks=()=>say({reply:"Baik. Terima kasih sudah menghubungi kami. Ada lagi yang bisa saya bantu?",feedback:true});
 const notOut=()=>say({reply:"Baik. Untuk dana masuk yang belum tercatat, ceritakan kendalanya dengan singkat ya, atau pilih Hubungi Petugas.",feedback:true});
-const askPick=()=>say({reply:"Mohon maaf atas kendala yang kamu alami. Untuk pengecekan lebih lanjut, silakan pilih transaksi yang ingin kamu tanyakan",feedback:true,action:{label:"Pilih Transaksi",name:"pick_transaction"}});
+const askPick=()=>say({reply:"Mohon maaf atas kendala yang kamu alami. Silakan pilih transaksi pembayaran yang saldo-nya sudah terpotong, tetapi belum diterima oleh merchant tujuan.",feedback:true,action:{label:"Pilih Transaksi",name:"pick_transaction"}});
 function txCard(t){const c=mk("div","tx"),a=mk("div","l1"),n=mk("span"),m=mk("span");n.textContent=t.name;m.textContent="-"+rp(t.amount);a.append(n,m);const k=mk("small");k.textContent=t.type;const d=mk("small","d");d.textContent=t.date;c.append(a,k,d);return c}
 function closeSheet(){const o=document.querySelector(".sheet");if(!o)return;o.remove();if(window.history.state&&window.history.state.sheet)window.history.back()}
 window.addEventListener("popstate",()=>{const o=document.querySelector(".sheet");if(o)o.remove()});
@@ -373,11 +381,24 @@ const STAT={
   gagal:k=>"Transaksi "+k+" ini berstatus gagal. Jika saldo sempat terpotong, pengembaliannya mengikuti ketentuan yang berlaku."
 };
 async function chosen(t){
-  flow.tx=t;const r=row("user"),b=mk("div","bub txb");b.appendChild(txCard(t));r.appendChild(b);down();
+  flow.tx=t;
+  if(specialPaymentFlow){specialPaymentFlow=false;await startSpecialPaymentReply(t);return;}const r=row("user"),b=mk("div","bub txb");b.appendChild(txCard(t));r.appendChild(b);down();
   history.push({role:"user",content:"Transaksi "+t.kind+" ke "+t.name+" "+rp(t.amount)});
   await say({reply:"Mohon maaf untuk ketidaknyamanannya. "+STAT[t.status](t.kind)+"\n\nApakah kamu masih mengalami kendala?",feedback:true,
     qr:[{label:"Ya",fn:important},{label:"Tidak",fn:thanks}]});
 }
+
+async function startSpecialPaymentReply(t){
+  if(!t)return;
+  const merchant=t.name||"merchant tujuan";
+  const amount=rp(Number(t.amount)||0);
+  // Tunggu dua menit setelah pesan awal CS. Timer berjalan di halaman chat ini.
+  const timer=showTyping();
+  await wait(120000);
+  timer.remove();
+  await say({reply:"Transaksi pembayaran ke "+merchant+" sebesar "+amount+" telah berhasil dilakukan. Ada kemungkinan saat pembayaran dilakukan, merchant tujuan sedang melakukan maintenance rutin atau mengalami kendala lainnya. Untuk informasi lebih lanjut, kamu bisa mengonfirmasi langsung kepada pihak merchant tujuan pembayaran ya.\n\nApakah ada hal lain yang bisa saya bantu?",feedback:true});
+}
+
 const important=()=>say({reply:"**Penting:**\nKami akan menangani kendala kamu sesuai prosedur yang berlaku.\n\nProses pelaporan membutuhkan waktu maksimal **"+CONFIG.SLA+"**, namun tidak menutup kemungkinan dapat diselesaikan lebih cepat. Itu batas waktu penanganan, bukan jaminan dana masuk pada waktu tersebut.\n\nApakah kamu ingin tetap melanjutkan membuat laporan?",
   qr:[{label:"Ya",fn:()=>makeTicket()},{label:"Tidak",fn:thanks}]});
 async function makeTicket(petugas){
