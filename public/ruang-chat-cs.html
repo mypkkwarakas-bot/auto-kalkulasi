@@ -21,14 +21,14 @@ body{font-family:Roboto,"Segoe UI",Helvetica,Arial,sans-serif;background:#e9e9e9
 .app{width:100%;max-width:420px;height:100%;display:flex;flex-direction:column;background:var(--bg)}
 header{display:flex;align-items:center;gap:12px;height:calc(52px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 14px 0 14px;background:#fff;border-bottom:1px solid #e4e4e4;flex:none}
 header button,header .back{background:none;border:0;padding:4px;display:flex;cursor:pointer}
-header .back{padding:10px;margin:-6px}
+header .back{padding:10px;margin:-6px -14px -6px -8px}
 .avatar{width:37px;height:37px;border-radius:50%;background:#f1f1f1;border:1px solid #ddd;overflow:hidden;flex:none}
 header h1{font-size:16px;font-weight:500}
 #msgs{flex:1;overflow-y:auto;padding:14px 0 12px;scroll-behavior:smooth}
 .row{display:flex;align-items:flex-start;padding:0 14px;margin-top:12px}
 .row:first-child{margin-top:0}
 .row.user{justify-content:flex-end}
-.bub{position:relative;background:#fff;border-radius:8px;padding:10px 12px;font-size:15px;line-height:18.5px;max-width:80%;white-space:pre-line;word-break:break-word}
+.bub{position:relative;background:#fff;border-radius:8px;padding:10px 12px;font-size:15px;line-height:18.5px;max-width:calc((100% + 28px)*.8);white-space:pre-line;word-break:break-word}
 .row.bot .bub::before,.row.user .bub::before{content:"";position:absolute;top:0;width:8px;height:9px;background:inherit}
 .row.bot .bub::before{left:-7px;clip-path:polygon(0 0,100% 0,100% 100%)}
 .row.user .bub{background:var(--peach)}
@@ -41,9 +41,9 @@ header h1{font-size:16px;font-weight:500}
 .act{display:block;width:100%;margin-top:10px;border:0;border-radius:2px;background:var(--org);color:#fff;font:inherit;font-size:14px;height:33px;cursor:pointer}
 .cats{display:flex;gap:7.5px;overflow-x:auto;padding:0 14px;margin-top:12px;scrollbar-width:none}
 .cats::-webkit-scrollbar{display:none}
-.cat{flex:none;width:100px;height:93px;background:#fff;border:0;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font:inherit;font-size:12px;line-height:13.5px;color:#777;text-align:center;cursor:pointer;padding:0 4px}
+.cat{flex:none;width:100px;height:93px;background:#fff;border:0;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font:inherit;font-size:12px;line-height:13.5px;color:#777;text-align:center;cursor:pointer;padding:0 1px;letter-spacing:-.1px}
 .cat i{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.card{background:#fff;border-radius:8px;width:80%;padding-top:16px}
+.card{background:#fff;border-radius:8px;width:calc((100% + 28px)*.8);padding-top:16px}
 .row.cardrow{display:block}
 .card h2{font-size:14.5px;font-weight:600;line-height:18.5px;padding:0 13px 14px}
 .card .list{margin:0 2px 0 12px}
@@ -80,6 +80,17 @@ button:focus-visible{outline:2px solid var(--org);outline-offset:2px}
 .sheet>div{background:#fff;width:100%;border-radius:14px 14px 0 0;max-height:70%;overflow:auto;padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px))}
 .sheet h3{font-size:15px;font-weight:600;padding:0 16px 10px}
 .sheet button{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:6px 10px;font:inherit;cursor:pointer}
+/* Banner pengumuman (sesuai referensi) */
+.notice{background:#fff;flex:none;padding:1px 12px 6px}
+.pill{display:flex;align-items:center;gap:7px;width:100%;height:34px;border:0;border-radius:10px;background:#fdf7e0;padding:0 7px 0 9px;font:inherit;cursor:pointer;text-align:left}
+.bell{width:22px;height:22px;border-radius:50%;background:#f7b500;display:flex;align-items:center;justify-content:center;flex:none}
+.nt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;font-weight:600;color:#e8960c}
+.cnt{flex:none;display:flex;align-items:center;gap:2px;height:22px;padding:0 6px 0 7px;border-radius:6px;background:#f6e8b0;color:#e8960c;font-size:13.5px}
+.cnt svg{transition:transform .2s}
+.pill[aria-expanded="true"] .cnt svg{transform:rotate(180deg)}
+.nd{margin-top:6px;padding:9px 11px;border-radius:8px;background:#fdf7e0;font-size:13px;line-height:17px;color:#7a5a10;white-space:pre-line}
+.nd[hidden]{display:none}
+.nd p+p{margin-top:8px}
 </style>
 
 <style id="ui-proportionality-audit">
@@ -145,6 +156,15 @@ input, select, textarea, button { max-width: 100%; }
     <h1 id="title">Tanya SeaBank</h1>
   </header>
 
+  <section class="notice" id="notice" aria-label="Pengumuman" hidden>
+    <button class="pill" id="pill" type="button" aria-expanded="false" aria-controls="nd">
+      <span class="bell"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.500 2.500 0 0 0 2.400-1.800h-4.800A2.500 2.500 0 0 0 12 22zm7-6.500V11c0-3.300-1.800-6-4.800-6.800V3.500a2.200 2.200 0 0 0-4.400 0v.7C6.800 5 5 7.700 5 11v4.500l-2 2V19h18v-1.500z"/></svg></span>
+      <span class="nt" id="nt"></span>
+      <span class="cnt" id="ncnt"><span id="nnum">1/1</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e8960c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+    </button>
+    <div class="nd" id="nd" hidden></div>
+  </section>
+
   <main id="msgs" aria-live="polite"></main>
 
   <div class="foot">
@@ -171,9 +191,12 @@ const CONFIG = {
   ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4YmJmcmdlYmtlYmJicHR4cWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MDMwOTQsImV4cCI6MjEwNzk3OTA5NH0.JCU8yoF_2IWwv_M862iE81NUyzyYFhqAXbrJn1pz0KM",   // anon key (aman di sisi klien)
   HISTORY_LIMIT: 20,
   DELAY_MIN: 1000, DELAY_MAX: 1000,   // balasan cepat; jeda singkat agar tetap terasa natural
+  NOTICES: [
+    {title:"Pemeliharaan System BI-FAST", detail:"Sedang ada pemeliharaan sistem BI-FAST. Transfer antarbank melalui BI-FAST dapat mengalami keterlambatan. Mohon maaf atas ketidaknyamanannya."}
+  ],   // boleh dikosongkan dengan []
   TRIGGER: ",?",
-  WAIT_MS: 120000,   // hitung mundur 2 menit sebelum balasan kedua CS,   // trigger khusus untuk keluhan pembayaran merchant belum diterima
-  SPECIAL_ANSWER: "Baik, mohon tunggu sebentar ya. Saya akan membantu memeriksa transaksi kamu terlebih dahulu dengan tim terkait. Mohon kesediaannya menunggu sekitar 2 menit.",
+  WAIT_MS: 60000,   // hitung mundur 1 menit sebelum balasan kedua CS
+  SPECIAL_ANSWER: "Baik, mohon tunggu sebentar ya. Saya akan membantu memeriksa transaksi kamu terlebih dahulu dengan tim terkait. Mohon kesediaannya menunggu sekitar 1 menit.",
   SLA: "3 hari kerja sejak laporan diterima lengkap",   // CONTOH, ganti dengan SLA resmi
   TRANSACTIONS_LIMIT: 20,   // jumlah transaksi terakhir dari log_abc pada opsi "Pilih Transaksi"
 
@@ -185,10 +208,10 @@ const CONFIG = {
     {label:"Pinjaman & Cicilan", color:"#1a9e5c", icon:"cash"}
   ],
   TOPIC_SETS: [
-    ["Seputar Pinjaman","Kendala login ke Aplikasi","Saldo terpotong, pembayaran belum diterima merchant","Dana belum masuk ke rekening tujuan lebih dari 1x24 jam"],
-    ["Seputar Pinjaman","Cek Fakta Seputar Bansos & Judol","Saldo terpotong, pembayaran belum diterima merchant","Kendala Transaksi (Transfer/ Pembayaran/dll)","Dana belum masuk ke rekening tujuan lebih dari 1x24 jam"]
+    ["Seputar SeaBank Pinjam","Cek Fakta Seputar Bansos & Judol","Dana Belum Masuk ke Rekening","Kendala Transaksi (Transfer/ Pembayaran/dll)"],
+    ["Seputar SeaBank Pinjam","Kendala login ke Aplikasi","Saldo terpotong, pembayaran belum diterima merchant","Dana belum masuk ke rekening tujuan lebih dari 1x24 jam"]
   ],
-  CHIPS: ["Promo & Campaign","Gagal transfer & terpotong saldo","Ubah Password/PIN","Hubungi Petugas"],
+  CHIPS: ["Promo & Campaign SeaBank","Ubah Password/PIN","Gagal transfer & terpotong saldo","Hubungi Petugas"],
 
   // Dipanggil saat tombol aksi dari backend ditekan (mis. "pick_transaction")
   onAction(action, ctx){ document.dispatchEvent(new CustomEvent("cs:action",{detail:{action,...ctx}})); }
@@ -347,9 +370,10 @@ async function pick(label,fn){userBubble(label);history.push({role:"user",conten
 const rp=n=>"Rp "+n.toLocaleString("id-ID");
 let flow={};
 const intent=t=>{t=t.toLowerCase();
+  if(/^kendala transaksi|saldo terpotong, pembayaran belum diterima merchant/.test(t))return askPayPick;
   if(/petugas|manusia|operator|agen cs/.test(t))return handoff;
   if(/(saldo|uang|dana).{0,35}(terpotong|kepotong|berkurang|sudah bayar|sudah dibayar)|((bayar|pembayaran|transaksi).{0,80}(belum|tidak|gak|nggak|ga).{0,30}(masuk|diterima|sampai|diterima merchant))|(merchant|penjual|tujuan).{0,50}(belum|tidak|gak|nggak|ga).{0,30}(terima|menerima|masuk)|((sudah|udah) bayar.{0,80}(belum|tidak|gak|nggak|ga).{0,30}(terima|masuk))/.test(t))return askPayPick;
-  if(/dana belum masuk ke rekening tujuan lebih dari 1x24 jam/.test(t))return danaBelumMasuk;
+  if(/dana belum masuk ke rekening/.test(t))return danaBelumMasuk;
   if(/(belum|tidak).{0,15}(masuk|diterima|sampai)|gagal transfer|terpotong/.test(t))return startTransfer;
   return null};
 async function danaBelumMasuk(){
@@ -399,14 +423,23 @@ async function chosen(t){
 }
 
 let paymentRunning=false;
+// Hitung mundur berbasis jam nyata (bukan setTimeout panjang): tetap akurat saat tab/layar HP tidur, lalu menyusul begitu aktif lagi.
+function countdown(lbl,ms){return new Promise(res=>{
+  const end=Date.now()+ms; let iv=null,done=false;
+  const tick=()=>{if(done)return;const left=end-Date.now();
+    if(left<=0){done=true;clearInterval(iv);document.removeEventListener("visibilitychange",tick);window.removeEventListener("focus",tick);window.removeEventListener("pageshow",tick);res();return}
+    const sec=Math.ceil(left/1000);if(lbl)lbl.textContent=String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")};
+  iv=setInterval(tick,250);
+  document.addEventListener("visibilitychange",tick);window.addEventListener("focus",tick);window.addEventListener("pageshow",tick);
+  tick()})}
 async function runPaymentCheck(t){
   if(!t||paymentRunning)return;
   paymentRunning=true;
   try{
     const merchant=t.name||"merchant tujuan", amount=rp(Number(t.amount)||0);
-    await say({reply:"Baik, Kak. Untuk transaksi pembayaran ke "+merchant+" sebesar "+amount+", saya cek terlebih dahulu ke tim terkait ya. Mohon kesediaannya menunggu sekitar 2 menit. Terima kasih atas kesabarannya \u{1F64F}",feedback:true});
-    const tw=row("bot");tw.innerHTML='<div class="bub"><div class="typing"><span></span><span></span><span></span></div></div>';down();
-    await wait(CONFIG.WAIT_MS);
+    await say({reply:"Baik, Kak. Untuk transaksi pembayaran ke "+merchant+" sebesar "+amount+", saya cek terlebih dahulu ke tim terkait ya. Mohon kesediaannya menunggu sekitar 1 menit. Terima kasih atas kesabarannya \u{1F64F}",feedback:true});
+    const tw=row("bot");tw.innerHTML='<div class="bub"><div class="typing"><span></span><span></span><span></span></div><div class="cd" style="font-size:12px;color:#888;padding:0 2px 2px">Sedang diperiksa\u2026 <span class="cdt"></span></div></div>';down();
+    await countdown(tw.querySelector(".cdt"),CONFIG.WAIT_MS);
     clearTyping(tw);
     await say({reply:"Terima kasih sudah menunggu, Kak \u{1F64F}\n\nTransaksi pembayaran ke "+merchant+" sebesar "+amount+" telah berhasil dilakukan. Kemungkinan saat pembayaran dilakukan, merchant tujuan sedang melakukan maintenance rutin atau ada kendala lain di sisi mereka. Untuk selanjutnya, Kakak bisa konfirmasi langsung ke pihak merchant tujuan pembayaran ya.\n\nApakah ada hal lain yang perlu kami bantu, Kak?",feedback:true,
       qr:[{label:"Ada, tanya hal lain",fn:()=>say({reply:"Baik, Kak. Silakan sampaikan kendala atau pertanyaan Kakak, kami siap bantu \u{1F60A}"})},{label:"Tidak, terima kasih",fn:()=>say({reply:"Baik, Kak. Terima kasih sudah menghubungi SeaBank. Semoga harimu menyenangkan \u{1F60A}",feedback:true})}]});
@@ -433,6 +466,13 @@ $("inp").addEventListener("input",e=>$("send").classList.toggle("on",e.target.va
 $("inp").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send($("inp").value)}});
 window.CSChat={send,config:CONFIG,sessionId};   // akses dari luar: CSChat.send("teks")
 renderWelcome();
+(function(){
+  const n=CONFIG.NOTICES||[],box=$("notice");if(!n.length||!box)return;
+  box.hidden=false;$("nt").textContent=n[0].title;$("nnum").textContent="1/"+n.length;
+  const nd=$("nd"),pill=$("pill");
+  n.forEach(x=>{const p=mk("p");if(n.length>1){const b=mk("b");b.textContent=x.title+": ";p.appendChild(b)}p.appendChild(document.createTextNode(x.detail||""));nd.appendChild(p)});
+  pill.onclick=()=>{const o=nd.hidden;nd.hidden=!o;pill.setAttribute("aria-expanded",String(o))};
+})();
 
 // Tombol kembali: bila dibuka dari halaman lain di app ini, kembali lewat riwayat (posisi halaman sebelumnya terjaga);
 // bila dibuka langsung/tautan luar, tautan href="saya.html" yang dipakai.
