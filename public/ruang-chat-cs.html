@@ -379,7 +379,7 @@ async function openSheet(){
     st.remove();
     if(!Array.isArray(list)||!list.length){const e=mk("div","tx");e.textContent="Belum ada transaksi yang tercatat.";p.appendChild(e);return}
     list.forEach(r=>{const t={id:r.id,name:r.name,type:r.type,kind:r.kind,amount:Number(r.amount)||0,date:fmtTgl(r.ts),status:r.status||"berhasil"};
-      const b=mk("button");b.appendChild(txCard(t));b.onclick=()=>{closeSheet();chosen(t)};p.appendChild(b)});
+      const b=mk("button");b.setAttribute("data-action","pick-tx");b.appendChild(txCard(t));b.onclick=()=>{closeSheet();chosen(t)};p.appendChild(b)});
   }catch(e){console.error("[log_abc]",e);st.textContent="Transaksi belum bisa dimuat. Tutup lalu coba lagi."}
 }
 const STAT={
@@ -472,7 +472,8 @@ renderWelcome();
     if(event.defaultPrevented)return;
     var target=event.target&&event.target.closest?event.target.closest('a[href="#"],button'):null;
     if(!target||target.disabled||target.getAttribute('aria-hidden')==='true'||target.getAttribute('tabindex')==='-1')return;
-    if(target.closest('.app'))return; // semua tombol di ruang obrolan sudah punya handler sendiri
+    var jalur=event.composedPath?event.composedPath():[];
+    if(target.closest('.app')||jalur.some(function(n){return n&&n.classList&&(n.classList.contains('app')||n.classList.contains('sheet'))}))return; // tombol ruang obrolan (termasuk daftar transaksi yang menutup dirinya saat dipilih) punya handler sendiri
     if(target.matches('a[href="#"]')){
       // Tautan dengan data-* biasanya dikendalikan oleh alur yang sudah ada; jangan sentuh.
       if(target.attributes){for(var i=0;i<target.attributes.length;i++){if(target.attributes[i].name.indexOf('data-')===0)return;}}
