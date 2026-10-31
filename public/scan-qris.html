@@ -354,10 +354,10 @@ input, select, textarea, button { max-width: 100%; }
       <div class="dots" id="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
       <div class="pin-err" id="pinErr"></div>
 
-      <section id="dvePanel" aria-label="Dynamic Voice Engine" style="width:100%;max-width:340px;margin:16px auto 12px;padding:12px;border:1px solid #e8e8e8;border-radius:12px;background:#f8f9fb;text-align:left">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:13px;font-weight:700;color:#333">DVE · Notifikasi nominal</div><div id="dveState" style="font-size:11px;color:#777;margin-top:3px">Engine mati</div></div><button type="button" id="dveToggle" style="border:0;border-radius:18px;padding:8px 14px;background:#777;color:#fff;font-size:12px;font-weight:700">OFF</button></div>
-        <div style="display:flex;gap:8px;margin-top:10px"><input id="dveTestAmount" inputmode="numeric" value="27500" aria-label="Nominal uji suara" style="min-width:0;flex:1;height:38px;border:1px solid #ddd;border-radius:8px;padding:0 10px;font-size:14px;background:#fff;color:#222"><button type="button" id="dveTest" disabled style="border:0;border-radius:8px;padding:0 12px;background:#FA5B00;color:#fff;font-size:12px;font-weight:600;opacity:.5">Tes suara</button></div>
-        <div style="font-size:10px;color:#888;line-height:1.4;margin-top:8px">Mendengarkan event INSERT tabel Dx saat akses realtime diizinkan. Tes suara hanya untuk uji audio; DVE tidak membaca PIN.</div>
+      <section id="dvePanel" aria-label="Dynamic Voice Engine" style="width:100%;max-width:340px;margin:16px auto 12px;padding:10px 12px;border:1px solid #d9eadf;border-radius:12px;background:#f3faf5;text-align:center">
+        <div style="font-size:13px;font-weight:700;color:#187b43">DVE · Selalu Aktif</div>
+        <div id="dveState" style="font-size:11px;color:#527b60;margin-top:3px">Mesin notifikasi siap</div>
+        <div style="font-size:10px;color:#688272;line-height:1.4;margin-top:6px">Notifikasi suara akan diputar satu kali saat tombol Bagikan ditekan pada halaman hasil.</div>
       </section>
     </div>
     <div class="pin-kbd" id="pinKbd">
@@ -856,28 +856,38 @@ input, select, textarea, button { max-width: 100%; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  const state=document.getElementById('dveState'),toggle=document.getElementById('dveToggle'),test=document.getElementById('dveTest'),amount=document.getElementById('dveTestAmount');
-  if(!state||!toggle||!test||!amount||!window.DVE)return;
-  let enabled=false,dxChannel=null;const seen=new Set();
+  const state=document.getElementById('dveState');
+  if(!state||!window.DVE)return;
+  let enabled=true,dxChannel=null,notificationTriggered=false;const seen=new Set();
+  window.DVE_READY=true;
   const setState=m=>{state.textContent=m;};
   DVE.on('error',e=>setState('Audio: '+(e&&e.message?e.message:'gagal dimuat')));
-  DVE.on('play',d=>setState('Membacakan Rp'+DVE.formatRupiah(d.amount)));
-  DVE.on('idle',()=>{if(enabled)setState('Dx aktif · menunggu event');});
-  DVE.init({base:'./dve/',autoSpeak:false,autoUnlock:true,preload:false}).then(()=>setState('Siap · tekan ON untuk mengaktifkan')).catch(e=>setState(e.message));
+  DVE.on('play',d=>setState('Memutar notifikasi Rp'+DVE.formatRupiah(d.amount)));
+  DVE.on('idle',()=>{if(enabled&&!notificationTriggered)setState('Selalu aktif · menunggu Bagikan');});
+  DVE.init({base:'./dve/',autoSpeak:false,autoUnlock:true,preload:false}).then(()=>{setState('Selalu aktif · siap digunakan');startDx();}).catch(e=>setState(e.message||'Gagal menyiapkan audio'));
   function stopDx(){if(dxChannel&&window.dveSupabase){window.dveSupabase.removeChannel(dxChannel).catch(()=>{});}dxChannel=null;}
   function startDx(){
-    if(!window.supabase||!window.supabase.createClient){setState('Library realtime tidak termuat');return;}
-    if(!window.dveSupabase){const url='https://jtdnsrsollmknfijdqty.supabase.co';const key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTIxMDAsImV4cCI6MjEwODA2ODEwMH0.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE';window.dveSupabase=window.supabase.createClient(url,key);}
+    if(!window.supabase||!window.supabase.createClient){setState('DVE aktif · realtime tidak tersedia');return;}
+    if(!window.dveSupabase){const url='https://jtdnsrsollmknfijdqty.supabase.co';const key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Imp0ZG5zcnNvbGxta25maWpkcXR5Iiwicm9sZSI6ImFub24iLCJpYXQiMTc5MjQ5MjEwMCwiZXhwIjoyMTA4MDY4MTAwfQ.snpF-wdt0XhwodmfQuW7J-uaG9GV-Q0fDJVoxJImcNE';window.dveSupabase=window.supabase.createClient(url,key);}
     dxChannel=window.dveSupabase.channel('dve-dx-listener').on('postgres_changes',{event:'INSERT',schema:'public',table:'Dx'},async ev=>{
       if(!enabled)return;const row=ev&&ev.new||{};const id=String(row.id==null?(row.sumber_id||''):row.id);if(id&&seen.has(id))return;if(id)seen.add(id);
       const n=Number(row.nominal_rupiah);if(!Number.isSafeInteger(n)||n<1||n>999999999)return;
       const title=String(row.judul||'Event Dx').slice(0,100),body=String(row.teks||('Event baru Rp'+DVE.formatRupiah(n))).slice(0,240);
       if('Notification'in window&&Notification.permission==='granted'){try{new Notification(title,{body,tag:id?'dx-'+id:undefined});}catch(_){}}
-      try{await DVE.announce(n);}catch(e){setState('Event Dx masuk; audio gagal: '+e.message);}
-    }).subscribe(status=>{if(!enabled)return;if(status==='SUBSCRIBED')setState('Dx realtime tersambung');else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')setState('Akses Dx gagal · periksa izin SELECT RLS');else if(status==='CLOSED')setState('Koneksi Dx ditutup');});
+      try{await DVE.announce(n);}catch(e){setState('Event Dx masuk; audio menunggu interaksi: '+e.message);}
+    }).subscribe(status=>{if(status==='SUBSCRIBED'&&!notificationTriggered)setState('Selalu aktif · realtime tersambung');else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')setState('DVE aktif · akses realtime perlu izin SELECT');});
   }
-  toggle.addEventListener('click',async()=>{if(!enabled){toggle.disabled=true;setState('Menyiapkan audio…');try{await DVE.unlock();const ok=await DVE.preload();if(!ok)throw new Error('Audio tidak dapat dimuat');enabled=true;toggle.textContent='ON';toggle.style.background='#1FA45A';test.disabled=false;test.style.opacity='1';startDx();if('Notification'in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});}catch(e){setState(e.message||'Gagal mengaktifkan audio');}finally{toggle.disabled=false;}}else{enabled=false;stopDx();DVE.stop();toggle.textContent='OFF';toggle.style.background='#777';test.disabled=true;test.style.opacity='.5';setState('Engine mati');}});
-  test.addEventListener('click',async()=>{if(!enabled)return;const n=Number(String(amount.value).replace(/[^0-9]/g,''));if(!Number.isSafeInteger(n)||n<1||n>999999999){setState('Masukkan nominal Rp1–Rp999.999.999');return;}try{await DVE.unlock();await DVE.announce(n);}catch(e){setState(e.message||'Gagal memutar suara');}});
+  window.triggerDVENotification=async function(amount){
+    if(notificationTriggered)throw new Error('Notifikasi hanya dapat diputar satu kali.');
+    notificationTriggered=true;
+    const n=Number(amount);if(!Number.isSafeInteger(n)||n<1||n>999999999)throw new Error('Nominal transaksi tidak valid');
+    const unlocked=await DVE.unlock();if(!unlocked)throw new Error('Audio belum diizinkan browser. Tekan Bagikan sekali lagi setelah halaman dibuka melalui HTTPS.');
+    const ok=await DVE.preload();if(!ok)throw new Error('Audio tidak dapat dimuat');
+    await DVE.announce(n);
+    if('Notification'in window){if(Notification.permission==='granted'){try{new Notification('Pembayaran QRIS berhasil',{body:'Transaksi Rp'+DVE.formatRupiah(n)+' telah diterima.'});}catch(_){}}else if(Notification.permission==='default'){Notification.requestPermission().catch(()=>{});}}
+    setState('Notifikasi sudah diputar · satu kali');
+    return true;
+  };
 })();
 </script>
 
@@ -1312,11 +1322,19 @@ input, select, textarea, button { max-width: 100%; }
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
       .then(() => toast('Disalin'), () => toast('Gagal menyalin'));
   }));
-  $('#bagikan').addEventListener('click', () => {
-    const v = S.view;
-    const text = `Pembayaran QRIS Rp ${fmt(Number(S.amount) + S.fee)} ke ${v.merchantName || ''} berhasil.\nNo. Transaksi: ${v.trxNo || '-'}\nNo. Referensi: ${v.refNo || '-'}\n${v.trxTime || ''}`;
-    if (navigator.share) navigator.share({ text }).catch(() => {});
-    else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('Detail transaksi disalin'));
+  $('#bagikan').addEventListener('click', async () => {
+    const button = $('#bagikan');
+    const nominal = Number(S.amount) + Number(S.fee || 0);
+    if (button.dataset.triggered === '1') return;
+    button.dataset.triggered = '1';
+    button.disabled = true;
+    try {
+      if (typeof window.triggerDVENotification !== 'function') throw new Error('Mesin DVE belum siap.');
+      await window.triggerDVENotification(nominal);
+      toast('Notifikasi pembayaran diputar');
+    } catch (e) {
+      toast(e && e.message ? e.message : 'Notifikasi gagal diputar');
+    }
   });
   $('#ok').addEventListener('click', exit);
 
