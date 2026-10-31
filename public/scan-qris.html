@@ -268,6 +268,61 @@ input, select, textarea, button { max-width: 100%; }
   }
 </style>
 
+
+<style id="pre-pin-visible-area-audit">
+  /* AUDIT halaman sebelum PIN (scan, nominal, konfirmasi, error): tombol tidak tertutup, konten tetap bisa di-scroll */
+  :root{ --nav-clear:max(24px, env(safe-area-inset-bottom,0px)); }
+
+  /* Area sentuh tombol kembali minimal 44px (tata letak tetap sama) */
+  .bar .back{ width:44px; height:44px; margin:0 -10px; }
+  .scan-top .back{ width:44px; height:44px; margin-left:-8px; }
+
+  /* SCAN: bingkai menyesuaikan tinggi layar agar petunjuk tidak menimpa tombol Flash/Tampilkan QR/Galeri */
+  .scan-frame{ left:50%; transform:translateX(-50%); width:min(80%, max(200px, calc(100dvh - 400px))); }
+  .scan-actions{ padding-bottom:calc(20px + var(--nav-clear)); }
+  .scan-actions .pill{ min-width:0; }
+  @media (max-width:360px){
+    .scan-actions{ padding-left:12px; padding-right:12px; }
+    .scan-actions .act{ width:64px; font-size:14px; }
+    .scan-actions .pill{ font-size:14px; padding:0 10px; gap:6px; margin:0 6px; }
+    .scan-actions .pill svg{ width:22px; height:22px; flex-shrink:0; }
+  }
+
+  /* TOAST: pindah ke bawah header agar tidak menutup tombol/numpad, boleh 2 baris */
+  .toast{ top:calc(env(safe-area-inset-top,0px) + 72px); bottom:auto; transform:translate(-50%,-16px);
+          white-space:normal; text-align:center; max-width:calc(100% - 32px); width:max-content; }
+  .toast.show{ transform:translate(-50%,0); }
+
+  /* NOMINAL: numpad & tombol Lanjut diberi jarak dari navigation bar; nominal 12 digit tidak terpotong */
+  #s-amount .footer{ padding-bottom:calc(12px + var(--nav-clear)); }
+  #s-amount .kbd{ padding-bottom:calc(8px + var(--nav-clear)); }
+  #s-amount .body{ padding-bottom:20px; }
+  .amount-box .val{ min-width:0; white-space:nowrap; overflow:hidden; font-size:clamp(22px, 7.4vw, 34px); }
+  .amount-box .rp{ flex-shrink:0; }
+  .caret{ height:1em; }
+
+  /* KONFIRMASI & HASIL: teks panjang (nama merchant, NMID, acquirer) membungkus, tidak melebar */
+  .merchant > div:last-child{ min-width:0; }
+  .merchant .nm, .merchant .sub, .row .v{ overflow-wrap:anywhere; min-width:0; }
+  #s-confirm .footer{ padding-bottom:max(30px, calc(12px + var(--nav-clear))); }
+
+  /* ERROR / MEMUAT: bisa di-scroll bila konten lebih tinggi dari layar, tombol tidak tertutup nav bar */
+  #s-error{ overflow-y:auto; justify-content:safe center !important;
+            padding:calc(32px + env(safe-area-inset-top,0px)) 32px calc(24px + var(--nav-clear)) !important; }
+  #s-error .lock{ flex-shrink:0; }
+  #s-error p{ overflow-wrap:anywhere; }
+
+  /* Layar pendek: kompres numpad nominal tanpa memotong tombol */
+  @media (max-height:640px){
+    #s-amount .kbd{ grid-template-rows:repeat(4, 40px); }
+    #s-amount .footer{ padding-top:8px; }
+  }
+</style>
+
+<style id="qris-tap-fix">
+  button, .kbd, .pin-kbd { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; touch-action:manipulation; }
+  .kbd button, .pin-kbd button, .btn { position:relative; }
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -1022,23 +1077,34 @@ input, select, textarea, button { max-width: 100%; }
   }
   const acqLabel = g => String(g || '').replace(/^ID\.CO\./i, '').replace(/\.WWW$/i, '').replace(/^COM\./i, '').toUpperCase();
   function parseQris(text){
-    text = String(text || '').trim();
-    if (!/^000201/.test(text)) return { err: 'Bukan kode QRIS' };
+    text = String(text || '').replace(/[\u0000-\u001f\u007f\u200b-\u200f\ufeff]/g, '').trim();
+    const at = text.indexOf('000201');
+    if (at < 0) return { err: 'Bukan kode QRIS' };
+    text = text.slice(at);
     const bad = { err: 'Kode QRIS tidak valid' };
-    const m = tlv(text);
-    if (!m || !m['63'] || m['63'].length !== 4 || crc16(text.slice(0, -4)) !== m['63'].toUpperCase()) return bad;
+    const okCrc = (mm, t) => mm && mm['63'] && mm['63'].length === 4 && crc16(t.slice(0, -4)) === mm['63'].toUpperCase();
+    let m = tlv(text), bytes = false;
+    if (!okCrc(m, text)){
+      // QRIS statis/dinamis dengan nama merchant non-ASCII: panjang TLV dihitung dalam byte UTF-8
+      try {
+        const b = unescape(encodeURIComponent(text)), m2 = tlv(b);
+        if (okCrc(m2, b)){ m = m2; bytes = true; }
+      } catch (_) {}
+    }
+    if (!okCrc(m, bytes ? unescape(encodeURIComponent(text)) : text)) return bad;
+    const dec = v => { if (!bytes) return v; try { return decodeURIComponent(escape(v)); } catch (_) { return v; } };
     if (m['53'] && m['53'] !== '360') return { err: 'Hanya mendukung QRIS Rupiah' };
     if (!m['59']) return bad;
     let acq = null;
     for (let k = 26; k <= 45 && !acq; k++){ const t = m[String(k)]; if (t) acq = tlv(t); }
     const nm = m['51'] ? tlv(m['51']) : null;
     const add = m['62'] ? tlv(m['62']) : null;
-    const amt = Math.round(parseFloat(m['54'] || '0')) || 0;
+    const amt = Math.round(parseFloat(String(m['54'] || '0').replace(',', '.'))) || 0;
     const rule = {};
     if (m['55'] === '02') rule.fixed = Math.round(parseFloat(m['56'] || '0')) || 0;
     if (m['55'] === '03') rule.pct = parseFloat(m['57'] || '0') || 0;
     return {
-      merchant: { name: m['59'], id: (nm && nm['02']) || (acq && acq['02']) || '', city: (m['60'] || '').trim() },
+      merchant: { name: dec(m['59']).trim(), id: (nm && nm['02']) || (acq && acq['02']) || '', city: dec(m['60'] || '').trim() },
       acquirer: acq && (acq['00'] || acq['01']) ? { name: acqLabel(acq['00']), number: acq['01'] || '' } : null,
       terminal_id: (add && add['07']) || '',
       amount: amt > 0 ? amt : null,
@@ -1227,8 +1293,21 @@ input, select, textarea, button { max-width: 100%; }
     $('#lanjut').disabled = !n || over;
     bind();
   }
-  $('#kbd').addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b || !b.dataset.k) return;
+  function fastTap(el, fn){
+    let last = 0;
+    el.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      const b = e.target.closest('button'); if (!b) return;
+      last = Date.now(); e.preventDefault(); fn(b);
+    });
+    el.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (e.detail !== 0 && Date.now() - last < 800) return;   // sudah diproses saat pointerdown
+      fn(b);
+    });
+  }
+  fastTap($('#kbd'), b => {
+    if (!b.dataset.k) return;
     const k = b.dataset.k;
     if (k === 'del') S.amount = S.amount.slice(0, -1);
     else {
@@ -1246,7 +1325,9 @@ input, select, textarea, button { max-width: 100%; }
   box.addEventListener('click', () => setEditing(true));
   $('#lanjut').addEventListener('click', () => {
     const n = Number(S.amount);
-    if (!n || n + S.fee > S.balance) return;
+    const known = S.balance != null && Number.isFinite(S.balance);
+    if (!n) return toast('Masukkan nominal terlebih dahulu');
+    if (known && n + S.fee > S.balance) return toast('Saldo tidak cukup');
     bind(); show('s-confirm');
   });
 
@@ -1261,8 +1342,8 @@ input, select, textarea, button { max-width: 100%; }
     S.pin += k; $('#pinErr').textContent = ''; drawDots();
     if (S.pin.length === PIN_LEN) setTimeout(submitPin, 180);
   }
-  $('#pinKbd').addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b || !b.dataset.p || S.busy) return;
+  fastTap($('#pinKbd'), b => {
+    if (!b.dataset.p || S.busy) return;
     if (b.dataset.p === 'del'){ S.pin = S.pin.slice(0, -1); $('#pinErr').textContent = ''; drawDots(); }
     else pushPin(b.dataset.p);
   });
@@ -1453,7 +1534,7 @@ input, select, textarea, button { max-width: 100%; }
     if (my !== scan.token || scan.handled) return;
     if (video.readyState >= 2 && video.videoWidth){
       try {
-        const txt = await decode(video, video.videoWidth, video.videoHeight, false);
+        const txt = await decode(video, video.videoWidth, video.videoHeight, (scan.n = (scan.n || 0) + 1) % 3 === 0);
         if (my !== scan.token) return;
         if (txt) onDetected(txt);
       } catch (_) {}
