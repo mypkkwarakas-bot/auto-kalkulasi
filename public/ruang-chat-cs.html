@@ -275,7 +275,8 @@ function showTyping(){lockChat(true);const r=row("bot");r.innerHTML='<div class=
 const dbRpc=async(fn,args,ms=6000)=>{const c=new AbortController(),tm=setTimeout(()=>c.abort(),ms);
   try{const r=await fetch(CONFIG.DB_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:CONFIG.DB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{}),cache:"no-store",signal:c.signal});
     if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(tm)}};
-const fmtTgl=iso=>{try{return new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Jakarta"}).format(new Date(iso)).replace(/\./g,":").replace(" pukul","," )}catch(e){return ""}};
+// Waktu mengikuti zona waktu perangkat (tanpa timeZone tetap). Stempel waktu tanpa penanda zona dari DB dianggap UTC.
+const fmtTgl=iso=>{try{let s=String(iso||"").trim();if(/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/.test(s)&&!/(Z|[+-]\d{2}(:?\d{2})?)$/i.test(s))s=s.replace(" ","T")+"Z";const d=new Date(s);if(isNaN(d))return "";return new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).format(d).replace(/\./g,":").replace(" pukul","," )}catch(e){return ""}};
 async function getNama(){
   try{
     const d=await dbRpc("get_profil",{},3000);
